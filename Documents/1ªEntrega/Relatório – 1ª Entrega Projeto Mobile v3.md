@@ -206,7 +206,8 @@ O Xplored é uma aplicação mobile com **mapa interativo, sistema de gamificaç
 
 # 10. Modelo do Domínio
 
-Abaixo encontras o **Modelo do Domínio** do Xplored em **texto + diagrama (PlantUML e Mermaid)** para poderes **copiar/colar diretamente** no teu relatório. Este modelo consolida as regras descritas na UI/fluxos (mapa, reviews, cupões, Pedipaper, aprovação manual) e nas notas de organização fornecidas pelo grupo.
+O Modelo do Domínio do Xplorer apresenta de forma estruturada as principais entidades que compõem a aplicação e as relações entre elas. Este modelo descreve a lógica de funcionamento interno do sistema, representando como os utilizadores, locais, reviews, cupões e outras funcionalidades interagem entre si.
+Além de detalhar cada entidade e as suas regras de negócio, são também incluídos diagramas (PlantUML e Mermaid) que ilustram graficamente as ligações e dependências do domínio, facilitando a compreensão da arquitetura conceptual da aplicação.
 
 ---
 
@@ -561,7 +562,7 @@ Abaixo estão descritos os **conjuntos de mockups** do Xplored criados no Figma,
 
 ## 11.1. Conjunto 1 – Página Inicial e Exploração de Locais
 
- ![alt text](image.png)
+![Mockup - Páginas Iniciais](./Mockups/paginas-iniciais.png)
 
 **Descrição geral:**
 
@@ -581,7 +582,7 @@ Abaixo estão descritos os **conjuntos de mockups** do Xplored criados no Figma,
 
 ## 11.2. Conjunto 2 – Sobre o Local Específico (Detalhes, Reviews e Fotos)
 
- ![alt text](image-1.png)
+![Mockup - Sobre o Local](./Mockups/sobre-local.png)
 
 **Descrição geral:**
 
@@ -601,7 +602,7 @@ Abaixo estão descritos os **conjuntos de mockups** do Xplored criados no Figma,
 
 ## 11.3. Conjunto 3 – Autenticação e Acesso à Aplicação
 
- ![alt text](image-2.png)
+![Mockup - Conta](./Mockups/conta.png)
 
 **Descrição geral:**
 
@@ -621,7 +622,7 @@ Abaixo estão descritos os **conjuntos de mockups** do Xplored criados no Figma,
 
 ## 11.4. Conjunto 4 – Perfil, Definições e Loja de Cupões
 
- ![alt text](image-3.png)
+![Mockup - Páginas de Ação](./Mockups/paginas-acao.png)
 
 **Descrição geral:**
 
@@ -661,16 +662,15 @@ Cada conjunto foi projetado para equilibrar **descoberta e personalização**, t
 
 ### 12.1 Project Charter
 
-![alt text](<Project Charter-1.jpg>)
+![Project Charter](./Graficos/project-charter.jpg)
 
 ### 12.2 WBS (Work Breakdown Structure)
 
-![alt text](<Grafico de WBS (completo)-1.jpg>)
+![Gráfico de WBS (completo)](./Graficos/grafico-wbs-completo.jpg)
 
 ### 12.3 Gráfico de Gantt
 
-![alt text](<Grafico de GANTT-1.PNG>)
-
+![Gráfico de Gantt](./Graficos/grafico-gantt.png)
 ---
 
 ## 13. Plano de Trabalhos
@@ -727,9 +727,8 @@ Com o **Xplored** pretende-se construir um protótipo funcional que demonstre a 
 
 ## Anexos (para entrega final)
 
-* Poster do projeto.
-* Vídeo promocional (1-2 minutos).
-* Mockups iniciais (Figma).
+* [Posters](./Poster/) do projeto - `/Documents/1ªEntrega/Poster/`.
+* [Video promocional](./Video/video-promocional-v2.mp4) - `/Documents/1ªEntrega/Video/video-promocional-v2.mp4`.
 * Diagramas (casos de uso, modelo ER, classes).
 * Dicionário de Dados.
 * Documentação REST.
