@@ -670,7 +670,7 @@ Cada conjunto foi projetado para equilibrar **descoberta e personalização**, t
 
 ### 12.3 Gráfico de Gantt
 
-![Gráfico de Gantt](./Graficos/grafico-gantt.png)
+![Gráfico de Gantt](./Graficos/grafico-gantt.PNG)
 ---
 
 ## 13. Plano de Trabalhos
