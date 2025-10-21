@@ -1,0 +1,213 @@
+<resources>
+    <!-- General app name -->
+    <string name="app_name" translatable="false">Xplored</string>
+
+    <!-- Categories -->
+    <string name="category_atividades">Atividades</string>
+    <string name="category_lojas">Lojas</string>
+    <string name="category_restauracao">Restauração</string>
+    <string name="category_historicos">Históricos</string>
+    <string name="category_paisagens">Paisagens</string>
+
+    <!-- Bottom sheet -->
+    <string name="bottomsheet_nearby_places">Locais perto de ti:</string>
+
+    <!-- Floating Action Menu -->
+    <string name="fab_profile">Perfil</string>
+    <string name="fab_add_place">Adicionar Local</string>
+    <string name="fab_coupons">Cupões</string>
+    <string name="fab_pedipaper">Pedipaper</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_info">Info</string>
+    <string name="cd_close_menu">Fechar Menu</string>
+    <string name="cd_open_menu">Abrir Menu de Ações</string>
+    <string name="title_activity_new_place">Adicionar Novo Local</string>
+    <string name="cd_back">Voltar</string>
+    <string name="cd_recenter_map">Recentrar mapa</string>
+    <string name="cd_delete_place">Eliminar local</string>
+    <string name="cd_location">Localização</string>
+    <string name="cd_rating">Classificação</string>
+    <string name="cd_verified">Verificado</string>
+    <string name="cd_settings">Definições</string>
+    <string name="cd_profile_photo">Foto de perfil</string>
+    <string name="cd_profile">Perfil</string>
+    <string name="cd_photo">Foto</string>
+
+    <!-- Login -->
+    <string name="login_welcome_back_line1">Bem vindo de volta!!!</string>
+    <string name="login_welcome_back_line2">Pronto para uma nova</string>
+    <string name="login_welcome_back_line3">AVENTURA?</string>
+    <string name="login_email">Email</string>
+    <string name="login_password">Password</string>
+    <string name="login_forgot_password">Esqueceste-te da passe ?</string>
+    <string name="login_button">Login</string>
+    <string name="login_no_account">Ainda não tens uma conta?</string>
+    <string name="register_now">Inscreve-te agora</string>
+    <string name="show_password">Mostrar password</string>
+    <string name="hide_password">Esconder password</string>
+    <string name="toast_missing_fields">Por favor, insere o email e a password.</string>
+    <string name="toast_login_success_mock">Login bem-sucedido! (Utilizador de teste)</string>
+    <string name="toast_login_success_stored">Login bem-sucedido! (Utilizador guardado)</string>
+    <string name="toast_invalid_credentials">Credenciais inválidas. Tenta novamente.</string>
+
+    <!-- Registration -->
+    <string name="register_greeting_line1">Olá! Inscreve-te para</string>
+    <string name="register_greeting_line2">começar a tua AVENTURA!</string>
+    <string name="register_username">Username</string>
+    <string name="register_confirm_password">Confirmar password</string>
+    <string name="register_button">Registar</string>
+    <string name="cd_toggle_password">Alternar visibilidade da password</string>
+    <string name="register_already_have_account">Já tens uma conta?</string>
+    <string name="register_login_now">Faz login agora</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Definições</string>
+    <string name="settings_account">Conta</string>
+    <string name="settings_edit_profile">Editar perfil</string>
+    <string name="settings_security">Segurança</string>
+    <string name="settings_notifications">Notificações</string>
+    <string name="settings_privacy">Privacidade</string>
+    <string name="settings_support_about">Suporte e Sobre</string>
+    <string name="settings_receipts">Os meus comprovativos</string>
+    <string name="settings_help_support">Ajuda e Suporte</string>
+    <string name="settings_terms_policies">Termos e Políticas</string>
+    <string name="settings_map_preferences">Mapa e preferências</string>
+    <string name="settings_maps">Mapas</string>
+    <string name="settings_data_saver">Economizador de Dados</string>
+    <string name="settings_actions">Ações</string>
+    <string name="settings_report_problem">Reportar um problema</string>
+    <string name="settings_add_account">Adicionar conta</string>
+    <string name="settings_logout">Terminar sessão</string>
+
+    <!-- Map / Choose location -->
+    <string name="open_map">Abrir Mapa</string>
+    <string name="map_choose_location">Escolhe Localização no Mapa</string>
+    <string name="map_mock_pin">PIN (Lat: 38.7240, Lon: -9.1415)</string>
+    <string name="map_confirm_location">Confirmar Localização</string>
+    <string name="cancel">Cancelar</string>
+
+    <!-- New Place -->
+    <string name="new_place_title">Fazer um Post</string>
+    <string name="new_place_field_title">Título</string>
+    <string name="new_place_label_title">Título do post</string>
+    <string name="new_place_field_description">Descrição</string>
+    <string name="new_place_label_description">Texto do post</string>
+    <string name="new_place_field_category">Categoria do local</string>
+    <string name="new_place_field_location">Localização</string>
+    <string name="new_place_label_location">Clica para escolher no mapa</string>
+    <string name="new_place_field_photos">Fotos</string>
+    <string name="new_place_select_category">Escolhe uma categoria</string>
+    <string name="new_place_create">Criar Local</string>
+    <string name="add_photo">Adicionar Foto</string>
+    <string name="delete">Eliminar</string>
+
+    <!-- User placeholders -->
+    <string name="user_unknown">User Unknown</string>
+    <string name="email_not_provided">Email não dado</string>
+
+    <!-- New Password -->
+    <string name="new_password_title">Criar nova palavra-passe</string>
+    <string name="new_password_subtitle">A tua nova palavra-passe deve ser diferente da palavra-passe usada anteriormente.</string>
+    <string name="new_password_field">Nova Palavra-Passe</string>
+    <string name="new_password_confirm_field">Confirma Palavra-Passe</string>
+    <string name="new_password_button">Redefinir Palavra-Passe</string>
+    <string name="new_password_screen">MUDAR PALAVRA-PASSE</string>
+    <string name="password_empty_fields">Por favor, preencha ambos os campos.</string>
+    <string name="password_reset_success">Palavra-passe redefinida com sucesso!</string>
+    <string name="password_mismatch">As palavras-passe não coincidem. Tente novamente.</string>
+
+    <!-- Forgot Password -->
+    <string name="forgot_password_title">Perdeste a tua passe?</string>
+    <string name="forgot_password_subtitle">Não te preocupes! Acontece. Por favor, introduz o endereço de email ligado à tua conta.</string>
+    <string name="forgot_password_email_label">Insere a tua conta de email</string>
+    <string name="forgot_password_send_button">Enviar código de recuperação</string>
+    <string name="forgot_password_remember">Já te lembras da passe? </string>
+
+    <!-- Coupon Store -->
+    <string name="coupon_store_title">Loja de cupões</string>
+
+    <!-- Dialog -->
+    <string name="close">Fechar</string>
+    <string name="coupon_from">De: %1$s</string>
+    <string name="offer_details_label">Detalhes da Oferta:</string>
+    <string name="activate_now">ACTIVATE NOW</string>
+
+    <!-- Card -->
+    <string name="terms_and_conditions">*Termos e condições</string>
+
+    <!-- OTP Verification -->
+    <string name="otp_verification_title">Verificação de OTP</string>
+    <string name="otp_verification_subtitle">Introduz o código de verificação que acabámos de enviar para o teu e-mail.</string>
+    <string name="verify_button">Verificar</string>
+    <string name="didnt_receive_code">Não recebeste o código?</string>
+    <string name="resend_button">Reenviar</string>
+    <string name="verification_success">Verificação bem-sucedida!</string>
+    <string name="incorrect_code">Código incorreto. Tente novamente.</string>
+    <string name="incomplete_code">Por favor, insira o código completo.</string>
+    <string name="code_resent">Código reenviado!</string>
+
+    <!-- Place Detail Tabs -->
+    <string name="tab_about">Sobre</string>
+    <string name="tab_reviews">Reviews</string>
+    <string name="tab_photos">Fotos</string>
+
+    <!-- Map / Geocoder messages -->
+    <string name="geocoder_not_available">Geocoder indisponível</string>
+    <string name="address_not_found">Endereço não encontrado</string>
+    <string name="address_could_not_retrieve">Não foi possível obter o endereço</string>
+
+    <!-- Place detail placeholders -->
+    <string name="placeholder_reviews_here">As reviews serão mostradas aqui.</string>
+
+    <!-- Profile / shared common -->
+    <string name="user_fallback_name">Utilizador Xplored</string>
+    <string name="em_dash">—</string>
+
+    <!-- Dynamic labels -->
+    <string name="points_label">%1$d pontos</string>
+    <string name="add_points_debug">+50 pontos (debug)</string>
+
+    <!-- Inputs / placeholders -->
+    <string name="about_placeholder">Escreve algo sobre ti…</string>
+
+    <!-- Symbols -->
+    <string name="plus_sign">+</string>
+
+    <string name="coming_soon_text">Disponível em breve:)</string>
+
+    <!-- Pedipaper -->
+    <string name="pedipaper_title">Desafios Pedipaper</string>
+    <string name="pedipaper_subtitle">Selecione um desafio abaixo para ver os locais e começar a explorar.</string>
+    <string name="pedipaper_dialog_places_title">Locais a Visitar:</string>
+    <string name="pedipaper_card_places_included">Locais Incluídos:</string>
+    <string name="pedipaper_btn_start">Iniciar Desafio</string>
+
+    <!-- Generic / a11y -->
+    <string name="cd_close">Fechar</string>
+
+    <!-- Routes/titles built in code -->
+    <string name="route_base">Rota</string>
+    <string name="route_numbered">%1$s — Rota %2$d</string>
+    <string name="route_generic_numbered">Rota %1$d</string>
+
+    <!-- Registration / validation -->
+    <string name="err_fill_all_fields">Por favor, preencha todos os campos.</string>
+    <string name="err_fields_too_short">Campos demasiado curtos.</string>
+    <string name="err_email_domain_not_allowed">Email inválido.</string>
+    <string name="err_passwords_do_not_match">Passwords diferentes.</string>
+
+    <!-- UX messages -->
+    <string name="msg_registration_navigating_profile">Registo concluído! A navegar para o Perfil…</string>
+    <string name="msg_registration_success_welcome">Registo concluído! Bem-vindo, %1$s</string>
+    <string name="err_registration_api">Erro ao criar conta: %1$s</string>
+
+    <!-- New password / reset flow (additional) -->
+    <string name="err_no_active_account">Erro: Nenhuma conta ativa encontrada.</string>
+    <string name="err_account_not_found">Conta não encontrada.</string>
+
+    <!-- Login flow (additional) -->
+    <string name="login_success_toast">Login bem-sucedido! Bem-vindo, %1$s</string>
+    <string name="login_incorrect_credentials">Email ou palavra-passe incorretos.</string>
+    <string name="login_error_generic">Erro ao fazer login: %1$s</string>
+</resources>
