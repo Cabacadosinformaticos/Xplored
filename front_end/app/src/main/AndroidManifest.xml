@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+
+    <application
+        android:name=".XploredApplication"
+        android:usesCleartextTraffic="true"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Xplored">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Xplored">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".LoginWelcomeBackActivity"
+            android:exported="true"
+            android:label="Welcome Back"
+            android:theme="@style/Theme.Xplored" />
+
+        <activity
+            android:name=".LoginNewUserActivity"
+            android:exported="true"
+            android:label="New User Registration"
+            android:theme="@style/Theme.Xplored" />
+
+        <activity
+            android:name=".LoginNewPasswordActivity"
+            android:exported="true"
+            android:label="Set New Password"
+            android:theme="@style/Theme.Xplored" />
+
+        <activity
+            android:name=".LoginForgotPasswordActivity"
+            android:exported="true"
+            android:label="Forgot Password"
+            android:theme="@style/Theme.Xplored" />
+
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="true"
+            android:label="User Profile"
+            android:theme="@style/Theme.Xplored" />
+
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="true"
+            android:label="SettingsActivity"
+            android:theme="@style/Theme.Xplored" />
+
+        <activity
+            android:name=".CouponActivity"
+            android:exported="true"
+            android:label="CouponsActivity"
+            android:theme="@style/Theme.Xplored" />
+
+        <activity
+            android:name=".IdentityCheckActivity"
+            android:exported="true"
+            android:label="IdentityCheckActivity"
+            android:theme="@style/Theme.Xplored" />
+
+        <activity
+            android:name=".NewPlaceActivity"
+            android:exported="true"
+            android:label="NewPlaceActivity"
+            android:theme="@style/Theme.Xplored" />
+
+        <activity android:name=".PedipaperActivity"
+            android:exported="true"
+            android:label="PedipaperActivity"
+            android:theme="@style/Theme.Xplored" />
+
+        <activity
+            android:name=".ComingSoonActivity"
+            android:exported="true"
+            android:label="ComingSoonActivity"
+            android:theme="@style/Theme.Xplored" />
+
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAvePv2NfoJCLsDEx8p2KEZhP2DMf4DlqI" />
+    </application>
+
+</manifest>
