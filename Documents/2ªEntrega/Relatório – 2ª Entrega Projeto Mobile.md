@@ -1,4 +1,4 @@
-# Relatório - 1ª Entrega Projeto Mobile
+# Relatório - 2ª Entrega Projeto Mobile
 
 ## 1. Identificação
 
@@ -93,7 +93,7 @@ Esta diversidade garante que a app não se limita a um nicho específico, mas si
 
 ---
 
-## 7. Guiões de Teste Preliminares
+## 7. Guiões de teste
 
 **Guia 1 - Core:**
 *Nataly, estudante Erasmus em Lisboa*, decide explorar Alfama sem gastar dinheiro num guia turístico. Abre a app Xplored, vê os sítios marcados por outros utilizadores: um miradouro, uma tasca com fado, um pequeno museu local, e decide visitá-los todos. Ela fotografa os recibos da tasca e do museu, e envia-os para o Xplored para receber pontos. No final, junta pontos suficientes para ter 15% de desconto num café de bairro, onde experimenta uma ginjinha pela primeira vez.
@@ -183,14 +183,16 @@ O Xplored é uma aplicação mobile com **mapa interativo, sistema de gamificaç
 * Conformidade com o **RGPD** para tratamento de dados.
 * Integração com plataformas colaborativas (GitHub, ClickUp, Discord).
 
-### 9.4. Arquitetura Provisória
+### 9.4. Arquitetura Atualizada
 
-* **Frontend (App):** Android Studio - Kotlin com Jetpack Compose.
-* **Backend:** Spring Boot, APIs REST.
-* **Base de Dados:** PostgreSQL/MySQL relacional.
-* **Integrações:** Google Maps API; Firebase para autenticação e uploads.
-* **Mockups:** criados em Figma.
-* **Gestão de Projeto:** ClickUp para planeamento, GitHub para código, Discord para comunicação.
+A arquitetura do projeto encontra-se dividida em três camadas principais, totalmente integradas:
+
+1. **Frontend (App Android)** — Desenvolvida em Kotlin com **Jetpack Compose**.  
+2. **Backend (Servidor Spring Boot)** — Implementa endpoints REST, lógica de negócio e gestão de dados.  
+3. **Base de Dados (MySQL)** — Estrutura relacional com tabelas *users*, *categories*, *places* e *photos*.
+
+**Fluxo atual:** a app consome dados JSON do backend, que executa operações CRUD sobre a BD.  
+O ciclo App ↔ Backend ↔ BD encontra-se **funcional na versão alfa**.
 
 ### 9.5. Tecnologias a Utilizar
 
@@ -202,11 +204,19 @@ O Xplored é uma aplicação mobile com **mapa interativo, sistema de gamificaç
 * Figma (mockups e prototipagem).
 * GitHub, ClickUp e Discord.
 
+### 9.6. Integração Atual (App ↔ Backend ↔ BD)
+
+A integração base está operacional:
+- A app comunica com o backend através de endpoints REST (testados via Postman e na app).
+- O backend interage com a BD MySQL “xplored_simplefied”.
+- As operações CRUD principais (criar utilizador, listar locais, filtrar por categoria) estão ativas.
+
+
 ---
 
 # 10. Modelo do Domínio
 
-O Modelo do Domínio do Xplorer apresenta de forma estruturada as principais entidades que compõem a aplicação e as relações entre elas. Este modelo descreve a lógica de funcionamento interno do sistema, representando como os utilizadores, locais, reviews, cupões e outras funcionalidades interagem entre si.
+O Modelo do Domínio do Xplorer apresenta de forma estruturada as principais entidades que compõem a aplicação e as relações entre elas. Este modelo descreve a lógica de funcionamento interno do sistema, representando como os utilizadores, locais e outras funcionalidades interagem entre si.
 Além de detalhar cada entidade e as suas regras de negócio, são também incluídos diagramas (PlantUML e Mermaid) que ilustram graficamente as ligações e dependências do domínio, facilitando a compreensão da arquitetura conceptual da aplicação.
 
 ---
@@ -216,58 +226,44 @@ Além de detalhar cada entidade e as suas regras de negócio, são também inclu
 **User**
 Representa qualquer utilizador autenticado (normal, business ou admin). Guarda pontos de gamificação.
 
-**BusinessAccount**
-Extensão de User com dados do negócio (necessita aprovação). Cada negócio pode ter **no máximo um** ponto turístico associado (restrição do domínio).
-
 **Place**
 Ponto de interesse visível no mapa. Tem categoria e coordenadas. Pode ter sido submetido por um User e carece de aprovação para publicação.
 
 **Category**
 Categoria do Place, incluindo **nome** e **cor** (cores usadas na UI).
 
-**Visit**
-Registo de visita/interação a um Place, podendo atribuir pontos. Pode ser verificado por **Photo** (ex.: recibo/foto no local) ou por conclusão de **Pedipaper**.
-
 **Photo**
 Conteúdo multimédia submetido pelo utilizador (associável a Visit/Place/Review). Publicação depende de aprovação.
-
-**Review**
-Avaliação textual e/ou fotográfica de um Place, com **rating** e **comentário**, sujeita a aprovação.
-
-**Reaction**
-Like/Dislike de um User a uma Review (um voto por utilizador e por review).
-
-**Coupon**
-Cupão criado por um BusinessAccount, com **custo em pontos**, **tipo de desconto** (percentual/valor), **método de resgate** (código/QR/barcode) e **prazo**.
-
-**Redemption**
-Registo do resgate de um Coupon por um User.
-
-**Pedipaper**
-Conjunto de paragens (RouteStops) e tarefas. A conclusão pode atribuir pontos adicionais.
-
-**RouteStop**
-Passo de um Pedipaper que referencia um Place e, opcionalmente, requisitos (ex.: foto obrigatória).
-
-**RouteParticipation**
-Associação User↔Pedipaper com estado/conclusão e pontos atribuídos.
-
-**ModerationRequest**
-Pedido de moderação/validação para conteúdos submetidos (Place, Photo, Review, BusinessAccount).
 
 ---
 
 ## 10.2 Regras e Restrições do Domínio
 
-1. **Aprovação obrigatória** para publicar **Places, Reviews, Photos** e **BusinessAccount** (estado: PENDING/APPROVED/REJECTED).
-2. **Apenas utilizadores registados** podem **usar cupões, criar pontos, escrever reviews** e **submeter fotos**.
-3. **BusinessAccount ↔ Place**: um negócio pode ter **0..1 Place** (*apenas um ponto turístico por negócio*).
-4. **Gamificação**: pontos são atribuídos por **Visit** (com verificação por Photo/recibo) e/ou por **conclusão de Pedipaper**.
-5. **Coupons** só são válidos em negócios parceiros (**BusinessAccount**). Resgate requer **pontos suficientes**.
-6. **Review Reactions**: cada User só pode **like ou dislike** uma vez por Review.
-7. **Categorias e cores** visíveis na UI (ex.: *Atividades, Lojas, Restauração, Locais Históricos, Natureza* com cores associadas).
+O modelo conceitual representa uma visão de alto nível das entidades e das suas relações, servindo de base para o modelo lógico e físico da base de dados.  
+Nesta fase, as entidades **Users**, **Categories**, **Places** e **Photos** foram definidas com os seus respetivos atributos, chaves primárias e relações de cardinalidade.
 
-> Nota: O “Vault/Log” do utilizador é uma **vista** sobre Reviews, Photos e Visits; não requer entidade própria.
+### Estrutura das Relações Principais
+- **Um utilizador (User)** pode submeter vários **locais (Places)** e enviar múltiplas **fotografias (Photos)**.  
+- **Uma categoria (Category)** pode classificar vários **locais (Places)**.  
+- **Um local (Place)** pode conter várias **fotografias (Photos)**.  
+
+### Principais Decisões de Modelação
+- As **chaves primárias** são campos numéricos `INT AUTO_INCREMENT`, simplificando o relacionamento entre tabelas.  
+- As **chaves estrangeiras (FK)** garantem a integridade referencial entre entidades (por exemplo, `category_id` em *places* e `user_id` em *photos*).  
+- Foram incluídos campos de **status** (`PENDING`, `APPROVED`, `REJECTED`) para permitir processos de moderação em *places* e *photos*.  
+- A utilização de **timestamps automáticos** (`created_at`) assegura o registo temporal das ações de cada entidade.  
+
+### Representação das Entidades
+| Entidade | Descrição | Exemplos de Atributos |
+|-----------|------------|----------------------|
+| **Users** | Representa os utilizadores da app (visitantes, comerciantes, administradores). | user_id, name, email, role, points |
+| **Categories** | Agrupa os tipos de locais (ex: Restauração, Lojas, Natureza). | category_id, name, color_hex, icon_name |
+| **Places** | Pontos de interesse georreferenciados, submetidos pelos utilizadores. | place_id, name, lat, lng, status, category_id |
+| **Photos** | Imagens submetidas pelos utilizadores, associadas a locais. | photo_id, url, place_id, user_id, status |
+
+### Conclusão
+O resultado é uma estrutura lógica coerente e otimizada para operações **CRUD**, adequada ao contexto da aplicação móvel e compatível com o ecossistema **REST** implementado no backend Spring Boot.  
+Este modelo garante escalabilidade, integridade de dados e uma fácil extensão futura para novas funcionalidades, como **reviews**, **cupões** ou **sistema de gamificação**.
 
 ---
 
@@ -278,149 +274,53 @@ Pedido de moderação/validação para conteúdos submetidos (Place, Photo, Revi
 hide circle
 skinparam classAttributeIconSize 0
 
-' ==== Enums / Tipos ====
-enum Role { USER \n BUSINESS \n ADMIN }
-enum DiscountType { PERCENT \n FIXED }
-enum CodeType { NUMERIC \n QR \n BARCODE }
-enum ModerationStatus { PENDING \n APPROVED \n REJECTED }
-
-' ==== Entidades ====
 class User {
-  +userId: UUID
-  +name: string
-  +email: string
-  +role: Role
+  +user_id: int
+  +name: varchar(100)
+  +email: varchar(150)
+  +password_hash: varchar(255)
+  +role: enum(USER, BUSINESS, ADMIN)
+  +country: varchar(56)
   +points: int
-  +createdAt: datetime
-}
-
-class BusinessAccount {
-  +businessId: UUID
-  +businessName: string
-  +description: string
-  +approved: boolean
-}
-
-class Place {
-  +placeId: UUID
-  +name: string
-  +description: text
-  +lat: decimal
-  +lng: decimal
-  +avgRating: decimal
-  +status: ModerationStatus
+  +profile_photo_url: varchar(255)
+  +created_at: timestamp
 }
 
 class Category {
-  +categoryId: UUID
-  +name: string
-  +colorHex: string
+  +category_id: int
+  +name: varchar(50)
+  +color_hex: char(7)
+  +icon_name: varchar(64)
 }
 
-class Visit {
-  +visitId: UUID
-  +visitedAt: datetime
-  +verification: string  'photo/receipt/pedipaper
-  +pointsEarned: int
-  +status: ModerationStatus
+class Place {
+  +place_id: int
+  +name: varchar(100)
+  +description: text
+  +lat: decimal(9,6)
+  +lng: decimal(9,6)
+  +address_full: varchar(255)
+  +postal_code: varchar(15)
+  +avg_rating: decimal(2,1)
+  +category_id: int
+  +status: enum(PENDING, APPROVED, REJECTED)
+  +cover_image_url: varchar(255)
+  +created_at: timestamp
 }
 
 class Photo {
-  +photoId: UUID
-  +url: string
-  +createdAt: datetime
-  +status: ModerationStatus
+  +photo_id: int
+  +place_id: int
+  +user_id: int
+  +url: varchar(255)
+  +status: enum(PENDING, APPROVED, REJECTED)
+  +created_at: timestamp
 }
 
-class Review {
-  +reviewId: UUID
-  +rating: int  '1..5
-  +comment: text
-  +createdAt: datetime
-  +status: ModerationStatus
-}
-
-class Reaction {
-  +reactionId: UUID
-  +isLike: boolean
-  +createdAt: datetime
-}
-
-class Coupon {
-  +couponId: UUID
-  +title: string
-  +discountType: DiscountType
-  +discountValue: decimal
-  +costPoints: int
-  +codeType: CodeType
-  +expiresAt: date
-  +terms: text
-  +active: boolean
-}
-
-class Redemption {
-  +redemptionId: UUID
-  +redeemedAt: datetime
-}
-
-class Pedipaper {
-  +routeId: UUID
-  +name: string
-  +description: text
-  +totalPoints: int
-  +active: boolean
-}
-
-class RouteStop {
-  +stopId: UUID
-  +order: int
-  +requiresPhoto: boolean
-  +taskDescription: string
-}
-
-class RouteParticipation {
-  +participationId: UUID
-  +startedAt: datetime
-  +completedAt: datetime
-  +pointsAwarded: int
-}
-
-class ModerationRequest {
-  +modId: UUID
-  +entityType: string
-  +entityId: UUID
-  +status: ModerationStatus
-  +requestedAt: datetime
-  +reviewedAt: datetime
-  +reason: text
-}
-
-' ==== Relações ====
-User <|-- BusinessAccount
-BusinessAccount "1" o-- "0..1" Place : owns
-Place "1" --> "1" Category : belongs to
-
-User "1" --> "*" Visit : performs
-Visit "*" --> "1" Place : refers to
-Visit "0..1" --> "*" Photo : verifies by
-
-User "1" --> "*" Review : writes
-Review "*" --> "1" Place : about
-Reaction "*" --> "1" Review : targets
-Reaction "*" --> "1" User : by
-
-BusinessAccount "1" --> "*" Coupon : creates
-Coupon "0..*" --> "0..1" Place : valid at
-Redemption "*" --> "1" Coupon : uses
-Redemption "*" --> "1" User : by
-
-Pedipaper "1" --> "*" RouteStop : contains
-RouteStop "*" --> "1" Place : at
-RouteParticipation "*" --> "1" Pedipaper : of
-RouteParticipation "*" --> "1" User : by
-
-ModerationRequest "*" --> "1" User : submittedBy
-ModerationRequest "0..*" --> "0..1" User : reviewedBy
+User "1" --> "*" Photo : envia
+Category "1" --> "*" Place : classifica
+Place "1" --> "*" Photo : tem
+User "1" --> "*" Place : submete
 @enduml
 ```
 
@@ -431,126 +331,156 @@ ModerationRequest "0..*" --> "0..1" User : reviewedBy
 ```mermaid
 classDiagram
   class User {
-    UUID userId
+    int user_id
     string name
     string email
-    Role role
+    string password_hash
+    string role
+    string country
     int points
-    datetime createdAt
+    string profile_photo_url
+    datetime created_at
   }
-  class BusinessAccount {
-    UUID businessId
-    string businessName
-    string description
-    boolean approved
+
+  class Category {
+    int category_id
+    string name
+    string color_hex
+    string icon_name
   }
+
   class Place {
-    UUID placeId
+    int place_id
     string name
     text description
     decimal lat
     decimal lng
-    decimal avgRating
-    ModerationStatus status
+    string address_full
+    string postal_code
+    decimal avg_rating
+    int category_id
+    string status
+    string cover_image_url
+    datetime created_at
   }
-  class Category {
-    UUID categoryId
-    string name
-    string colorHex
-  }
-  class Visit {
-    UUID visitId
-    datetime visitedAt
-    string verification
-    int pointsEarned
-    ModerationStatus status
-  }
+
   class Photo {
-    UUID photoId
+    int photo_id
+    int place_id
+    int user_id
     string url
-    datetime createdAt
-    ModerationStatus status
-  }
-  class Review {
-    UUID reviewId
-    int rating
-    text comment
-    datetime createdAt
-    ModerationStatus status
-  }
-  class Reaction {
-    UUID reactionId
-    boolean isLike
-    datetime createdAt
-  }
-  class Coupon {
-    UUID couponId
-    string title
-    DiscountType discountType
-    decimal discountValue
-    int costPoints
-    CodeType codeType
-    date expiresAt
-    text terms
-    boolean active
-  }
-  class Redemption {
-    UUID redemptionId
-    datetime redeemedAt
-  }
-  class Pedipaper {
-    UUID routeId
-    string name
-    text description
-    int totalPoints
-    boolean active
-  }
-  class RouteStop {
-    UUID stopId
-    int order
-    boolean requiresPhoto
-    string taskDescription
-  }
-  class RouteParticipation {
-    UUID participationId
-    datetime startedAt
-    datetime completedAt
-    int pointsAwarded
-  }
-  class ModerationRequest {
-    UUID modId
-    string entityType
-    UUID entityId
-    ModerationStatus status
-    datetime requestedAt
-    datetime reviewedAt
-    text reason
+    string status
+    datetime created_at
   }
 
-  Role <|-- User
-  User <|-- BusinessAccount
-  BusinessAccount "1" o-- "0..1" Place : owns
-  Place "1" --> "1" Category : belongs to
-
-  User "1" --> "*" Visit : performs
-  Visit "*" --> "1" Place : refers to
-  Visit "0..1" --> "*" Photo : verifies by
-
-  User "1" --> "*" Review : writes
-  Review "*" --> "1" Place : about
-  Reaction "*" --> "1" Review : targets
-  Reaction "*" --> "1" User : by
-
-  BusinessAccount "1" --> "*" Coupon : creates
-  Coupon "0..*" --> "0..1" Place : valid at
-  Redemption "*" --> "1" Coupon : uses
-  Redemption "*" --> "1" User : by
-
-  Pedipaper "1" --> "*" RouteStop : contains
-  RouteStop "*" --> "1" Place : at
-  RouteParticipation "*" --> "1" Pedipaper : of
+  User "1" --> "*" Photo : envia
+  Category "1" --> "*" Place : classifica
+  Place "1" --> "*" Photo : tem
+  User "1" --> "*" Place : submete
 ```
 
+---
+
+## 10.5 Diagrama ER
+
+![Diagrama ER](./BD/diagrama-er.png)
+
+---
+
+## 10.6 Dicionário de Dados
+
+### Tabela: users
+| Campo | Tipo | Descrição |
+|--------|------|------------|
+| user_id | INT | Identificador único do utilizador. |
+| name | VARCHAR(100) | Nome completo do utilizador. |
+| email | VARCHAR(150) | Email único usado no login. |
+| password_hash | VARCHAR(255) | Palavra-passe. |
+| role | ENUM(USER, BUSINESS, ADMIN) | Tipo de conta do utilizador. |
+| country | VARCHAR(56) | País de origem do utilizador. |
+| points | INT | Pontos de gamificação acumulados. |
+| profile_photo_url | VARCHAR(255) | URL da foto de perfil. |
+| created_at | TIMESTAMP | Data e hora de criação da conta. |
+
+---
+
+### Tabela: categories
+| Campo | Tipo | Descrição |
+|--------|------|------------|
+| category_id | INT | Identificador único da categoria. |
+| name | VARCHAR(50) | Nome da categoria (ex: Restauração, Lojas, Natureza). |
+| color_hex | CHAR(7) | Código hexadecimal da cor usada na interface. |
+| icon_name | VARCHAR(64) | Nome do ícone representativo da categoria. |
+
+---
+
+### Tabela: places
+| Campo | Tipo | Descrição |
+|--------|------|------------|
+| place_id | INT | Identificador único do local. |
+| name | VARCHAR(100) | Nome do local. |
+| description | TEXT | Descrição textual do local. |
+| lat | DECIMAL(9,6) | Latitude do local. |
+| lng | DECIMAL(9,6) | Longitude do local. |
+| address_full | VARCHAR(255) | Morada completa. |
+| postal_code | VARCHAR(15) | Código postal. |
+| avg_rating | DECIMAL(2,1) | Avaliação média. |
+| category_id | INT | FK para a categoria associada. |
+| status | ENUM(PENDING, APPROVED, REJECTED) | Estado de moderação. |
+| cover_image_url | VARCHAR(255) | URL da imagem principal. |
+| created_at | TIMESTAMP | Data de criação. |
+
+---
+
+### Tabela: photos
+| Campo | Tipo | Descrição |
+|--------|------|------------|
+| photo_id | INT | Identificador da fotografia. |
+| place_id | INT | FK para o local associado. |
+| user_id | INT | FK para o utilizador autor da foto. |
+| url | VARCHAR(255) | Caminho/URL da imagem. |
+| status | ENUM(PENDING, APPROVED, REJECTED) | Estado de moderação. |
+| created_at | TIMESTAMP | Data e hora de submissão. |
+
+---
+
+## 10.7 Guia de Dados
+
+### Estatísticas Gerais (com base em populate.sql)
+- **Utilizadores:** 12
+- **Categorias:** 5
+- **Locais:** 6
+- **Fotos:** 6
+
+### Exemplos de Registos
+- **User:** Nataly Costa → `user_id: 1`, `role: USER`, `points: 120`, `country: Portugal`
+- **Category:** Restauração → `#FB923C`, `icon: utensils`
+- **Place:** Tasquinha da Praça → Categoria: Restauração, Rating: 4.6, Estado: APPROVED
+- **Photo:** `https://cdn.example/xplored/places/tasquinha-01.jpg` → Associada ao utilizador *Nataly Costa* e ao local *Tasquinha da Praça*.
+
+---
+
+## 10.8 Documentação REST
+
+### /users
+- `GET /users` → lista todos os utilizadores.
+- `POST /users` → cria um novo utilizador.
+- `GET /users/{id}` → devolve detalhes de um utilizador específico.
+- `DELETE /users/{id}` → remove um utilizador.
+
+### /categories
+- `GET /categories` → devolve todas as categorias.
+- `POST /categories` → adiciona uma nova categoria (admin).
+
+### /places
+- `GET /places` → devolve todos os locais aprovados.
+- `GET /places?category={id}` → devolve locais filtrados por categoria.
+- `POST /places` → cria um novo local (pendente de aprovação).
+- `PUT /places/{id}/approve` → altera o estado de moderação do local.
+
+### /photos
+- `GET /photos` → devolve fotos aprovadas.
+- `POST /photos/upload` → carrega uma nova foto associada a um local e utilizador.
 
 ---
 
@@ -693,24 +623,8 @@ Cada conjunto foi projetado para equilibrar **descoberta e personalização**, t
 
 ## 14. Conclusão e Objetivos a Atingir
 
-Com o **Xplored** pretende-se construir um protótipo funcional que demonstre a viabilidade de promover o turismo e apoiar o comércio local com base em gamificação.
-
-**Objetivos a curto prazo (1ª entrega):**
-
-* Consolidar a proposta inicial.
-* Definir mockups e requisitos principais.
-* Elaborar guiões de teste preliminares.
-
-**Objetivos a médio prazo (2ª entrega):**
-
-* Implementar uma versão alfa com servidor, BD e app integrada.
-* Criar documentação REST inicial e modelo ER.
-
-**Objetivos a longo prazo (3ª entrega):**
-
-* Disponibilizar a versão final com todas as funcionalidades.
-* Entregar código no GitHub, relatório final, poster e vídeo de apresentação.
-* Demonstrar a aplicação funcional num dispositivo móvel.
+O projeto **Xplored** encontra-se em **versão alfa funcional**, cumprindo os requisitos da 2ª entrega: BD real, backend funcional e app integrada.  
+Os próximos passos incluem gamificação, sistema de cupões e reviews, refinamento da interface e expansão da base de dados.
 
 ---
 
@@ -725,11 +639,10 @@ Com o **Xplored** pretende-se construir um protótipo funcional que demonstre a 
 
 ---
 
-## Anexos (para entrega final)
+## Anexos
 
 * [Posters](./Poster/) do projeto - `/Documents/1ªEntrega/Poster/`.
 * [Video promocional](./Video/video-promocional-v2.mp4) - `/Documents/1ªEntrega/Video/video-promocional-v2.mp4`.
-* Diagramas (casos de uso, modelo ER, classes).
-* Dicionário de Dados.
-* Documentação REST.
-* Guia de Dados da BD exemplo.
+* [Criação da base de dados](./../../data_base/create.sql) - `/data_base/create.sql`.
+* [Populate da base de dados](./../../data_base/populate.sql) - `/data_base/populate.sql`.
+* [Queries da base de dados](./../../data_base/queries.sql) - `/data_base/queries.sql`.
