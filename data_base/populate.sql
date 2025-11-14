@@ -1,121 +1,160 @@
 -- =====================================================
--- populate.sql — Xplored
--- Autor: Tiago Cabaça
--- Descrição: Este ficheiro serve para popular a base de dados com alguns dados de teste iniciais.
+-- populate.sql
+-- Xplored App – Dados de Teste
+-- Localização: Moscavide & Parque das Nações (Lisboa)
+-- DB: xplored_db
 -- =====================================================
 
-USE xplored_simplefied;
+USE xplored_db;
 
-START TRANSACTION;
+-- =====================================================
+-- 1. UTILIZADORES (USERS)
+-- =====================================================
+INSERT INTO users (name, email, password_hash, about, country, role, points, profile_photo) VALUES
+('Tiago Cabaça', 'tiago@xplored.pt', '1234', 'Desenvolvedor e explorador urbano.', 'Portugal', 'ADMIN', 500, 'https://ui-avatars.com/api/?name=Tiago+Cabaca&background=0D8ABC&color=fff'),
+('Ana Silva', 'ana@xplored.pt', '1234', 'Adoro fotografia e natureza.', 'Portugal', 'USER', 150, 'https://ui-avatars.com/api/?name=Ana+Silva&background=random'),
+('João Comerciante', 'joao@loja.pt', '1234', 'Gerente do Cantinho do Bairro.', 'Portugal', 'BUSINESS', 50, NULL);
 
--- Utilizadores
-INSERT INTO users (name, email, password_hash, role, country, points, profile_photo_url)
-VALUES
-  ('Nataly Costa',   'nataly.costa@gmail.com',       '$2y$10$eImiTXuWVxfM37uY4JANjQ9w4JpW2g1Jb0qf2p7N2sVZcHj2d8v4W', 'USER', 'Portugal', 120, 'https://cdn.example/avatars/nataly.jpg'),
-  ('Teresa Rocha',   'teresa.rocha@gmail.com',       '$2y$10$eImiTXuWVxfM37uY4JANjQ9w4JpW2g1Jb0qf2p7N2sVZcHj2d8v4W', 'USER', 'Portugal',  35, 'https://cdn.example/avatars/teresa.jpg'),
-  ('Rui Martins',    'rui.moscavide@gmail.com',      '$2y$10$eImiTXuWVxfM37uY4JANjQ9w4JpW2g1Jb0qf2p7N2sVZcHj2d8v4W', 'USER', 'Portugal',  40, NULL),
-  ('Joana Silva',    'joana.silva@gmail.com',        '$2y$10$eImiTXuWVxfM37uY4JANjQ9w4JpW2g1Jb0qf2p7N2sVZcHj2d8v4W', 'USER', 'Portugal',  85, 'https://cdn.example/avatars/joana.jpg'),
-  ('Miguel Ramos',   'miguel.ramos@gmail.com',       '$2y$10$eImiTXuWVxfM37uY4JANjQ9w4JpW2g1Jb0qf2p7N2sVZcHj2d8v4W', 'USER', 'Portugal',  15, NULL),
-  ('Andreia Lopes',  'andreia.lopes@gmail.com',      '$2y$10$eImiTXuWVxfM37uY4JANjQ9w4JpW2g1Jb0qf2p7N2sVZcHj2d8v4W', 'USER', 'Portugal',  60, 'https://cdn.example/avatars/andreia.jpg'),
-  ('Carlos Pinto',   'carlos.pinto@gmail.com',       '$2y$10$eImiTXuWVxfM37uY4JANjQ9w4JpW2g1Jb0qf2p7N2sVZcHj2d8v4W', 'USER', 'Portugal',  22, NULL),
-  ('Beatriz Sousa',  'beatriz.sousa@gmail.com',      '$2y$10$eImiTXuWVxfM37uY4JANjQ9w4JpW2g1Jb0qf2p7N2sVZcHj2d8v4W', 'USER', 'Portugal', 140, 'https://cdn.example/avatars/beatriz.jpg'),
-  ('Diogo Ferreira', 'diogo.ferreira@gmail.com',     '$2y$10$eImiTXuWVxfM37uY4JANjQ9w4JpW2g1Jb0qf2p7N2sVZcHj2d8v4W', 'USER', 'Portugal',  10, NULL),
-  ('Sofia Almeida',  'sofia.almeida@gmail.com',      '$2y$10$eImiTXuWVxfM37uY4JANjQ9w4JpW2g1Jb0qf2p7N2sVZcHj2d8v4W', 'USER', 'Portugal',  75, 'https://cdn.example/avatars/sofia.jpg'),
-  ('Pedro Figueiredo','pedro.figueiredo@gmail.com',  '$2y$10$eImiTXuWVxfM37uY4JANjQ9w4JpW2g1Jb0qf2p7N2sVZcHj2d8v4W', 'USER', 'Portugal',  55, NULL),
-  ('Mariana Nunes',  'mariana.nunes@gmail.com',      '$2y$10$eImiTXuWVxfM37uY4JANjQ9w4JpW2g1Jb0qf2p7N2sVZcHj2d8v4W', 'USER', 'Portugal',  95, 'https://cdn.example/avatars/mariana.jpg');
+-- =====================================================
+-- 2. CATEGORIAS (CATEGORIES)
+-- =====================================================
+-- NOTA: O script de criação (CREATE) já insere as categorias (IDs 1-5).
+-- 1: Atividades, 2: Lojas, 3: Restauração, 4: Históricos, 5: Paisagens
 
--- Categorias (1=Atividades, 2=Lojas, 3=Restauração, 4=Locais Históricos, 5=Natureza)
-INSERT INTO categories (name, color_hex, icon_name) VALUES
-  ('Atividades',        '#3B82F6', 'activity'),
-  ('Lojas',             '#8B5CF6', 'store'),
-  ('Restauração',       '#FB923C', 'utensils'),
-  ('Locais Históricos', '#F472B6', 'landmark'),
-  ('Natureza',          '#22C55E', 'leaf');
+-- =====================================================
+-- 3. LOCAIS (PLACES)
+-- =====================================================
+INSERT INTO places (name, description, lat, lng, address_full, category_id, author_id, avg_rating, is_verified) VALUES
+(
+    'Jardim de Moscavide',
+    'Um espaço verde tranquilo no coração de Moscavide, perfeito para relaxar à tarde.',
+    38.776900,
+    -9.102300,
+    'Av. de Moscavide, Lisboa',
+    5, -- Paisagens
+    1, -- Tiago
+    5.0,
+    TRUE
+),
+(
+    'Igreja de Santo António',
+    'Igreja moderna com arquitetura distinta, ponto de referência na comunidade.',
+    38.775800,
+    -9.103100,
+    'Rua da Igreja, Moscavide',
+    4, -- Históricos
+    1, -- Tiago
+    4.0,
+    TRUE
+),
+(
+    'O Cantinho do Bairro',
+    'O melhor bitoque da zona. Ambiente familiar e preços acessíveis.',
+    38.776200,
+    -9.101500,
+    'Rua 1º de Maio, Moscavide',
+    3, -- Restauração
+    3, -- João
+    4.5,
+    TRUE
+),
+(
+    'Centro Comercial da Portela',
+    'Shopping tradicional com várias lojas locais e um cinema antigo.',
+    38.779100,
+    -9.104200,
+    'Rotunda da Portela',
+    2, -- Lojas
+    2, -- Ana
+    3.5,
+    FALSE
+);
 
--- Locais (Coordenadas de exemplo em Moscavide)
-INSERT INTO places
-  (name, description, lat, lng, address_full, postal_code, avg_rating, category_id, status, cover_image_url)
-VALUES
-  -- Atividades (1)
-  ('Parque Infantil Central',
-   'Espaço para crianças com equipamentos.',
-   38.776800, -9.103300, 'Av. de Moscavide', '1885-200',
-   4.1, 1, 'APPROVED', NULL),
+-- =====================================================
+-- 4. AVALIAÇÕES (REVIEWS)
+-- =====================================================
+INSERT INTO reviews (rating, title, comment, user_id, place_id) VALUES
+(5, 'Excelente ambiente', 'Lugar muito tranquilo e bem cuidado, ótimo para ler um livro.', 2, 1), -- Ana -> Jardim
+(4, 'Bitoque divinal', 'A comida é ótima, mas o serviço foi um pouco lento.', 1, 3), -- Tiago -> Restaurante
+(3, 'Precisa de obras', 'O centro comercial está um pouco degradado, mas tem boas lojas.', 1, 4); -- Tiago -> Shopping
 
-  -- Lojas (2)
-  ('Mercearia da Vila',
-   'Loja local com produtos frescos e regionais.',
-   38.777900, -9.104900, 'Rua da Mercearia, Moscavide', '1885-120',
-   4.2, 2, 'APPROVED', NULL),
+-- =====================================================
+-- 5. FOTOS (PHOTOS)
+-- =====================================================
+INSERT INTO photos (url, place_id, user_id, review_id, kind, status) VALUES
+-- Foto de capa do Jardim (Associada ao Local)
+('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Jardim_de_Moscavide.jpg/800px-Jardim_de_Moscavide.jpg', 1, 1, NULL, 'GALLERY', 'APPROVED'),
+-- Foto de capa da Igreja (Associada ao Local)
+('https://upload.wikimedia.org/wikipedia/commons/5/52/Igreja_Santo_Antonio_Moscavide.jpg', 2, 1, NULL, 'GALLERY', 'APPROVED'),
+-- Foto do Bitoque (Associada à Review do Tiago)
+('https://www.nit.pt/wp-content/uploads/2018/10/d8b2d7156943890cacc0622501066746.jpg', 3, 1, 2, 'GALLERY', 'APPROVED');
 
-  -- Restauração (3)
-  ('Tasquinha da Praça',
-   'Comida caseira e ambiente familiar.',
-   38.778500, -9.101700, 'Praça Central, Moscavide', '1885-000',
-   4.6, 3, 'APPROVED', NULL),
+-- =====================================================
+-- 6. REAÇÕES (REACTIONS)
+-- =====================================================
+INSERT INTO reactions (type, user_id, review_id) VALUES
+('USEFUL', 3, 2), -- João achou útil a review do Tiago sobre o restaurante
+('NOT_USEFUL', 2, 3); -- Ana não achou útil a review do Shopping
 
-  -- Locais Históricos (4)
-  ('Igreja Paroquial de Moscavide',
-   'Património local com vista sobre a vila.',
-   38.772900, -9.110400, 'Largo da Igreja', '1885-058',
-   4.5, 4, 'APPROVED', NULL),
+-- =====================================================
+-- 7. PEDIPAPERS (ROTES)
+-- =====================================================
+INSERT INTO pedipapers (name, description, total_points, active) VALUES
+(
+    'Descobrir Moscavide',
+    'Um percurso curto para conhecer a essência do bairro, desde a natureza à gastronomia.',
+    500,
+    TRUE
+);
 
-  -- Natureza (5)
-  ('Jardim do Rio Trancão',
-   'Zona verde para caminhadas e piqueniques.',
-   38.792300, -9.090200, 'Parque do Trancão', '2685-000',
-   4.3, 5, 'APPROVED', NULL),
+-- =====================================================
+-- 8. PARAGENS DA ROTA (ROUTE STOPS)
+-- =====================================================
+INSERT INTO route_stops (pedipaper_id, place_id, stop_order, task_description, requires_photo) VALUES
+(1, 1, 1, 'Encontra a estátua no centro do jardim.', TRUE), -- Jardim
+(1, 2, 2, 'Qual é o ano gravado na porta da igreja?', FALSE), -- Igreja
+(1, 3, 3, 'Tira uma selfie a comer um pastel de nata.', TRUE); -- Restaurante
 
-  -- Extra (Atividades; pendente para testar moderação)
-  ('Painel Rua da República',
-   'Mural de arte urbana recente.',
-   38.775100, -9.106900, 'Rua da República', '1885-100',
-   NULL, 1, 'PENDING', NULL);
+-- =====================================================
+-- 9. PARTICIPAÇÕES (ROUTE PARTICIPATIONS)
+-- =====================================================
+INSERT INTO route_participations (user_id, pedipaper_id, completed, progress, started_at) VALUES
+(2, 1, FALSE, 1, NOW()); -- Ana começou a rota, está na paragem 1
 
--- Fotografias
-INSERT INTO photos (place_id, user_id, url, status, created_at)
-VALUES
-  (
-    (SELECT place_id FROM places WHERE name = 'Igreja Paroquial de Moscavide'),
-    (SELECT user_id  FROM users  WHERE email = 'joana.silva@gmail.com'),
-    'https://cdn.example/xplored/places/igreja-01.jpg',
-    'APPROVED',
-    '2025-09-28 15:22:10'
-  ),
-  (
-    (SELECT place_id FROM places WHERE name = 'Tasquinha da Praça'),
-    (SELECT user_id  FROM users  WHERE email = 'nataly.costa@gmail.com'),
-    'https://cdn.example/xplored/places/tasquinha-01.jpg',
-    'APPROVED',
-    '2025-10-03 12:08:44'
-  ),
-  (
-    (SELECT place_id FROM places WHERE name = 'Jardim do Rio Trancão'),
-    (SELECT user_id  FROM users  WHERE email = 'miguel.ramos@gmail.com'),
-    'https://cdn.example/xplored/places/trancao-01.jpg',
-    'APPROVED',
-    '2025-10-21 18:37:02'
-  ),
-  (
-    (SELECT place_id FROM places WHERE name = 'Mercearia da Vila'),
-    (SELECT user_id  FROM users  WHERE email = 'teresa.rocha@gmail.com'),
-    'https://cdn.example/xplored/places/mercearia-01.jpg',
-    'APPROVED',
-    '2025-10-27 09:11:56'
-  ),
-  (
-    (SELECT place_id FROM places WHERE name = 'Parque Infantil Central'),
-    (SELECT user_id  FROM users  WHERE email = 'beatriz.sousa@gmail.com'),
-    'https://cdn.example/xplored/places/parque-01.jpg',
-    'APPROVED',
-    '2025-11-01 16:49:33'
-  ),
-  (
-    (SELECT place_id FROM places WHERE name = 'Painel Rua da República'),
-    (SELECT user_id  FROM users  WHERE email = 'diogo.ferreira@gmail.com'),
-    'https://cdn.example/xplored/places/painel-rua-republica-01.jpg',
-    'PENDING',
-    '2025-11-06 20:04:11'
-  );
+-- =====================================================
+-- 10. CONTAS DE NEGÓCIO & CUPÕES
+-- =====================================================
+INSERT INTO business_accounts (name, email) VALUES
+('Grupo Cantinho', 'cantinho@negocio.pt');
 
-COMMIT;
+INSERT INTO coupons (title, description, cost_points, business_account_id, code, active) VALUES
+(
+    'Café Grátis',
+    'Oferta de um café na compra de qualquer bolo.',
+    100,
+    1,
+    'CAFE100',
+    TRUE
+),
+(
+    '10% Desconto Almoço',
+    'Válido para pratos do dia, exceto bebidas.',
+    250,
+    1,
+    'ALMOCO10',
+    TRUE
+);
+
+-- =====================================================
+-- 11. LEDGER DE PONTOS (Histórico)
+-- =====================================================
+INSERT INTO points_ledger (user_id, amount, reason) VALUES
+(1, 500, 'Bónus de Registo Inicial'),
+(2, 150, 'Completou perfil'),
+(1, -250, 'Comprou cupão Almoço');
+
+-- =====================================================
+-- 12. REDEMPTIONS (Cupões usados)
+-- =====================================================
+INSERT INTO redemptions (user_id, coupon_id) VALUES
+(1, 2); -- Tiago comprou o cupão de 10%
