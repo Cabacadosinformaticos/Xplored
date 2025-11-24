@@ -1,7 +1,7 @@
-package pt.iade.ei.xplored.models
+package pt.iade.ei.xplored.data.models.users
 
-import pt.iade.ei.xplored.models.PrivacyLevel
-import pt.iade.ei.xplored.models.IdString
+import pt.iade.ei.xplored.data.models.misc.IdString
+import pt.iade.ei.xplored.data.models.photos.PhotoStatus.PrivacyLevel
 
 /**
  * Mirrors table: user_settings

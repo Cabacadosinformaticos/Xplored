@@ -1,5 +1,7 @@
-package pt.iade.ei.xplored.models
+package pt.iade.ei.xplored.data.models.photos
 
+import pt.iade.ei.xplored.data.models.photos.PhotoStatus.PhotoKind
+import pt.iade.ei.xplored.data.models.photos.PhotoStatus.PhotoStatus
 import java.time.LocalDateTime
 import java.util.UUID
 

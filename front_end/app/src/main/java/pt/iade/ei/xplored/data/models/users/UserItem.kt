@@ -1,4 +1,4 @@
-package pt.iade.ei.xplored.models
+package pt.iade.ei.xplored.data.models.users
 
 import java.time.LocalDateTime
 
@@ -15,10 +15,10 @@ data class User(
     val about: String,
     val country: String? = null,
     val points: Int = 0,
-    val createdAt: String? = null
+    val createdAt: String? = null,
+    val profilePhotoUrl: String? = null
 )
 
-// Example mock user (for login tests)
 val MOCK_USER = User(
     userId = 100,
     name = "cesarini",
@@ -28,5 +28,6 @@ val MOCK_USER = User(
     about = "test",
     country = "Portugal",
     points = 600,
-    createdAt = LocalDateTime.now().toString()
+    createdAt = LocalDateTime.now().toString(),
+    profilePhotoUrl = null
 )

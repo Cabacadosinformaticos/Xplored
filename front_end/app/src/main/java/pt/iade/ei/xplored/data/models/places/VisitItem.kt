@@ -1,9 +1,9 @@
-package pt.iade.ei.xplored.models
+package pt.iade.ei.xplored.data.models.places
 
-import pt.iade.ei.xplored.models.VisitStatus
-import pt.iade.ei.xplored.models.VisitVerificationType
-import pt.iade.ei.xplored.models.TimestampString
-import pt.iade.ei.xplored.models.IdString
+import pt.iade.ei.xplored.data.models.misc.IdString
+import pt.iade.ei.xplored.data.models.misc.TimestampString
+import pt.iade.ei.xplored.data.models.photos.PhotoStatus.VisitStatus
+import pt.iade.ei.xplored.data.models.photos.PhotoStatus.VisitVerificationType
 
 /**
  * Mirrors table: visits

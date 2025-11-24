@@ -1,7 +1,7 @@
-package pt.iade.ei.xplored.models
+package pt.iade.ei.xplored.data.models.users
 
-import pt.iade.ei.xplored.models.TimestampString
-import pt.iade.ei.xplored.models.IdString
+import pt.iade.ei.xplored.data.models.misc.TimestampString
+import pt.iade.ei.xplored.data.models.misc.IdString
 
 /**
  * Mirrors table: password_reset_tokens

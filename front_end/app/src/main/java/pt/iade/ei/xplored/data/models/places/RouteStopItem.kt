@@ -1,6 +1,6 @@
-package pt.iade.ei.xplored.models
+package pt.iade.ei.xplored.data.models.places
 
-import pt.iade.ei.xplored.models.IdString
+import pt.iade.ei.xplored.data.models.misc.IdString
 
 /**
  * Mirrors table: route_stops

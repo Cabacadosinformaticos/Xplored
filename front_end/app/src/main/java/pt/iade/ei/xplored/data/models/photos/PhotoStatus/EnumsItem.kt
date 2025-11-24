@@ -1,4 +1,4 @@
-package pt.iade.ei.xplored.models
+package pt.iade.ei.xplored.data.models.photos.PhotoStatus
 
 enum class UserRole { USER, BUSINESS, ADMIN }
 enum class PrivacyLevel { PUBLIC, FRIENDS, PRIVATE }

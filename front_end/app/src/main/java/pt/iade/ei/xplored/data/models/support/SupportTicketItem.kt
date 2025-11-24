@@ -1,9 +1,9 @@
-package pt.iade.ei.xplored.models
+package pt.iade.ei.xplored.data.models.support
 
-import pt.iade.ei.xplored.models.TicketPriority
-import pt.iade.ei.xplored.models.TicketStatus
-import pt.iade.ei.xplored.models.TimestampString
-import pt.iade.ei.xplored.models.IdString
+import pt.iade.ei.xplored.data.models.misc.IdString
+import pt.iade.ei.xplored.data.models.misc.TimestampString
+import pt.iade.ei.xplored.data.models.photos.PhotoStatus.TicketPriority
+import pt.iade.ei.xplored.data.models.photos.PhotoStatus.TicketStatus
 
 /**
  * Mirrors table: support_tickets

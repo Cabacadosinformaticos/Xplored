@@ -1,4 +1,4 @@
-package pt.iade.ei.xplored.models
+package pt.iade.ei.xplored.data.models.misc
 
 /**
  * Simple aliases to make intent clearer.

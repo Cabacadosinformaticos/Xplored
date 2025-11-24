@@ -1,9 +1,7 @@
-package pt.iade.ei.xplored.models
+package pt.iade.ei.xplored.data.models.misc
 
-import pt.iade.ei.xplored.models.ModerationEntityType
-import pt.iade.ei.xplored.models.ModerationStatus
-import pt.iade.ei.xplored.models.TimestampString
-import pt.iade.ei.xplored.models.IdString
+import pt.iade.ei.xplored.data.models.photos.PhotoStatus.ModerationEntityType
+import pt.iade.ei.xplored.data.models.photos.PhotoStatus.ModerationStatus
 
 /**
  * Mirrors table: moderation_requests
