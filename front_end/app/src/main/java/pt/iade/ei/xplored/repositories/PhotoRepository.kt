@@ -1,10 +1,12 @@
-// PhotoRepository.kt
-package pt.iade.ei.xplored.models
+package pt.iade.ei.xplored.repositories
 
 import android.content.Context
+import androidx.core.content.edit
 import org.json.JSONArray
 import org.json.JSONObject
-import androidx.core.content.edit
+import pt.iade.ei.xplored.data.models.photos.PhotoItem
+import pt.iade.ei.xplored.data.models.photos.PhotoStatus.PhotoKind
+import pt.iade.ei.xplored.data.models.photos.PhotoStatus.PhotoStatus
 
 object PhotoRepository {
     private const val PREF_PHOTOS = "XploredPhotos"
@@ -36,7 +38,7 @@ object PhotoRepository {
             val o = arr.getJSONObject(i)
             if (o.optString("userId") == userId &&
                 o.optString("kind") == PhotoKind.GALLERY.name) {
-                out += o.toPhoto()
+                out.add(o.toPhoto())
             }
         }
         return out
@@ -47,7 +49,7 @@ object PhotoRepository {
         val out = mutableListOf<PhotoItem>()
         for (i in 0 until arr.length()) {
             val o = arr.getJSONObject(i)
-            if (o.optString("placeId") == placeId) out += o.toPhoto()
+            if (o.optString("placeId") == placeId) out.add(o.toPhoto())
         }
         return out
     }
@@ -57,7 +59,7 @@ object PhotoRepository {
         val out = mutableListOf<PhotoItem>()
         for (i in 0 until arr.length()) {
             val o = arr.getJSONObject(i)
-            if (o.optString("reviewId") == reviewId) out += o.toPhoto()
+            if (o.optString("reviewId") == reviewId) out.add(o.toPhoto())
         }
         return out
     }
@@ -117,13 +119,13 @@ object PhotoRepository {
 
     private fun JSONObject.toPhoto(): PhotoItem =
         PhotoItem(
-            photoId   = getString("photoId"),
-            reviewId  = getString("reviewId"),
-            placeId   = optString("placeId").takeIf { it.isNotBlank() },
-            userId    = getString("userId"),
-            url       = getString("url"),
-            status    = PhotoStatus.valueOf(getString("status")),
+            photoId = getString("photoId"),
+            reviewId = getString("reviewId"),
+            placeId = optString("placeId").takeIf { it.isNotBlank() },
+            userId = getString("userId"),
+            url = getString("url"),
+            status = PhotoStatus.valueOf(getString("status")),
             createdAt = getString("createdAt"),
-            kind      = PhotoKind.valueOf(optString("kind", PhotoKind.GALLERY.name))
+            kind = PhotoKind.valueOf(optString("kind", PhotoKind.GALLERY.name))
         )
 }

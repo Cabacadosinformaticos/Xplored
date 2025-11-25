@@ -1,17 +1,28 @@
 package pt.iade.ei.xplored.network
 
-import pt.iade.ei.xplored.models.PlaceRequest
-import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import pt.iade.ei.xplored.data.models.places.Place
+
+data class PlaceResponse(
+    val placeId: Long,
+    val name: String,
+    val description: String?,
+    val lat: Double,
+    val lng: Double,
+    val addressFull: String?,
+    val categoryId: Long,
+    val avgRating: Double?,
+    val coverImageUrl: String?
+)
 
 interface PlaceApiService {
-
-    @GET("places")
-    fun getPlaces(): Call<List<PlaceRequest>>
-
-
+    // FIX: Changed from "place/save" to "places" to match PlaceController
     @POST("places")
-    fun createPlace(@Body place: PlaceRequest): Call<PlaceRequest>
+    suspend fun createPlace(@Body request: PlaceRequest): PlaceResponse
+
+    // FIX: Changed from "place/get-all" to "places" to match PlaceController
+    @GET("places")
+    suspend fun getAllPlaces(): List<PlaceResponse>
 }
