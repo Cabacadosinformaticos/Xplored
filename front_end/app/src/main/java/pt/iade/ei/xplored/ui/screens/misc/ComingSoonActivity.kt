@@ -1,4 +1,4 @@
-package pt.iade.ei.xplored
+package pt.iade.ei.xplored.ui.screens.misc
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import pt.iade.ei.xplored.R
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 
 class ComingSoonActivity : ComponentActivity() {

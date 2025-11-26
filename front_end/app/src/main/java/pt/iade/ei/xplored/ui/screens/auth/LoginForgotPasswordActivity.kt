@@ -1,4 +1,4 @@
-package pt.iade.ei.xplored
+package pt.iade.ei.xplored.ui.screens.auth
 
 import android.content.Intent
 import android.os.Bundle
@@ -24,6 +24,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import pt.iade.ei.xplored.R
+import pt.iade.ei.xplored.SessionManager
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 
 class LoginForgotPasswordActivity : ComponentActivity() {

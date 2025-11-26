@@ -1,4 +1,4 @@
-package pt.iade.ei.xplored
+package pt.iade.ei.xplored.ui.screens.settings
 
 import android.app.Activity
 import android.content.Context
@@ -28,6 +28,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import pt.iade.ei.xplored.R
+import pt.iade.ei.xplored.SessionManager
+import pt.iade.ei.xplored.ui.screens.auth.LoginNewUserActivity
+import pt.iade.ei.xplored.ui.screens.auth.LoginWelcomeBackActivity
+import pt.iade.ei.xplored.ui.screens.main.MainActivity
+import pt.iade.ei.xplored.ui.screens.misc.ComingSoonActivity
+import pt.iade.ei.xplored.ui.screens.profile.EditProfileActivity
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 
 val CardBackground = Color(0xFFF5F5F5)
@@ -97,37 +104,55 @@ fun SettingsSection(title: String) {
         color = Color.Gray,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 32.dp, bottom = 8.dp)
+            .padding(top = 24.dp, bottom = 8.dp)
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen() {
     val context = LocalContext.current
     val activity = context.findActivity()
     val scrollState = rememberScrollState()
 
-    Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
-        Box(modifier = Modifier.fillMaxSize()) {
-
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.settings_title),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { activity?.finish() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_back),
+                            tint = Color.Black
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.White
+                )
+            )
+        }
+    ) { innerPadding ->
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            color = Color.White
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
-                    .padding(horizontal = 24.dp)
-                    .padding(top = 100.dp),
+                    .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
-                Text(
-                    text = stringResource(R.string.settings_title),
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 32.dp)
-                )
-
                 // Account
                 SettingsSection(title = stringResource(R.string.settings_account))
                 Card(
@@ -136,10 +161,11 @@ fun SettingsScreen() {
                     colors = CardDefaults.cardColors(containerColor = CardBackground),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
+                    // KEEPING THIS: Opens EditProfileActivity
                     SettingsItem(
                         icon = Icons.Default.Person,
                         title = stringResource(R.string.settings_edit_profile),
-                        onClick = { activity?.startActivity(Intent(activity, ProfileActivity::class.java)) }
+                        onClick = { activity?.startActivity(Intent(activity, EditProfileActivity::class.java)) }
                     )
                     SettingsItem(
                         icon = Icons.Default.Security,
@@ -224,7 +250,7 @@ fun SettingsScreen() {
                     SettingsItem(
                         icon = Icons.Default.Warning,
                         title = stringResource(R.string.settings_report_problem),
-                        onClick = { /* keep as is */ }
+                        onClick = { activity?.startActivity(Intent(activity, ComingSoonActivity::class.java)) }
                     )
                     SettingsItem(
                         icon = Icons.Default.Person,
@@ -236,6 +262,7 @@ fun SettingsScreen() {
                             activity?.startActivity(intent)
                         }
                     )
+                    // KEEPING THIS: Logout Logic
                     SettingsItem(
                         icon = Icons.AutoMirrored.Filled.ArrowBack,
                         title = stringResource(R.string.settings_logout),
@@ -252,21 +279,7 @@ fun SettingsScreen() {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(64.dp))
-            }
-
-            IconButton(
-                onClick = { (context as? ComponentActivity)?.finish() },
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(top = 32.dp, start = 8.dp)
-                    .size(64.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.cd_back),
-                    tint = Color.Black
-                )
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
     }

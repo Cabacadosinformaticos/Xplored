@@ -1,6 +1,5 @@
-package pt.iade.ei.xplored
+package pt.iade.ei.xplored.ui.screens.auth
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -30,6 +29,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import pt.iade.ei.xplored.R
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 
 val PrimaryDark = Color(0xFF1E2835)
@@ -54,7 +54,6 @@ fun OtpBox(text: String, isFocused: Boolean) {
         modifier = Modifier
             .size(80.dp)
             .background(Color.White, RoundedCornerShape(12.dp))
-            .height(160.dp)
             .border(
                 width = 2.dp,
                 color = if (isFocused) HighlightedColor else SecondaryLight,
@@ -168,7 +167,6 @@ fun IdentityCheckScreen() {
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(180.dp)
                 )
 
                 Button(

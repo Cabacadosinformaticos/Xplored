@@ -1,4 +1,4 @@
-package pt.iade.ei.xplored
+package pt.iade.ei.xplored.ui.screens.auth
 
 import android.content.Context
 import android.content.Intent
@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 import androidx.core.content.edit
+import pt.iade.ei.xplored.R
+import pt.iade.ei.xplored.SessionManager
 
 class LoginNewPasswordActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
