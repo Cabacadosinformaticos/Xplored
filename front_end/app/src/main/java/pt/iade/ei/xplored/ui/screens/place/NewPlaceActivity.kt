@@ -1,9 +1,10 @@
-package pt.iade.ei.xplored
+package pt.iade.ei.xplored.ui.screens.place
 
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,7 +15,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,7 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
@@ -69,12 +69,11 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import pt.iade.ei.xplored.models.CategoryMapper
-import pt.iade.ei.xplored.models.Place
-import pt.iade.ei.xplored.models.PlaceApiRepository
-import pt.iade.ei.xplored.models.PlaceRequest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import pt.iade.ei.xplored.R
 import pt.iade.ei.xplored.ui.theme.XploredTheme
-import java.lang.SecurityException
+import java.util.Locale
 
 class NewPlaceActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,8 +92,13 @@ fun NewPlaceScreen() {
     val context = LocalContext.current
     var showMapView by remember { mutableStateOf(false) }
 
+    // Form State
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+
+    // NEW: Address Field State
+    var address by remember { mutableStateOf("") }
+
     var selectedLatLng by remember { mutableStateOf<LatLng?>(null) }
     var expanded by remember { mutableStateOf(false) }
     val categories = listOf(
@@ -107,6 +111,35 @@ fun NewPlaceScreen() {
     var selectedCategory by remember { mutableStateOf(categories[0]) }
     var selectedImageUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
+    // --- GEOCODER LOGIC START ---
+    // Whenever selectedLatLng changes (user picks a point), try to fetch the address.
+    LaunchedEffect(selectedLatLng) {
+        selectedLatLng?.let { latLng ->
+            if (Geocoder.isPresent()) {
+                try {
+                    val geocoder = Geocoder(context, Locale.getDefault())
+                    // Run in background to avoid freezing UI
+                    withContext(Dispatchers.IO) {
+                        @Suppress("DEPRECATION")
+                        val addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+                        if (!addresses.isNullOrEmpty()) {
+                            val foundAddress = addresses[0].getAddressLine(0)
+                            // Update UI on Main Thread
+                            withContext(Dispatchers.Main) {
+                                // Only overwrite if address field is empty or contains a previous auto-generated one
+                                // But here we just overwrite to be helpful
+                                address = foundAddress ?: ""
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+    // --- GEOCODER LOGIC END ---
+
     val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(),
         onResult = { uris ->
@@ -117,8 +150,6 @@ fun NewPlaceScreen() {
                     val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION
                     contentResolver.takePersistableUriPermission(uri, takeFlags)
                 } catch (e: SecurityException) {
-                    // This can happen if the user selects a file from a provider
-                    // that doesn't support persistable permissions.
                     e.printStackTrace()
                 }
             }
@@ -158,7 +189,8 @@ fun NewPlaceScreen() {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (showMapView) stringResource(R.string.map_choose_location) else stringResource(R.string.new_place_title)) },
+                title = { Text(if (showMapView) stringResource(R.string.map_choose_location) else stringResource(
+                    R.string.new_place_title)) },
                 navigationIcon = {
                     IconButton(onClick = {
                         if (showMapView) {
@@ -167,7 +199,7 @@ fun NewPlaceScreen() {
                             (context as? Activity)?.finish()
                         }
                     }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.cd_back))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
                     }
                 }
             )
@@ -259,7 +291,7 @@ fun NewPlaceScreen() {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp) // Standard height for a text field
+                        .height(56.dp)
                         .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(4.dp))
                         .clickable { showMapView = true }
                         .padding(horizontal = 16.dp),
@@ -267,11 +299,27 @@ fun NewPlaceScreen() {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = selectedLatLng?.let { "Lat: %.4f, Lng: %.4f".format(it.latitude, it.longitude) } ?: stringResource(R.string.new_place_label_location),
+                        text = selectedLatLng?.let { "Lat: %.4f, Lng: %.4f".format(it.latitude, it.longitude) } ?: stringResource(
+                            R.string.new_place_label_location),
                         color = if (selectedLatLng == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
                     )
                     Icon(Icons.Outlined.Map, contentDescription = "Open Map")
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // --- NEW ADDRESS FIELD ---
+                // This allows the user to manually fix "Moscavide" errors
+                Text("Morada (Address)", fontWeight = FontWeight.Bold)
+                OutlinedTextField(
+                    value = address,
+                    onValueChange = { address = it },
+                    label = { Text("Morada") },
+                    placeholder = { Text("Ex: Rua de Moscavide, 10") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                // -------------------------
+
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(stringResource(R.string.new_place_field_photos), fontWeight = FontWeight.Bold)
@@ -300,32 +348,19 @@ fun NewPlaceScreen() {
 
                 Button(
                     onClick = {
+                        // Include 'address' in validity check
                         if (title.isNotBlank() && description.isNotBlank() && selectedLatLng != null) {
-                            val newPlace = PlaceRequest(
-                                name = title,
-                                description = description,
-                                lat = selectedLatLng!!.latitude,
-                                lng = selectedLatLng!!.longitude,
-                                addressFull = "",
-                                postalCode = "",
-                                categoryId = CategoryMapper.getIdByName(selectedCategory) ?: 1,
-                                status = "pending"
-                            )
-
-
-                            PlaceApiRepository.createPlace(newPlace) { success ->
-                                if (success) {
-                                    (context as? Activity)?.setResult(Activity.RESULT_OK)
-                                    (context as? Activity)?.finish()
-                                } else {
-                                    // show a toast if needed
-                                    android.widget.Toast.makeText(
-                                        context,
-                                        "Failed to save place to database",
-                                        android.widget.Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+                            val resultIntent = Intent().apply {
+                                putExtra("name", title)
+                                putExtra("description", description)
+                                putExtra("lat", selectedLatLng!!.latitude)
+                                putExtra("lng", selectedLatLng!!.longitude)
+                                putExtra("category", selectedCategory)
+                                putExtra("address", address.ifBlank { "Morada desconhecida" })
+                                putParcelableArrayListExtra("photoUris", ArrayList(selectedImageUris))
                             }
+                            (context as? Activity)?.setResult(Activity.RESULT_OK, resultIntent)
+                            (context as? Activity)?.finish()
                         }
                     },
                     modifier = Modifier.fillMaxWidth().height(48.dp),
@@ -333,7 +368,6 @@ fun NewPlaceScreen() {
                 ) {
                     Text(stringResource(R.string.new_place_create))
                 }
-
             }
         }
     }
