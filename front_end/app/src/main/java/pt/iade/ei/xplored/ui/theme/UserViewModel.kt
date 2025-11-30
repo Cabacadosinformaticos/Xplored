@@ -2,7 +2,7 @@ package pt.iade.ei.xplored
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import pt.iade.ei.xplored.models.User
+import pt.iade.ei.xplored.data.models.users.User
 import pt.iade.ei.xplored.network.ApiClient
 import pt.iade.ei.xplored.network.UserApiService
 import kotlinx.coroutines.launch
