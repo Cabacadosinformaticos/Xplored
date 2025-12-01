@@ -1,5 +1,8 @@
 package com.Xplored.Xplored.Model;
 
+import com.Xplored.Xplored.Config.UrlUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -36,7 +39,8 @@ public class User {
     @Column(name = "about")
     private String about;
 
-    @Column(name = "created_at", updatable = false, insertable = false)
+    @org.hibernate.annotations.CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     public User() {}
@@ -60,6 +64,7 @@ public class User {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public String getPasswordHash() { return passwordHash; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 
@@ -72,8 +77,13 @@ public class User {
     public int getPoints() { return points; }
     public void setPoints(int points) { this.points = points; }
 
+    @JsonIgnore
     public String getProfilePhotoUrl() { return profilePhotoUrl; }
     public void setProfilePhotoUrl(String profilePhotoUrl) { this.profilePhotoUrl = profilePhotoUrl; }
+
+    // Serialised as "profilePhoto" with an absolute URL built from the current request.
+    @JsonProperty("profilePhoto")
+    public String getProfilePhoto() { return UrlUtil.toAbsolute(profilePhotoUrl); }
 
     public String getAbout() { return about; }
     public void setAbout(String about) { this.about = about; }

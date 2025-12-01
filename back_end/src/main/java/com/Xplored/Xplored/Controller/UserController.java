@@ -1,14 +1,16 @@
 package com.Xplored.Xplored.Controller;
 
+import com.Xplored.Xplored.Model.LoginRequest;
+import com.Xplored.Xplored.Model.RegisterRequest;
 import com.Xplored.Xplored.Model.User;
-import com.Xplored.Xplored.Model.UserDao;
 import com.Xplored.Xplored.Model.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.PutMapping;
-import java.util.List;
+
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -16,35 +18,43 @@ import java.util.Optional;
 @CrossOrigin(origins = "*")
 public class UserController {
 
-    @Autowired
-    private UserDao userDao;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping("/get-all")
-    public List<User> getUsers() {
-        return userDao.getAllusers();
-    }
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
+        if (isBlank(req.name) || isBlank(req.email) || isBlank(req.password)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "name, email and password are required"));
+        }
+        if (userRepository.findByEmail(req.email).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "Email already registered"));
+        }
 
-    @PostMapping("/save")
-    public ResponseEntity<User> save(@RequestBody User user) {
-        User saved = userDao.save(user);
+        User user = new User();
+        user.setName(req.name);
+        user.setEmail(req.email);
+        user.setPasswordHash(passwordEncoder.encode(req.password));
+        user.setRole("USER");
+        user.setPoints(0);
+
+        User saved = userRepository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    @GetMapping("/login")
-    public ResponseEntity<User> loginUser(
-            @RequestParam String email,
-            @RequestParam String password) {
-
-        Optional<User> user = userRepository.findByEmailAndPasswordHash(email, password);
-
-        return user.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+    @PostMapping("/login")
+    public ResponseEntity<User> login(@RequestBody LoginRequest req) {
+        if (isBlank(req.email) || isBlank(req.password)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Optional<User> userOpt = userRepository.findByEmail(req.email);
+        if (userOpt.isPresent() && passwordEncoder.matches(req.password, userOpt.get().getPasswordHash())) {
+            return ResponseEntity.ok(userOpt.get());
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-    // --- NEW ENDPOINT ---
     @GetMapping("/by-email")
     public ResponseEntity<User> getUserByEmail(@RequestParam String email) {
         return userRepository.findByEmail(email)
@@ -52,33 +62,26 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/update-points")
-    public ResponseEntity<?> updatePoints(@RequestParam String email, @RequestParam int points) {
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            user.setPoints(points);
-            userRepository.save(user);
-            return ResponseEntity.ok("Points updated");
-        }
-        return ResponseEntity.notFound().build();
-    }
     @PutMapping("/update-profile")
     public ResponseEntity<User> updateProfile(
             @RequestParam String email,
             @RequestParam String name,
             @RequestParam String about,
-            @RequestParam String country // <--- NEW PARAMETER
+            @RequestParam String country
     ) {
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             user.setName(name);
             user.setAbout(about);
-            user.setCountry(country); // <--- SAVE IT
+            user.setCountry(country);
             User updated = userRepository.save(user);
             return ResponseEntity.ok(updated);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 }
