@@ -6,10 +6,12 @@ import com.Xplored.Xplored.Model.Place.Place;
 import com.Xplored.Xplored.Model.Place.PlaceDao;
 import com.Xplored.Xplored.Model.Category.Category;
 import com.Xplored.Xplored.Model.Category.CategoryDao;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+@Disabled("Requires a local MySQL database with data_base/create.sql applied")
 @SpringBootTest
 class XploredApplicationTests {
 
