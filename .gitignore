@@ -1,0 +1,22 @@
+# Build output
+build/
+.gradle/
+.kotlin/
+out/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Machine-specific configuration and secrets
+local.properties
+secrets.properties
+.env
+
+# Uploaded files written by the backend at runtime
+back_end/uploads/
+
+# OS
+.DS_Store
+Thumbs.db
