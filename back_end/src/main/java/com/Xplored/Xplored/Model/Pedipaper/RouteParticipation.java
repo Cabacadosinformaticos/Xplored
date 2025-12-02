@@ -23,14 +23,14 @@ public class RouteParticipation {
     @Column(name = "started_at", insertable = false, updatable = false)
     private LocalDateTime startedAt;
 
+    @Column(name = "completed")
+    private Boolean completed = false;
+
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
     @Column(name = "points_awarded")
-    private Integer pointsAwarded; // Make sure DB column is 'points_awarded' (check schema if it's 'progress' or similar)
-    // Note: Your initial schema had 'progress INT', but no 'points_awarded'.
-    // Assuming you might want to use 'progress' logic or if you added the column.
-    // Based on Controller, it expects pointsAwarded.
+    private Integer pointsAwarded = 0;
 
     public RouteParticipation() {}
 
@@ -44,6 +44,9 @@ public class RouteParticipation {
     public void setUserId(Long userId) { this.userId = userId; }
 
     public LocalDateTime getStartedAt() { return startedAt; }
+
+    public Boolean getCompleted() { return completed; }
+    public void setCompleted(Boolean completed) { this.completed = completed; }
 
     public LocalDateTime getCompletedAt() { return completedAt; }
     public void setCompletedAt(LocalDateTime completedAt) { this.completedAt = completedAt; }
