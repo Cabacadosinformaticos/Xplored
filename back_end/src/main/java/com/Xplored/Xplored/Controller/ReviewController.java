@@ -13,10 +13,13 @@ import com.Xplored.Xplored.Model.Review.ReviewResponse;
 import com.Xplored.Xplored.Model.User;
 import com.Xplored.Xplored.Model.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -24,6 +27,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/reviews")
 @CrossOrigin(origins = "*")
 public class ReviewController {
+
+    private static final String GALLERY = "GALLERY";
 
     @Autowired
     private ReviewRepository reviewRepository;
@@ -40,18 +45,27 @@ public class ReviewController {
     @Autowired
     private PlaceRepository placeRepository; // Needed to get Place Name for profile
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @PostMapping
     public ResponseEntity<?> createReview(@RequestBody ReviewRequest request) {
-        // 1. Find the user by Email
         Optional<User> userOpt = userRepository.findByEmail(request.userEmail);
-
         if (userOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("User not found with email: " + request.userEmail);
+            return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
+        }
+        if (request.rating < 1 || request.rating > 5) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Rating must be between 1 and 5"));
+        }
+        if (request.placeId == null || !placeRepository.existsById(request.placeId)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Place not found"));
+        }
+        if (request.title != null && request.title.length() > 100) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Title is too long (max 100 characters)"));
         }
 
         User user = userOpt.get();
 
-        // 2. Create the Review Entity
         Review review = new Review();
         review.setUserId(user.getId());
         review.setPlaceId(request.placeId);
@@ -61,7 +75,13 @@ public class ReviewController {
         review.setStatus("APPROVED");
 
         Review saved = reviewRepository.save(review);
-        return ResponseEntity.ok(saved);
+
+        // Recompute the place average from its reviews.
+        jdbcTemplate.update(
+                "UPDATE places SET avg_rating = (SELECT COALESCE(AVG(rating),0) FROM reviews WHERE place_id=?) WHERE id=?",
+                request.placeId, request.placeId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @GetMapping("/by-place/{placeId}")
@@ -73,6 +93,7 @@ public class ReviewController {
 
         // Fetch the place once to pass to responses (optimization)
         Place place = placeRepository.findById(placeId).orElse(null);
+        String placeCoverUrl = coverFor(placeId);
 
         Long currentUserId = null;
         if (userEmail != null && !userEmail.isEmpty()) {
@@ -89,12 +110,11 @@ public class ReviewController {
                     .map(Photo::getUrl)
                     .collect(Collectors.toList());
 
-            // Pass 'place' to the new constructor
-            return new ReviewResponse(r, author, place, reactions, finalUserId, photoUrls);
+            return new ReviewResponse(r, author, place, placeCoverUrl, reactions, finalUserId, photoUrls);
         }).collect(Collectors.toList());
     }
 
-    // NEW ENDPOINT: Fetch reviews for the Profile Screen
+    // Fetch reviews for the Profile Screen
     @GetMapping("/by-user")
     public List<ReviewResponse> getByUser(@RequestParam String email) {
         Optional<User> userOpt = userRepository.findByEmail(email);
@@ -116,7 +136,15 @@ public class ReviewController {
                     .map(Photo::getUrl)
                     .collect(Collectors.toList());
 
-            return new ReviewResponse(r, user, place, reactions, currentUserId, photoUrls);
+            return new ReviewResponse(r, user, place, coverFor(r.getPlaceId()), reactions, currentUserId, photoUrls);
         }).collect(Collectors.toList());
+    }
+
+    // First GALLERY photo of a place, or null when it has none.
+    private String coverFor(Long placeId) {
+        if (placeId == null) return null;
+        return photoRepository.findFirstByPlaceIdAndKindOrderByPhotoIdAsc(placeId, GALLERY)
+                .map(Photo::getUrl)
+                .orElse(null);
     }
 }

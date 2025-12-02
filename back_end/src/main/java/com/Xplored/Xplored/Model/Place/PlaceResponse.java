@@ -1,6 +1,6 @@
 package com.Xplored.Xplored.Model.Place;
 
-import java.util.List;
+import com.Xplored.Xplored.Config.UrlUtil;
 
 public class PlaceResponse {
     public Long placeId;          // Changed to Long
@@ -25,6 +25,6 @@ public class PlaceResponse {
         this.categoryId = categoryId;
         this.authorId = authorId;
         this.avgRating = avgRating;
-        this.coverImageUrl = coverImageUrl;
+        this.coverImageUrl = UrlUtil.toAbsolute(coverImageUrl);
     }
 }

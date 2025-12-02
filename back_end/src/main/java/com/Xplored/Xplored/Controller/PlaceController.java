@@ -1,18 +1,19 @@
 package com.Xplored.Xplored.Controller;
 
-import com.Xplored.Xplored.Model.Place.PlaceResponse;
 import com.Xplored.Xplored.Model.Place.PlaceRequest;
+import com.Xplored.Xplored.Model.Place.PlaceResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/places")
@@ -25,28 +26,23 @@ public class PlaceController {
     // --- 1. Get All Places ---
     @GetMapping("")
     public List<PlaceResponse> getAllPlaces() {
-        // Updated SQL for new Schema:
-        // 1. Uses 'id' instead of 'place_id'
-        // 2. Uses 'author_id' instead of 'user_id'
-        // 3. Selects 'avg_rating' column instead of live calculation
-        // 4. Subquery for cover image (since cover_image_url column is gone)
+        // The cover comes from the first GALLERY photo of the place.
         String sql = """
-            SELECT 
-                p.id AS place_id, 
-                p.name, 
-                p.description, 
-                p.lat, 
-                p.lng, 
-                p.address_full, 
-                p.category_id, 
+            SELECT
+                p.id AS place_id,
+                p.name,
+                p.description,
+                p.lat,
+                p.lng,
+                p.address_full,
+                p.category_id,
                 p.avg_rating,
                 u.email AS author_email,
-                -- Get the first 'GALLERY' photo as cover
-                (SELECT ph.url FROM photos ph WHERE ph.place_id = p.id AND ph.kind = 'GALLERY' LIMIT 1) AS cover_image_url
+                (SELECT ph.url FROM photos ph
+                 WHERE ph.place_id = p.id AND ph.kind = 'GALLERY'
+                 ORDER BY ph.id ASC LIMIT 1) AS cover_image_url
             FROM places p
             LEFT JOIN users u ON p.author_id = u.id
-            -- Optional: Filter by verified if you strictly want approved places
-            -- WHERE p.is_verified = TRUE 
         """;
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> new PlaceResponse(
@@ -66,55 +62,75 @@ public class PlaceController {
     // --- 2. Create Place ---
     @PostMapping("")
     public ResponseEntity<?> createPlace(@RequestBody PlaceRequest req) {
-        try {
-            // 1. Resolve author email to Database ID
-            Integer userId = jdbcTemplate.queryForObject(
-                    "SELECT id FROM users WHERE email = ?", Integer.class, req.authorId
-            );
-
-            if (userId == null) return ResponseEntity.badRequest().body("User not found");
-
-            // 2. Insert into new schema
-            // Note: We default avg_rating to 0.0 and is_verified to TRUE (or FALSE if you want moderation)
-            String sql = """
-            INSERT INTO places (name, description, lat, lng, address_full, category_id, author_id, avg_rating, is_verified)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 0.0, TRUE)
-           """;
-
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-            jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                ps.setString(1, req.name);
-                ps.setString(2, req.description);
-                ps.setDouble(3, req.lat);
-                ps.setDouble(4, req.lng);
-                ps.setString(5, req.addressFull);
-                ps.setLong(6, req.categoryId);
-                ps.setInt(7, userId);
-                return ps;
-            }, keyHolder);
-
-            long newId = keyHolder.getKey().longValue();
-
-            // Return success response matching frontend model
-            return ResponseEntity.ok(new PlaceResponse(
-                    newId, req.name, req.description, req.lat, req.lng,
-                    req.addressFull, req.categoryId, req.authorId, 0.0, null
-            ));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        if (req.authorId == null || req.authorId.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Author is required"));
         }
+        // Resolve author email to database id.
+        List<Integer> authorIds = jdbcTemplate.query(
+                "SELECT id FROM users WHERE email = ?",
+                (rs, rowNum) -> rs.getInt("id"),
+                req.authorId);
+        if (authorIds.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Unknown author"));
+        }
+        Integer userId = authorIds.get(0);
+
+        if (req.categoryId == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Category is required"));
+        }
+        Integer categoryCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM categories WHERE id = ?", Integer.class, req.categoryId);
+        if (categoryCount == null || categoryCount == 0) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Unknown category"));
+        }
+
+        // Moderation is a later feature: honour the request value, otherwise keep the
+        // current behaviour of marking new places as verified.
+        boolean verified = req.isVerified == null || req.isVerified;
+
+        String sql = """
+            INSERT INTO places (name, description, lat, lng, address_full, category_id, author_id, avg_rating, is_verified)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 0.0, ?)
+        """;
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, req.name);
+            ps.setString(2, req.description);
+            ps.setDouble(3, req.lat);
+            ps.setDouble(4, req.lng);
+            ps.setString(5, req.addressFull);
+            ps.setLong(6, req.categoryId);
+            ps.setInt(7, userId);
+            ps.setBoolean(8, verified);
+            return ps;
+        }, keyHolder);
+
+        long newId = keyHolder.getKey().longValue();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(new PlaceResponse(
+                newId, req.name, req.description, req.lat, req.lng,
+                req.addressFull, req.categoryId, req.authorId, 0.0, null
+        ));
     }
 
-    // --- 3. Delete Place ---
+    // --- 3. Delete Place (author only) ---
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePlace(@PathVariable Long id) {
-        // Updated WHERE clause to use 'id'
-        String sql = "DELETE FROM places WHERE id = ?";
-        int rows = jdbcTemplate.update(sql, id);
-        if (rows > 0) return ResponseEntity.ok("Deleted");
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Place not found");
+    public ResponseEntity<?> deletePlace(@PathVariable Long id, @RequestParam String userEmail) {
+        List<String> authors = jdbcTemplate.query(
+                "SELECT u.email FROM places p LEFT JOIN users u ON p.author_id = u.id WHERE p.id = ?",
+                (rs, rowNum) -> rs.getString("email"),
+                id);
+        if (authors.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Place not found"));
+        }
+        String author = authors.get(0);
+        if (author == null || !author.equalsIgnoreCase(userEmail)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Only the author can delete this place"));
+        }
+        jdbcTemplate.update("DELETE FROM places WHERE id = ?", id);
+        return ResponseEntity.ok(Map.of("message", "Deleted"));
     }
 }

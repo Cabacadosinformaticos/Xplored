@@ -2,6 +2,7 @@ package com.Xplored.Xplored.Controller;
 
 import com.Xplored.Xplored.Model.Reaction.Reaction;
 import com.Xplored.Xplored.Model.Reaction.ReactionRepository;
+import com.Xplored.Xplored.Model.Review.ReviewRepository;
 import com.Xplored.Xplored.Model.User;
 import com.Xplored.Xplored.Model.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ public class ReactionController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ReviewRepository reviewRepository;
+
     // Helper DTO for the request
     public static class ReactionRequest {
         public String userEmail;
@@ -35,7 +39,16 @@ public class ReactionController {
         if (userOpt.isEmpty()) return ResponseEntity.badRequest().body("User not found");
         Long userId = userOpt.get().getId();
 
-        // 2. Check if reaction already exists
+        // 2. Validate the reaction type and the review
+        if (request.type == null
+                || (!request.type.equals("USEFUL") && !request.type.equals("NOT_USEFUL"))) {
+            return ResponseEntity.badRequest().body("Invalid reaction type");
+        }
+        if (request.reviewId == null || !reviewRepository.existsById(request.reviewId)) {
+            return ResponseEntity.badRequest().body("Review not found");
+        }
+
+        // 3. Check if reaction already exists
         Optional<Reaction> existing = reactionRepository.findByUserIdAndReviewId(userId, request.reviewId);
 
         if (existing.isPresent()) {

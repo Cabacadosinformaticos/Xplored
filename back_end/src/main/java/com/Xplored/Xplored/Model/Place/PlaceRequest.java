@@ -10,4 +10,5 @@ public class PlaceRequest {
     public Long categoryId;
     public String authorId; // This corresponds to the user's email
     public String status;
+    public Boolean isVerified; // Optional; moderation is a later feature
 }

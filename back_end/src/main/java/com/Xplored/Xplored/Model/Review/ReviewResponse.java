@@ -1,10 +1,12 @@
 package com.Xplored.Xplored.Model.Review;
 
+import com.Xplored.Xplored.Config.UrlUtil;
 import com.Xplored.Xplored.Model.Place.Place;
 import com.Xplored.Xplored.Model.Reaction.Reaction;
 import com.Xplored.Xplored.Model.User;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ReviewResponse {
     public Long reviewId;
@@ -31,8 +33,9 @@ public class ReviewResponse {
     // Photos associated with the review
     public List<String> reviewPhotoUrls;
 
-    // Updated Constructor to accept 'Place'
-    public ReviewResponse(Review review, User user, Place place, List<Reaction> reactions, Long currentUserId, List<String> photoUrls) {
+    // Updated Constructor to accept 'Place' and its computed cover URL
+    public ReviewResponse(Review review, User user, Place place, String placeCoverUrl,
+                          List<Reaction> reactions, Long currentUserId, List<String> photoUrls) {
         this.reviewId = review.getReviewId();
         this.userId = review.getUserId();
         this.placeId = review.getPlaceId();
@@ -41,7 +44,8 @@ public class ReviewResponse {
         this.comment = review.getComment();
 
         // Assign photos
-        this.reviewPhotoUrls = photoUrls;
+        this.reviewPhotoUrls = photoUrls == null ? null
+                : photoUrls.stream().map(UrlUtil::toAbsolute).collect(Collectors.toList());
 
         if (review.getCreatedAt() != null) {
             this.createdAt = review.getCreatedAt().toString();
@@ -50,17 +54,17 @@ public class ReviewResponse {
         // Fill User Info
         if (user != null) {
             this.userName = user.getName();
-            this.userPhotoUrl = user.getProfilePhotoUrl();
+            this.userPhotoUrl = UrlUtil.toAbsolute(user.getProfilePhotoUrl());
         } else {
             this.userName = "Utilizador Xplored";
             this.userPhotoUrl = null;
         }
 
-        // NEW: Fill Place Info
+        // Fill Place Info (cover computed from the first GALLERY photo)
         if (place != null) {
             this.placeName = place.getName();
-            this.placeCoverUrl = place.getCoverImageUrl();
         }
+        this.placeCoverUrl = UrlUtil.toAbsolute(placeCoverUrl);
 
         // Fill Reactions
         if (reactions != null) {
