@@ -1,12 +1,14 @@
 package com.Xplored.Xplored.Controller;
 
+import com.Xplored.Xplored.Config.UrlUtil;
 import com.Xplored.Xplored.Model.Photo.Photo;
 import com.Xplored.Xplored.Model.Photo.PhotoRepository;
-import com.Xplored.Xplored.Model.Place.Place;
 import com.Xplored.Xplored.Model.Place.PlaceRepository;
+import com.Xplored.Xplored.Model.Review.ReviewRepository;
 import com.Xplored.Xplored.Model.User;
 import com.Xplored.Xplored.Model.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +20,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/photos")
 @CrossOrigin(origins = "*")
 public class PhotoController {
+
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png", "webp");
+    private static final String GALLERY = "GALLERY";
+    private static final String EVIDENCE = "EVIDENCE";
 
     @Autowired
     private PhotoRepository photoRepository;
@@ -34,13 +44,16 @@ public class PhotoController {
     @Autowired
     private PlaceRepository placeRepository;
 
-    // Creates a folder named "uploads" in your project root
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    // Creates a folder named "uploads" in the project root
     private final Path fileStorageLocation = Paths.get("uploads").toAbsolutePath().normalize();
 
     public PhotoController() {
         try {
             Files.createDirectories(fileStorageLocation);
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
@@ -52,99 +65,126 @@ public class PhotoController {
             @RequestParam(value = "placeId", required = false) String placeId,
             @RequestParam(value = "reviewId", required = false) String reviewId
     ) {
-        try {
-            // 1. Save File to Disk
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            Path targetLocation = fileStorageLocation.resolve(fileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-
-            // 2. Generate URL (10.0.2.2 is for Android Emulator to reach localhost)
-            String fileUrl = "http://10.0.2.2:9000/uploads/" + fileName;
-
-            // 3. Find User (Accepts ID or Email)
-            Optional<User> userOpt = userRepository.findByEmail(userIdOrEmail);
-            if (userOpt.isEmpty()) {
-                try {
-                    Long uid = Long.parseLong(userIdOrEmail);
-                    userOpt = userRepository.findById(uid);
-                } catch (NumberFormatException ignored) {}
-            }
-
-            if (userOpt.isEmpty()) {
-                return ResponseEntity.badRequest().body("User not found: " + userIdOrEmail);
-            }
-            User user = userOpt.get();
-
-            // Case A: Avatar Update (Updates User table, does not create Photo entity)
-            if (reviewId != null && reviewId.startsWith("AVATAR")) {
-                user.setProfilePhotoUrl(fileUrl);
-                userRepository.save(user);
-                return ResponseEntity.ok().body("{\"status\": \"Avatar Updated\", \"url\": \"" + fileUrl + "\"}");
-            }
-
-            // Case B & C: Gallery or Review/Place Photo
-            Photo photo = new Photo();
-            photo.setUrl(fileUrl);
-            photo.setUserId(user.getId());
-            photo.setStatus("APPROVED");
-
-            // Handle Review Link
-            if (reviewId != null && !reviewId.isEmpty() && !reviewId.startsWith("PLACE") && !reviewId.startsWith("PROFILE")) {
-                try {
-                    Long rId = Long.parseLong(reviewId);
-                    photo.setReviewId(rId);
-                } catch (NumberFormatException e) {
-                    photo.setReviewId(null);
-                }
-            }
-
-            // Handle Place Link (Optional now)
-            if (placeId != null && !placeId.isEmpty()) {
-                try {
-                    Long pId = Long.parseLong(placeId);
-                    photo.setPlaceId(pId);
-
-                    // Update Place cover image if missing
-                    Optional<Place> placeOpt = placeRepository.findById(pId);
-                    if (placeOpt.isPresent()) {
-                        Place place = placeOpt.get();
-                        if (place.getCoverImageUrl() == null || place.getCoverImageUrl().isEmpty()) {
-                            place.setCoverImageUrl(fileUrl);
-                            placeRepository.save(place);
-                        }
-                    }
-                } catch (NumberFormatException e) {
-                    // Invalid place ID, but we still save the photo as a user gallery photo
-                }
-            }
-
-            // SAVE TO DB
-            photoRepository.save(photo);
-
-            return ResponseEntity.ok().body("{\"status\": \"Photo Saved\", \"url\": \"" + fileUrl + "\"}");
-
-        } catch (IOException ex) {
-            return ResponseEntity.badRequest().body("Error: " + ex.getMessage());
+        // 1. Check the file before touching the disk.
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
         }
+        String extension = extensionOf(file.getOriginalFilename());
+        if (!ALLOWED_EXTENSIONS.contains(extension)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Only jpg, jpeg, png and webp are allowed"));
+        }
+
+        // 2. The user must exist.
+        Optional<User> userOpt = findUser(userIdOrEmail);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
+        }
+        User user = userOpt.get();
+
+        // 3. Resolve the optional relations before writing the file.
+        boolean isAvatar = reviewId != null && reviewId.startsWith("AVATAR");
+        boolean isEvidence = reviewId != null && reviewId.startsWith("STOP-EVIDENCE-");
+        Long placeIdValue = parseId(placeId);
+        Long reviewIdValue = isAvatar || isEvidence ? null : parseId(reviewId);
+
+        if (placeId != null && !placeId.isBlank()) {
+            if (placeIdValue == null || !placeRepository.existsById(placeIdValue)) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Place not found"));
+            }
+        }
+        if (reviewIdValue != null && !reviewRepository.existsById(reviewIdValue)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Review not found"));
+        }
+
+        // 4. Store the file under uploads/ with a generated name.
+        String fileName = UUID.randomUUID() + "." + extension;
+        Path targetLocation = fileStorageLocation.resolve(fileName).normalize();
+        if (!targetLocation.startsWith(fileStorageLocation)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid file path"));
+        }
+        try {
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Could not store file"));
+        }
+
+        String relativeUrl = "/uploads/" + fileName;
+
+        // 5a. Avatar: update the user, no Photo row.
+        if (isAvatar) {
+            user.setProfilePhotoUrl(relativeUrl);
+            userRepository.save(user);
+            return ResponseEntity.ok(Map.of("status", "Avatar Updated", "url", UrlUtil.toAbsolute(relativeUrl)));
+        }
+
+        // 5b. Regular photo: place gallery, review photo or pedipaper evidence.
+        Photo photo = new Photo();
+        photo.setUrl(relativeUrl);
+        photo.setUserId(user.getId());
+        photo.setStatus("APPROVED");
+        photo.setKind(isEvidence ? EVIDENCE : GALLERY);
+        photo.setPlaceId(placeIdValue);
+        photo.setReviewId(reviewIdValue);
+        photoRepository.save(photo);
+
+        return ResponseEntity.ok(Map.of("status", "Photo Saved", "url", UrlUtil.toAbsolute(relativeUrl)));
     }
 
     @GetMapping("/by-place/{placeId}")
     public List<Photo> getByPlace(@PathVariable Long placeId) {
-        return photoRepository.findByPlaceId(placeId);
+        return photoRepository.findByPlaceIdAndKind(placeId, GALLERY).stream()
+                .map(PhotoController::withAbsoluteUrl)
+                .collect(Collectors.toList());
     }
 
-    // NEW: Endpoint to fetch photos for the User Profile Gallery
+    // Fetch photos for the User Profile Gallery.
     @GetMapping("/by-user/{userIdOrEmail}")
     public List<Photo> getByUser(@PathVariable String userIdOrEmail) {
+        Optional<User> userOpt = findUser(userIdOrEmail);
+        if (userOpt.isEmpty()) return List.of();
+        return photoRepository.findByUserIdAndKind(userOpt.get().getId(), GALLERY).stream()
+                .map(PhotoController::withAbsoluteUrl)
+                .collect(Collectors.toList());
+    }
+
+    // Detached copy so the absolute URL never gets flushed back to the database.
+    private static Photo withAbsoluteUrl(Photo source) {
+        Photo copy = new Photo();
+        copy.setPhotoId(source.getPhotoId());
+        copy.setUrl(UrlUtil.toAbsolute(source.getUrl()));
+        copy.setPlaceId(source.getPlaceId());
+        copy.setUserId(source.getUserId());
+        copy.setReviewId(source.getReviewId());
+        copy.setKind(source.getKind());
+        copy.setStatus(source.getStatus());
+        return copy;
+    }
+
+    private Optional<User> findUser(String idOrEmail) {
+        if (idOrEmail == null || idOrEmail.isBlank()) return Optional.empty();
+        Optional<User> byEmail = userRepository.findByEmail(idOrEmail);
+        if (byEmail.isPresent()) return byEmail;
         try {
-            Long uid = Long.parseLong(userIdOrEmail);
-            return photoRepository.findByUserId(uid);
-        } catch (NumberFormatException e) {
-            Optional<User> u = userRepository.findByEmail(userIdOrEmail);
-            if (u.isPresent()) {
-                return photoRepository.findByUserId(u.get().getId());
-            }
+            return userRepository.findById(Long.parseLong(idOrEmail));
+        } catch (NumberFormatException ex) {
+            return Optional.empty();
         }
-        return List.of();
+    }
+
+    private static Long parseId(String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    private static String extensionOf(String originalName) {
+        if (originalName == null) return "";
+        int dot = originalName.lastIndexOf('.');
+        if (dot < 0 || dot == originalName.length() - 1) return "";
+        return originalName.substring(dot + 1).toLowerCase();
     }
 }
