@@ -303,14 +303,14 @@ fun NewPlaceScreen() {
                             R.string.new_place_label_location),
                         color = if (selectedLatLng == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
                     )
-                    Icon(Icons.Outlined.Map, contentDescription = "Open Map")
+                    Icon(Icons.Outlined.Map, contentDescription = "Abrir mapa")
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // --- NEW ADDRESS FIELD ---
                 // This allows the user to manually fix "Moscavide" errors
-                Text("Morada (Address)", fontWeight = FontWeight.Bold)
+                Text("Morada", fontWeight = FontWeight.Bold)
                 OutlinedTextField(
                     value = address,
                     onValueChange = { address = it },
@@ -356,7 +356,8 @@ fun NewPlaceScreen() {
                                 putExtra("lat", selectedLatLng!!.latitude)
                                 putExtra("lng", selectedLatLng!!.longitude)
                                 putExtra("category", selectedCategory)
-                                putExtra("address", address.ifBlank { "Morada desconhecida" })
+                                // Send the raw value so the caller can fall back to the geocoder
+                                putExtra("address", address)
                                 putParcelableArrayListExtra("photoUris", ArrayList(selectedImageUris))
                             }
                             (context as? Activity)?.setResult(Activity.RESULT_OK, resultIntent)

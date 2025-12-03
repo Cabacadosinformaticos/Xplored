@@ -176,7 +176,13 @@ fun MainView() {
         position = CameraPosition.fromLatLngZoom(lisbon, 10f)
     }
     val scaffoldState = rememberBottomSheetScaffoldState()
-    var hasLocationPermission by remember { mutableStateOf(true) }
+    // Start from the real permission state, otherwise the map crashes on first launch
+    var hasLocationPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        )
+    }
     var isActionMenuExpanded by remember { mutableStateOf(false) }
 
     // --- MAIN PLACE LIST STATE ---
@@ -199,6 +205,29 @@ fun MainView() {
         refreshPlaces()
     }
 
+    // --- DELETE PLACE ---
+    // Only the author can delete; the server is the source of truth.
+    fun deletePlace(place: Place) {
+        val id = place.id.toLongOrNull() ?: return
+        val email = SessionManager.getUserEmail(context)
+        scope.launch {
+            try {
+                val api = ApiClient.instance.create(PlaceApiService::class.java)
+                val response = api.deletePlace(id, email)
+                if (response.isSuccessful) {
+                    PlaceRepository.removePlace(context, place.id)
+                    places = PlaceRepository.getPlaces()
+                    Toast.makeText(context, "Local apagado.", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Não foi possível apagar o local.", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(context, "Erro de rede ao apagar o local.", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     var selectedPlace by remember { mutableStateOf<Place?>(null) }
     var categoryFilter by remember { mutableStateOf<String?>(null) }
     var fullScreenImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -213,7 +242,8 @@ fun MainView() {
         places.filter { place ->
             val matchesCategory = categoryFilter == null || place.category == categoryFilter
             val matchesDistance = if (userLocation != null) {
-                calculateDistanceKm(userLocation!!, place.latLng) <= radiusKm
+                // 50 km means "todos os locais", so nothing is hidden at the top of the slider
+                radiusKm >= 50f || calculateDistanceKm(userLocation!!, place.latLng) <= radiusKm
             } else {
                 true // Show everything if we don't know where the user is
             }
@@ -300,7 +330,7 @@ fun MainView() {
                                     }
                                 }
                             }
-                            Toast.makeText(context, "Local salvo!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Local guardado!", Toast.LENGTH_SHORT).show()
                         } catch (e: Exception) {
                             e.printStackTrace()
                             // Revert optimistic update on failure
@@ -315,16 +345,15 @@ fun MainView() {
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
-        onResult = { permissions -> hasLocationPermission = permissions.values.all { it } }
+        onResult = { permissions -> hasLocationPermission = permissions.values.any { it } }
     )
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
     LaunchedEffect(Unit) {
         val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
-        if (permissions.all { ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED }) {
-            hasLocationPermission = true
-        } else {
+        val anyGranted = permissions.any { ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED }
+        if (!anyGranted) {
             locationPermissionLauncher.launch(permissions)
         }
     }
@@ -406,16 +435,18 @@ fun MainView() {
                     }
                     LazyColumn {
                         items(filteredPlaces) { place ->
+                            // Own place, already confirmed by the server
+                            val canDelete = place.id.toLongOrNull() != null &&
+                                place.authorId.isNotBlank() &&
+                                SessionManager.getUserEmail(context).equals(place.authorId, ignoreCase = true)
                             PlaceCard(
                                 place = place,
+                                canDelete = canDelete,
                                 onClick = {
                                     selectedPlace = place
                                     scope.launch { cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(place.latLng, 16f)) }
                                 },
-                                onDelete = {
-                                    PlaceRepository.removePlace(context, place.id)
-                                    places = PlaceRepository.getPlaces().toList()
-                                },
+                                onDelete = { deletePlace(place) },
                                 onImageClick = { uri -> fullScreenImageUri = uri }
                             )
                         }
@@ -486,7 +517,7 @@ fun MainView() {
                     border = BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f)),
                     contentPadding = PaddingValues(horizontal = 12.dp)
                 ) {
-                    Icon(Icons.Default.Tune, contentDescription = "Filter", modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.Tune, contentDescription = "Filtro", modifier = Modifier.size(20.dp))
                     if (radiusKm < 50f) {
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("${radiusKm.toInt()}km", fontSize = 12.sp)
@@ -575,6 +606,7 @@ fun MainView() {
 @Composable
 fun PlaceCard(
     place: Place,
+    canDelete: Boolean,
     onClick: () -> Unit,
     onDelete: () -> Unit,
     onImageClick: (Uri) -> Unit
@@ -619,17 +651,20 @@ fun PlaceCard(
                 } else {
                     Box(modifier = Modifier.fillMaxSize().background(Color.LightGray))
                 }
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp)
-                ) {
-                    IconButton(onClick = onDelete) {
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = stringResource(R.string.cd_delete_place),
-                            tint = Color.White
-                        )
+                if (canDelete) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp)
+                            .background(Color.Black.copy(alpha = 0.35f), RoundedCornerShape(50))
+                    ) {
+                        IconButton(onClick = onDelete) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = stringResource(R.string.cd_delete_place),
+                                tint = Color.White
+                            )
+                        }
                     }
                 }
                 Box(
@@ -724,6 +759,24 @@ fun PlaceDetailView(
         }
     }
 
+    // Send a reaction without crashing the screen on a network error
+    fun sendReaction(reviewId: Long, type: String) {
+        val email = SessionManager.getUserEmail(context)
+        if (email.isBlank()) return
+        scope.launch {
+            try {
+                ApiClient.instance.create(ReviewApiService::class.java)
+                    .toggleReaction(ReactionRequest(email, reviewId, type))
+                refreshData()
+            } catch (e: IOException) {
+                Toast.makeText(context, "Sem ligação. Tenta novamente.", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(context, "Não foi possível registar a reação.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     val writeReviewLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -739,6 +792,8 @@ fun PlaceDetailView(
     }
 
     val coverUrl = remember(allPhotos) { allPhotos.firstOrNull() }
+    // A place only has a reviewable id once the server confirmed it
+    val numericPlaceId = remember(place.id) { place.id.toLongOrNull() }
 
     Column(modifier = Modifier.padding(16.dp)) {
         // --- HEADER ---
@@ -757,7 +812,7 @@ fun PlaceDetailView(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Star, null, modifier = Modifier.size(16.dp), tint = Color.Gray)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(String.format("%.1f (%d reviews)", displayRating, reviews.size), color = Color.Gray, fontSize = 14.sp)
+                    Text(String.format("%.1f (%d avaliações)", displayRating, reviews.size), color = Color.Gray, fontSize = 14.sp)
                 }
             }
             if (coverUrl != null) {
@@ -788,9 +843,9 @@ fun PlaceDetailView(
                     Button(
                         onClick = {
                             if (SessionManager.isLoggedIn(context)) {
+                                val placeId = numericPlaceId ?: return@Button
                                 val intent = Intent(context, NewReviewActivity::class.java).apply {
-                                    val numericId = place.id.toLongOrNull() ?: 0L
-                                    putExtra("placeId", numericId)
+                                    putExtra("placeId", placeId)
                                     putExtra("placeName", place.name)
                                 }
                                 writeReviewLauncher.launch(intent)
@@ -799,10 +854,19 @@ fun PlaceDetailView(
                                 context.startActivity(intent)
                             }
                         },
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = if (numericPlaceId == null) 4.dp else 16.dp),
+                        enabled = numericPlaceId != null,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E2835))
                     ) {
                         Text(stringResource(R.string.write_review_btn_label))
+                    }
+                    if (numericPlaceId == null) {
+                        Text(
+                            "Local ainda a sincronizar. Tenta novamente dentro de momentos.",
+                            color = Color.Gray,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
                     }
 
                     if (reviews.isEmpty()) {
@@ -868,28 +932,12 @@ fun PlaceDetailView(
 
                                         // Reactions
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            IconButton(onClick = {
-                                                val email = SessionManager.getUserEmail(context)
-                                                if (email.isNotBlank()) {
-                                                    scope.launch {
-                                                        ApiClient.instance.create(ReviewApiService::class.java).toggleReaction(ReactionRequest(email, review.reviewId, "USEFUL"))
-                                                        refreshData()
-                                                    }
-                                                }
-                                            }) {
+                                            IconButton(onClick = { sendReaction(review.reviewId, "USEFUL") }) {
                                                 Icon(if (review.currentUserReaction == "USEFUL") Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp, null, tint = if (review.currentUserReaction == "USEFUL") MaterialTheme.colorScheme.primary else Color.Gray)
                                             }
                                             Text("${review.likesCount}", fontSize = 14.sp, color = Color.Gray)
                                             Spacer(modifier = Modifier.width(16.dp))
-                                            IconButton(onClick = {
-                                                val email = SessionManager.getUserEmail(context)
-                                                if (email.isNotBlank()) {
-                                                    scope.launch {
-                                                        ApiClient.instance.create(ReviewApiService::class.java).toggleReaction(ReactionRequest(email, review.reviewId, "NOT_USEFUL"))
-                                                        refreshData()
-                                                    }
-                                                }
-                                            }) {
+                                            IconButton(onClick = { sendReaction(review.reviewId, "NOT_USEFUL") }) {
                                                 Icon(if (review.currentUserReaction == "NOT_USEFUL") Icons.Filled.ThumbDown else Icons.Outlined.ThumbDown, null, tint = if (review.currentUserReaction == "NOT_USEFUL") Color.Red else Color.Gray)
                                             }
                                             Text("${review.dislikesCount}", fontSize = 14.sp, color = Color.Gray)

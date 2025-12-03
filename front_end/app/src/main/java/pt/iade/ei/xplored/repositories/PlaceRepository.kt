@@ -14,11 +14,12 @@ import pt.iade.ei.xplored.network.PlaceApiService
 
 object PlaceRepository {
 
-    // Keep your local list for the UI to read instantly
-    private val _places = mutableListOf<Place>()
+    // Cached list for the UI to read instantly. Replaced, never mutated in place,
+    // so Compose observes a new list value on every refresh.
+    private var _places: List<Place> = emptyList()
 
     fun getPlaces(): List<Place> {
-        return _places
+        return _places.toList()
     }
 
     /**
@@ -34,7 +35,7 @@ object PlaceRepository {
                 // LOGGING: Check what we received
                 android.util.Log.d("PlaceRepo", "Received ${networkPlaces.size} places from backend.")
 
-                _places.clear()
+                val refreshed = mutableListOf<Place>()
 
                 networkPlaces.forEach { np ->
                     // LOGGING: Print URL for each place
@@ -49,15 +50,22 @@ object PlaceRepository {
                         else -> "Outro"
                     }
 
-                    if (!np.coverImageUrl.isNullOrBlank()) {
+                    val placeId = np.placeId.toString()
+                    val author = np.authorId ?: "Server"
+                    val localPhotos = PhotoRepository.getByPlaceId(context, placeId)
+
+                    // Store the server cover locally once, so repeated refreshes do not
+                    // pile up duplicate rows for the same place.
+                    val cover = np.coverImageUrl
+                    if (!cover.isNullOrBlank() && localPhotos.none { it.url == cover }) {
                         withContext(Dispatchers.Main) {
                             PhotoRepository.insert(
                                 context,
                                 PhotoItem(
                                     reviewId = "PLACE-${np.placeId}",
-                                    placeId = np.placeId.toString(),
-                                    userId = "Server",
-                                    url = np.coverImageUrl,
+                                    placeId = placeId,
+                                    userId = author,
+                                    url = cover,
                                     status = PhotoStatus.APPROVED,
                                     kind = PhotoKind.GALLERY
                                 )
@@ -65,31 +73,28 @@ object PlaceRepository {
                         }
                     }
 
-                    val localPhotos = PhotoRepository.getByPlaceId(context, np.placeId.toString())
-
-                    val displayPhotos = if (!np.coverImageUrl.isNullOrBlank()) {
-                        listOf(np.coverImageUrl)
-                    } else if (localPhotos.isNotEmpty()) {
-                        localPhotos.map { it.url }
+                    val displayPhotos = if (!cover.isNullOrBlank()) {
+                        listOf(cover)
                     } else {
-                        emptyList()
+                        localPhotos.map { it.url }
                     }
 
                     val uiPlace = Place(
-                        id = np.placeId.toString(),
+                        id = placeId,
                         name = np.name,
                         description = np.description ?: "",
                         latLng = LatLng(np.lat, np.lng),
                         address = np.addressFull ?: "",
                         category = catName,
                         rating = np.avgRating ?: 0.0,
-                        authorId = "Server",
+                        authorId = author,
                         isVerified = true,
                         photoUris = displayPhotos
                     )
-                    _places.add(uiPlace)
+                    refreshed.add(uiPlace)
                 }
 
+                _places = refreshed
                 return@withContext _places
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -98,10 +103,10 @@ object PlaceRepository {
         }
     }
     fun addPlace(context: Context, place: Place) {
-        _places.add(place)
+        _places = _places + place
     }
 
     fun removePlace(context: Context, id: String) {
-        _places.removeAll { it.id == id }
+        _places = _places.filterNot { it.id == id }
     }
 }
