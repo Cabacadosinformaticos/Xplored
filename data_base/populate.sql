@@ -10,10 +10,11 @@ USE xplored_db;
 -- =====================================================
 -- 1. UTILIZADORES (USERS)
 -- =====================================================
+-- Test logins: tiago@xplored.pt / 1234, ana@xplored.pt / 1234, joao@loja.pt / 1234
 INSERT INTO users (name, email, password_hash, about, country, role, points, profile_photo) VALUES
-('Tiago Cabaça', 'tiago@xplored.pt', '1234', 'Desenvolvedor e explorador urbano.', 'Portugal', 'ADMIN', 500, 'https://ui-avatars.com/api/?name=Tiago+Cabaca&background=0D8ABC&color=fff'),
-('Ana Silva', 'ana@xplored.pt', '1234', 'Adoro fotografia e natureza.', 'Portugal', 'USER', 150, 'https://ui-avatars.com/api/?name=Ana+Silva&background=random'),
-('João Comerciante', 'joao@loja.pt', '1234', 'Gerente do Cantinho do Bairro.', 'Portugal', 'BUSINESS', 50, NULL);
+('Tiago Cabaça', 'tiago@xplored.pt', '$2a$10$SPiaTvasqypx3wtJz6/jZuRblFjadpBjF/CBKMMpfhJMZexIitQ7G', 'Desenvolvedor e explorador urbano.', 'Portugal', 'ADMIN', 250, 'https://ui-avatars.com/api/?name=Tiago+Cabaca&background=0D8ABC&color=fff'),
+('Ana Silva', 'ana@xplored.pt', '$2a$10$rX2qx03QNf70DNJ5.b2BTuyxsCl9zzK7DGqPdD3aEM5r5.dJk0hgy', 'Adoro fotografia e natureza.', 'Portugal', 'USER', 150, 'https://ui-avatars.com/api/?name=Ana+Silva&background=random'),
+('João Comerciante', 'joao@loja.pt', '$2a$10$DB050V5jdXgYUIsBBg70RO.PAL/ErRxt5/DvOMbvaJmAqabHKosFO', 'Gerente do Cantinho do Bairro.', 'Portugal', 'BUSINESS', 0, NULL);
 
 -- =====================================================
 -- 2. CATEGORIAS (CATEGORIES)
@@ -44,7 +45,7 @@ INSERT INTO places (name, description, lat, lng, address_full, category_id, auth
     'Rua da Igreja, Moscavide',
     4, -- Históricos
     1, -- Tiago
-    4.0,
+    0.0,
     TRUE
 ),
 (
@@ -55,7 +56,7 @@ INSERT INTO places (name, description, lat, lng, address_full, category_id, auth
     'Rua 1º de Maio, Moscavide',
     3, -- Restauração
     3, -- João
-    4.5,
+    4.0,
     TRUE
 ),
 (
@@ -66,7 +67,7 @@ INSERT INTO places (name, description, lat, lng, address_full, category_id, auth
     'Rotunda da Portela',
     2, -- Lojas
     2, -- Ana
-    3.5,
+    3.0,
     FALSE
 );
 
@@ -118,8 +119,8 @@ INSERT INTO route_stops (pedipaper_id, place_id, stop_order, task_description, r
 -- =====================================================
 -- 9. PARTICIPAÇÕES (ROUTE PARTICIPATIONS)
 -- =====================================================
-INSERT INTO route_participations (user_id, pedipaper_id, completed, progress, started_at) VALUES
-(2, 1, FALSE, 1, NOW()); -- Ana começou a rota, está na paragem 1
+INSERT INTO route_participations (user_id, pedipaper_id, completed, started_at) VALUES
+(2, 1, FALSE, NOW()); -- Ana começou a rota, está na paragem 1
 
 -- =====================================================
 -- 10. CONTAS DE NEGÓCIO & CUPÕES

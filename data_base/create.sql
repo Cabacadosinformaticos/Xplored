@@ -1,4 +1,6 @@
-CREATE DATABASE IF NOT EXISTS xplored_db
+DROP DATABASE IF EXISTS xplored_db;
+
+CREATE DATABASE xplored_db
   DEFAULT CHARACTER SET utf8mb4
   COLLATE utf8mb4_general_ci;
 
@@ -113,6 +115,7 @@ CREATE TABLE route_participations (
     points_awarded INT DEFAULT 0,
     started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     completed_at TIMESTAMP NULL,
+    UNIQUE (user_id, pedipaper_id),
     CONSTRAINT fk_part_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_part_pedi FOREIGN KEY (pedipaper_id) REFERENCES pedipapers(id) ON DELETE CASCADE
 );
@@ -156,7 +159,7 @@ CREATE TABLE points_ledger (
 
 INSERT INTO categories (id, name, color_hex, icon_name) VALUES 
 (1, 'Atividades', '#4192FF', 'hiking'),
-(2, 'Lojas', '#FFFFEB3B', 'shopping_cart'),
+(2, 'Lojas', '#FFEB3B', 'shopping_cart'),
 (3, 'Restauração', '#E65100', 'restaurant'),
 (4, 'Históricos', '#880E4F', 'account_balance'),
 (5, 'Paisagens', '#3D6E44', 'landscape');
