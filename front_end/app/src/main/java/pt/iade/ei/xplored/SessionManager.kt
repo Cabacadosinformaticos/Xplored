@@ -4,12 +4,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import org.json.JSONArray
-import org.json.JSONObject
 
 /**
  * Centralized session and user management for Xplored.
  *
- * - Stores a list of all registered users (email, password, name, etc.)
+ * - Stores a local list of known users (email, name, etc.)
  * - Persists login state for the currently active session
  * - Keeps users even after logout
  */
@@ -25,9 +24,6 @@ object SessionManager {
     private const val KEY_USER_POINTS = "userPoints"
     private const val KEY_USER_ABOUT = "userAbout"
 
-    // --- ADDED: Key for the Auth Token ---
-    private const val KEY_AUTH_TOKEN = "authToken"
-
     // Keys for stored user list
     private const val KEY_USERS_LIST = "usersList"
 
@@ -41,21 +37,6 @@ object SessionManager {
         context.getSharedPreferences(PREF_USERS, Context.MODE_PRIVATE)
 
     // ---------- SESSION STATE ----------
-
-    /**
-     * Saves the Login Token (Required for AuthInterceptor)
-     */
-    fun saveAuthToken(context: Context, token: String) {
-        sessionPrefs(context).edit().putString(KEY_AUTH_TOKEN, token).apply()
-        Log.d("SessionDebug", "Token saved.")
-    }
-
-    /**
-     * Retrieves the Token (Required for AuthInterceptor)
-     */
-    fun getToken(context: Context): String? {
-        return sessionPrefs(context).getString(KEY_AUTH_TOKEN, null)
-    }
 
     fun setLoggedIn(context: Context, value: Boolean) {
         sessionPrefs(context).edit().putBoolean(KEY_IS_LOGGED_IN, value).apply()
@@ -136,88 +117,16 @@ object SessionManager {
     }
 
     // ---------- REGISTERED USERS ----------
-    fun addRegisteredUser(
-        context: Context,
-        name: String,
-        email: String,
-        password: String,
-        role: String = "basic",
-        country: String = "Portugal",
-        points: Int = 0
-    ) {
-        val usersArray = getRegisteredUsersArray(context)
-
-        // Prevent duplicates (by email)
-        for (i in 0 until usersArray.length()) {
-            val existing = usersArray.getJSONObject(i)
-            if (existing.optString("email").equals(email, ignoreCase = true)) {
-                Log.d("SessionDebug", "User already exists: $email")
-                return
-            }
-        }
-
-        // --- NEW: auto-increment userId (int) based on the current max ---
-        var maxId = 0
-        for (i in 0 until usersArray.length()) {
-            val existing = usersArray.getJSONObject(i)
-            val anyId = existing.opt("userId")
-            val id = when (anyId) {
-                is Number -> anyId.toInt()
-                is String -> anyId.toIntOrNull() ?: 0 // handles legacy string IDs
-                else -> 0
-            }
-            if (id > maxId) maxId = id
-        }
-        val nextId = maxId + 1
-        // ------------------------------------------------------------------
-
-        val newUser = JSONObject().apply {
-            put("userId", nextId) // int primary key style
-            put("name", name)
-            put("email", email)
-            put("password", password)
-            put("role", role)
-            put("country", country)
-            put("points", points)
-            put("createdAt", System.currentTimeMillis())
-        }
-
-        usersArray.put(newUser)
-        usersPrefs(context).edit().putString(KEY_USERS_LIST, usersArray.toString()).apply()
-
-        Log.d("SessionDebug", "User added: $newUser")
-    }
-
-
     fun getRegisteredUsersArray(context: Context): JSONArray {
         val json = usersPrefs(context).getString(KEY_USERS_LIST, "[]")
         return JSONArray(json)
-    }
-
-    fun findUser(context: Context, email: String, password: String): JSONObject? {
-        val normalizedEmail = email.trim().lowercase()
-        val normalizedPass = password.trim()
-        val users = getRegisteredUsersArray(context)
-
-        for (i in 0 until users.length()) {
-            val user = users.getJSONObject(i)
-            val storedEmail = user.getString("email").trim().lowercase()
-            val storedPass = user.getString("password").trim()
-            if (storedEmail == normalizedEmail && storedPass == normalizedPass) {
-                Log.d("SessionDebug", "User found: $storedEmail")
-                return user
-            }
-        }
-
-        Log.d("SessionDebug", "User not found: $email")
-        return null
     }
 
     fun logoutUser(context: Context) {
         Log.d("SessionDebug", "Performing logout...")
         clearSession(context)
         setLoggedIn(context, false)
-        Log.d("SessionDebug", "Logout successful — user session cleared.")
+        Log.d("SessionDebug", "Logout successful - user session cleared.")
     }
 
     fun saveUserCountry(context: Context, country: String) {

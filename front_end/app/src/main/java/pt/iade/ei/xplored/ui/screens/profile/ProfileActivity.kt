@@ -24,12 +24,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material.icons.outlined.ThumbUp
-import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -147,9 +144,9 @@ private fun ProfileScreen(
             try {
                 val api = ApiClient.instance.create(UserApiService::class.java)
                 val user = api.getUserByEmail(userEmail)
-                if (!user.profilePhotoUrl.isNullOrBlank()) {
-                    profilePhoto = Uri.parse(user.profilePhotoUrl)
-                    PhotoRepository.upsertAvatar(ctx, userId, user.profilePhotoUrl)
+                if (!user.profilePhoto.isNullOrBlank()) {
+                    profilePhoto = Uri.parse(user.profilePhoto)
+                    PhotoRepository.upsertAvatar(ctx, userId, user.profilePhoto)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -262,39 +259,8 @@ private fun ProfileScreen(
                 }
                 // -----------------------------------------
 
-                var points by rememberSaveable { mutableIntStateOf(userPoints) }
-                // Keep points updated when coming back from game
-                LaunchedEffect(userPoints) { points = userPoints }
-
                 Spacer(Modifier.height(8.dp))
-                AssistChip(onClick = {}, label = { Text(stringResource(R.string.points_label, points)) })
-
-                Spacer(Modifier.height(8.dp))
-
-                // DEBUG BUTTON
-                Button(
-                    onClick = {
-                        val newPts = points + 50
-                        points = newPts
-                        if (userEmail.isNotBlank()) {
-                            SessionManager.updateUserPoints(ctx, userEmail, newPts)
-                            scope.launch {
-                                try {
-                                    val api = ApiClient.instance.create(UserApiService::class.java)
-                                    api.updatePoints(userEmail, newPts)
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
-                            }
-                        } else {
-                            SessionManager.saveUserPoints(ctx, newPts)
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF2AC6B2),
-                        contentColor = Color.White
-                    )
-                ) { Text(stringResource(R.string.add_points_debug)) }
+                AssistChip(onClick = {}, label = { Text(stringResource(R.string.points_label, userPoints)) })
 
                 Spacer(Modifier.height(8.dp))
             }
@@ -440,27 +406,6 @@ private fun ProfileScreen(
                                         }
                                         if (!review.title.isNullOrBlank()) Text(review.title, fontWeight = FontWeight.SemiBold)
                                         if (!review.comment.isNullOrBlank()) Text(review.comment, fontSize = 14.sp)
-
-                                        // Reactions
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            IconButton(onClick = { /* Toggle Logic */ }) {
-                                                Icon(
-                                                    if (review.currentUserReaction == "USEFUL") Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
-                                                    null,
-                                                    tint = if (review.currentUserReaction == "USEFUL") MaterialTheme.colorScheme.primary else Color.Gray
-                                                )
-                                            }
-                                            Text("${review.likesCount}", fontSize = 14.sp, color = Color.Gray)
-                                            Spacer(Modifier.width(16.dp))
-                                            IconButton(onClick = { /* Toggle Logic */ }) {
-                                                Icon(
-                                                    if (review.currentUserReaction == "NOT_USEFUL") Icons.Filled.ThumbDown else Icons.Outlined.ThumbDown,
-                                                    null,
-                                                    tint = if (review.currentUserReaction == "NOT_USEFUL") Color.Red else Color.Gray
-                                                )
-                                            }
-                                            Text("${review.dislikesCount}", fontSize = 14.sp, color = Color.Gray)
-                                        }
                                     }
                                 }
                             }

@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import pt.iade.ei.xplored.R
 import pt.iade.ei.xplored.SessionManager
 import pt.iade.ei.xplored.network.ApiClient
+import pt.iade.ei.xplored.network.LoginRequest
 import pt.iade.ei.xplored.network.UserApiService
 import pt.iade.ei.xplored.ui.screens.main.MainActivity
 import pt.iade.ei.xplored.ui.theme.XploredTheme
@@ -123,32 +124,31 @@ fun LoginWelcomeBackScreen(
                     scope.launch {
                         try {
                             val api = ApiClient.instance.create(UserApiService::class.java)
-                            // Call the Backend Endpoint
-                            val user = api.getUserByEmailAndPassword(email, password)
+                            val user = api.login(LoginRequest(email = email, password = password))
 
-                            if (user != null) {
-                                // 1. Save Session Locally
-                                SessionManager.setLoggedIn(context, true)
-                                SessionManager.saveUserData(context, user.name, user.email)
-                                SessionManager.saveUserPoints(context, user.points)
-                                SessionManager.saveUserAbout(context, user.about)
-                                SessionManager.saveUserCountry(context, user.country ?: "")
+                            // Save every field with a null-safe default, and mark the
+                            // session as logged in only after they are all stored.
+                            SessionManager.saveUserData(context, user.name, user.email)
+                            SessionManager.saveUserPoints(context, user.points)
+                            SessionManager.saveUserAbout(context, user.about ?: "")
+                            SessionManager.saveUserCountry(context, user.country ?: "")
+                            SessionManager.setLoggedIn(context, true)
 
-                                // 2. Navigate
-                                Toast.makeText(context, "Bem-vindo, ${user.name}!", Toast.LENGTH_SHORT).show()
-                                onLoginSuccess()
-                            } else {
-                                Toast.makeText(context, "Credenciais inválidas.", Toast.LENGTH_SHORT).show()
-                            }
+                            Toast.makeText(context, "Bem-vindo, ${user.name}!", Toast.LENGTH_SHORT).show()
+                            onLoginSuccess()
                         } catch (e: HttpException) {
-                            if (e.code() == 401 || e.code() == 404) {
-                                Toast.makeText(context, "Email ou password incorretos.", Toast.LENGTH_SHORT).show()
+                            val message = if (e.code() == 401) {
+                                context.getString(R.string.login_incorrect_credentials)
                             } else {
-                                Toast.makeText(context, "Erro no servidor: ${e.code()}", Toast.LENGTH_SHORT).show()
+                                context.getString(R.string.login_server_error, e.code())
                             }
+                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                         } catch (e: Exception) {
-                            Toast.makeText(context, "Erro de conexão: ${e.message}", Toast.LENGTH_SHORT).show()
-                            e.printStackTrace()
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.login_error_network),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } finally {
                             isLoading = false
                         }

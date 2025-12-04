@@ -1,6 +1,6 @@
 package pt.iade.ei.xplored.ui.screens.profile
 
-import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import pt.iade.ei.xplored.SessionManager
 import pt.iade.ei.xplored.network.ApiClient
 import pt.iade.ei.xplored.network.UserApiService
+import pt.iade.ei.xplored.ui.screens.main.MainActivity
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 import java.util.Locale
 
@@ -30,7 +31,18 @@ class EditProfileActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             XploredTheme {
-                EditProfileScreen(onBack = { finish() })
+                EditProfileScreen(
+                    onBack = { finish() },
+                    onSaved = {
+                        // Finish the setup flow: drop the auth screens from the back stack
+                        // and land on the app home.
+                        val intent = Intent(this, MainActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        }
+                        startActivity(intent)
+                        finish()
+                    }
+                )
             }
         }
     }
@@ -38,7 +50,7 @@ class EditProfileActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditProfileScreen(onBack: () -> Unit) {
+fun EditProfileScreen(onBack: () -> Unit, onSaved: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -164,11 +176,11 @@ fun EditProfileScreen(onBack: () -> Unit) {
 
                                 // Save Everything Locally
                                 SessionManager.saveUserData(context, updatedUser.name, updatedUser.email)
-                                SessionManager.saveUserAbout(context, updatedUser.about)
+                                SessionManager.saveUserAbout(context, updatedUser.about ?: "")
                                 SessionManager.saveUserCountry(context, updatedUser.country ?: "")
 
                                 Toast.makeText(context, "Perfil atualizado!", Toast.LENGTH_SHORT).show()
-                                onBack()
+                                onSaved()
                             } catch (e: Exception) {
                                 e.printStackTrace()
                                 Toast.makeText(context, "Erro ao guardar.", Toast.LENGTH_SHORT).show()

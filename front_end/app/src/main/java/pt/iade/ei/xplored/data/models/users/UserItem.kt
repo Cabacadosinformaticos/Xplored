@@ -1,33 +1,18 @@
 package pt.iade.ei.xplored.data.models.users
 
-import java.time.LocalDateTime
-
 /**
- * Represents a user entry in the Xplored system.
- * Mirrors both stored data and the JSON structure in SessionManager.
+ * Represents a user in the Xplored system.
+ * Matches the JSON returned by the backend: id, name, email, about, country,
+ * role, profilePhoto, points, createdAt. Passwords are never serialised.
  */
 data class User(
-    val userId: Long? = null,
+    val id: Long? = null,
     val name: String,
     val email: String,
-    val passwordHash: String,
-    val role: String? = null,
-    val about: String,
+    val about: String? = null,
     val country: String? = null,
+    val role: String? = null,
+    val profilePhoto: String? = null,
     val points: Int = 0,
-    val createdAt: String? = null,
-    val profilePhotoUrl: String? = null
-)
-
-val MOCK_USER = User(
-    userId = 100,
-    name = "cesarini",
-    email = "test.pt",
-    passwordHash = "1234",
-    role = "basic",
-    about = "test",
-    country = "Portugal",
-    points = 600,
-    createdAt = LocalDateTime.now().toString(),
-    profilePhotoUrl = null
+    val createdAt: String? = null
 )

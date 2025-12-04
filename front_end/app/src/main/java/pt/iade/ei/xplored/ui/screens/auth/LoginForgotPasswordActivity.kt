@@ -166,7 +166,7 @@ fun ForgotPasswordScreen() {
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.clickable {
                             // Returns to login screen (singleTop to avoid multiple instances)
-                            val intent = Intent(context, LoginNewPasswordActivity::class.java).apply {
+                            val intent = Intent(context, LoginWelcomeBackActivity::class.java).apply {
                                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                             }
                             context.startActivity(intent)

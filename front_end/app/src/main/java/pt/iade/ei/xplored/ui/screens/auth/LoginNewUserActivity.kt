@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import pt.iade.ei.xplored.R
 import pt.iade.ei.xplored.SessionManager
-import pt.iade.ei.xplored.data.models.users.User
 import pt.iade.ei.xplored.network.ApiClient
+import pt.iade.ei.xplored.network.RegisterRequest
 import pt.iade.ei.xplored.network.UserApiService
 import pt.iade.ei.xplored.ui.screens.profile.EditProfileActivity
 import pt.iade.ei.xplored.ui.theme.XploredTheme
@@ -130,23 +130,17 @@ fun RegisterScreen(
                         try {
                             val api = ApiClient.instance.create(UserApiService::class.java)
 
-                            // 1. Create the User Object
-                            val newUser = User(
-                                name = username,
-                                email = email,
-                                passwordHash = password, // Backend will hash this (in a real app)
-                                role = "USER",
-                                points = 0,
-                                about = ""
+                            // 1. Register on the backend (it hashes the password)
+                            val createdUser = api.register(
+                                RegisterRequest(name = username, email = email, password = password)
                             )
 
-                            // 2. Send to Backend
-                            val createdUser = api.createUser(newUser)
-
-                            // 3. Auto-Login Locally
-                            SessionManager.setLoggedIn(context, true)
+                            // 2. Auto-login locally, marking the session last
                             SessionManager.saveUserData(context, createdUser.name, createdUser.email)
                             SessionManager.saveUserPoints(context, createdUser.points)
+                            SessionManager.saveUserAbout(context, createdUser.about ?: "")
+                            SessionManager.saveUserCountry(context, createdUser.country ?: "")
+                            SessionManager.setLoggedIn(context, true)
 
                             Toast.makeText(context, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show()
                             onRegisterSuccess()
