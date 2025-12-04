@@ -30,7 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -75,6 +75,13 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
     // Location State
     var userLocation by remember { mutableStateOf<LatLng?>(null) }
     var distanceToTarget by remember { mutableFloatStateOf(Float.MAX_VALUE) }
+    var hasLocationPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+    var isCompleting by remember { mutableStateOf(false) }
 
     // Map State
     val lisbon = LatLng(38.7223, -9.1393)
@@ -104,11 +111,23 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
         }
     }
 
-    // Request Permissions & Start Updates
-    LaunchedEffect(Unit) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED) {
+    // Request Permissions
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions -> hasLocationPermission = permissions.values.any { it } }
+    )
 
+    LaunchedEffect(Unit) {
+        if (!hasLocationPermission) {
+            locationPermissionLauncher.launch(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+            )
+        }
+    }
+
+    // Start / stop updates with the real permission state
+    DisposableEffect(hasLocationPermission) {
+        if (hasLocationPermission) {
             val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 3000)
                 .setWaitForAccurateLocation(false)
                 .setMinUpdateIntervalMillis(2000)
@@ -116,6 +135,7 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
 
             fusedLocationClient.requestLocationUpdates(request, locationCallback, Looper.getMainLooper())
         }
+        onDispose { fusedLocationClient.removeLocationUpdates(locationCallback) }
     }
 
     // --- 2. LOAD ROUTE DATA ---
@@ -137,6 +157,8 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
 
     // --- 3. HELPER: FINISH ROUTE & SYNC POINTS ---
     fun finishRoute(email: String) {
+        if (isCompleting) return
+        isCompleting = true
         scope.launch {
             try {
                 // 1. Tell backend we finished (Backend adds points to DB)
@@ -152,9 +174,11 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
 
                 isFinished = true
             } catch (e: Exception) {
-                Toast.makeText(context, "Erro ao finalizar: ${e.message}", Toast.LENGTH_SHORT).show()
-                // Force finish UI anyway so user isn't stuck
-                isFinished = true
+                e.printStackTrace()
+                // Do not show the victory screen when the server did not record the route
+                Toast.makeText(context, "Não foi possível finalizar a rota. Tenta novamente.", Toast.LENGTH_LONG).show()
+            } finally {
+                isCompleting = false
             }
         }
     }
@@ -163,7 +187,7 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
-        if (uri != null && stops.isNotEmpty()) {
+        if (uri != null && stops.isNotEmpty() && currentStepIndex < stops.size) {
             scope.launch {
                 val currentStop = stops[currentStepIndex]
                 val email = SessionManager.getUserEmail(context)
@@ -171,15 +195,22 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
                 Toast.makeText(context, "A enviar foto...", Toast.LENGTH_SHORT).show()
 
                 // Upload Evidence
-                PhotoUploadClient.uploadPhoto(
+                val uploaded = PhotoUploadClient.uploadPhoto(
                     context, uri, email,
                     placeId = currentStop.placeId.toString(),
                     reviewId = "STOP-EVIDENCE-${currentStop.stopId}"
                 )
 
+                // Without the evidence photo the stop is not completed
+                if (uploaded == null) {
+                    Toast.makeText(context, "Não foi possível enviar a foto. Tenta novamente.", Toast.LENGTH_LONG).show()
+                    return@launch
+                }
+
                 // Advance Game
                 if (currentStepIndex < stops.size - 1) {
                     currentStepIndex++
+                    distanceToTarget = Float.MAX_VALUE
                     Toast.makeText(context, "Boa! Próxima paragem desbloqueada.", Toast.LENGTH_SHORT).show()
                     val next = stops[currentStepIndex]
                     cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(next.lat, next.lng), 16f))
@@ -196,7 +227,7 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
                 title = { Text(pediName) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
                     }
                 }
             )
@@ -229,12 +260,13 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
             } else if (!isLoading && stops.isNotEmpty() && currentStepIndex < stops.size) {
                 // --- GAME SCREEN ---
                 val currentStop = stops[currentStepIndex]
-                val isNearby = distanceToTarget <= 50
+                val hasFix = userLocation != null
+                val isNearby = hasFix && distanceToTarget <= 50
 
                 GoogleMap(
                     modifier = Modifier.fillMaxSize(),
                     cameraPositionState = cameraPositionState,
-                    properties = MapProperties(isMyLocationEnabled = true)
+                    properties = MapProperties(isMyLocationEnabled = hasLocationPermission)
                 ) {
                     Marker(
                         state = MarkerState(position = LatLng(currentStop.lat, currentStop.lng)),
@@ -274,7 +306,13 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
                         Text(currentStop.taskDescription ?: "Vai até ao local.", color = Color(0xFF424242))
 
                         Spacer(Modifier.height(8.dp))
-                        if (!isNearby) {
+                        if (!hasFix) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.LocationOn, null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                                Spacer(Modifier.width(4.dp))
+                                Text("A obter localização...", color = Color.Gray, fontSize = 12.sp)
+                            }
+                        } else if (!isNearby) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.LocationOn, null, tint = Color.Red, modifier = Modifier.size(16.dp))
                                 Spacer(Modifier.width(4.dp))
@@ -306,6 +344,7 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
                                     scope.launch {
                                         if (currentStepIndex < stops.size - 1) {
                                             currentStepIndex++
+                                            distanceToTarget = Float.MAX_VALUE
                                             Toast.makeText(context, "Check-in feito!", Toast.LENGTH_SHORT).show()
                                             val next = stops[currentStepIndex]
                                             cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(next.lat, next.lng), 16f))

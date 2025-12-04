@@ -56,7 +56,8 @@ fun PedipaperListScreen(onBack: () -> Unit) {
     LaunchedEffect(Unit) {
         try {
             val api = ApiClient.instance.create(PedipaperApiService::class.java)
-            routes = api.getAllPedipapers()
+            // Only routes that are still active can be played
+            routes = api.getAllPedipapers().filter { it.active }
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(context, "Erro a carregar rotas", Toast.LENGTH_SHORT).show()
@@ -71,7 +72,7 @@ fun PedipaperListScreen(onBack: () -> Unit) {
                 title = { Text("Desafios Xplored") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
                     }
                 }
             )

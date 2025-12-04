@@ -64,6 +64,8 @@ class NewReviewActivity : ComponentActivity() {
     }
 }
 
+private const val MAX_TITLE_LENGTH = 100
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewReviewScreen(placeId: Long, placeName: String) {
@@ -97,7 +99,7 @@ fun NewReviewScreen(placeId: Long, placeName: String) {
                 },
                 navigationIcon = {
                     IconButton(onClick = { (context as? Activity)?.finish() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
                     }
                 }
             )
@@ -117,11 +119,12 @@ fun NewReviewScreen(placeId: Long, placeName: String) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Title
+            // Title (max 100 chars, matches the API limit)
             OutlinedTextField(
                 value = title,
-                onValueChange = { title = it },
+                onValueChange = { if (it.length <= MAX_TITLE_LENGTH) title = it },
                 label = { Text(stringResource(R.string.review_title_label)) },
+                supportingText = { Text("${title.length}/$MAX_TITLE_LENGTH") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -149,7 +152,7 @@ fun NewReviewScreen(placeId: Long, placeName: String) {
                 IconButton(onClick = {
                     photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 }) {
-                    Icon(Icons.Default.AddPhotoAlternate, contentDescription = "Add", tint = MaterialTheme.colorScheme.primary)
+                    Icon(Icons.Default.AddPhotoAlternate, contentDescription = "Adicionar", tint = MaterialTheme.colorScheme.primary)
                 }
             }
 
@@ -166,7 +169,7 @@ fun NewReviewScreen(placeId: Long, placeName: String) {
                             )
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Remove",
+                                contentDescription = "Remover",
                                 tint = Color.Red,
                                 modifier = Modifier
                                     .align(Alignment.TopEnd)
@@ -183,7 +186,7 @@ fun NewReviewScreen(placeId: Long, placeName: String) {
             // Submit Button
             Button(
                 onClick = {
-                    if (rating > 0 && title.isNotBlank()) {
+                    if (rating in 1..5 && title.isNotBlank()) {
                         isSubmitting = true
                         scope.launch {
                             try {
@@ -233,6 +236,14 @@ fun NewReviewScreen(placeId: Long, placeName: String) {
                                 (context as? Activity)?.setResult(Activity.RESULT_OK)
                                 (context as? Activity)?.finish()
 
+                            } catch (e: retrofit2.HttpException) {
+                                // Surface the server message instead of crashing
+                                val detail = runCatching { e.response()?.errorBody()?.string() }.getOrNull()
+                                Toast.makeText(
+                                    context,
+                                    detail?.takeIf { it.isNotBlank() } ?: "Erro do servidor (${e.code()}).",
+                                    Toast.LENGTH_LONG
+                                ).show()
                             } catch (e: Exception) {
                                 e.printStackTrace()
                                 Toast.makeText(context, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
@@ -264,7 +275,7 @@ fun StarRatingInput(currentRating: Int, onRatingChanged: (Int) -> Unit) {
             val isSelected = i <= currentRating
             Icon(
                 imageVector = if (isSelected) Icons.Filled.Star else Icons.Outlined.Star,
-                contentDescription = "$i Stars",
+                contentDescription = "$i estrelas",
                 tint = if (isSelected) Color(0xFFFFC107) else Color.LightGray,
                 modifier = Modifier
                     .size(48.dp)

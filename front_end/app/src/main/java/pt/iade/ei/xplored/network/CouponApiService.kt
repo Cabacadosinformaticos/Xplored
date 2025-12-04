@@ -8,10 +8,11 @@ import retrofit2.http.POST
 data class CouponResponse(
     val id: Long,
     val title: String,
-    val description: String,
-    val code: String,
+    // The API hides the code until the coupon is redeemed.
+    val description: String? = null,
+    val code: String? = null,
     val merchant: String,
-    val details: String?,
+    val details: String? = null,
     val cost: Int
 )
 
@@ -24,7 +25,8 @@ data class RedemptionRequest(
 // Response Object for successful redemption
 data class RedemptionSuccessResponse(
     val message: String,
-    val newBalance: Int
+    val newBalance: Int,
+    val code: String? = null
 )
 
 interface CouponApiService {

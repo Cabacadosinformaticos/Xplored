@@ -108,6 +108,8 @@ fun CouponDetailDialog(
 
     // NEW: Track if the user has bought the coupon
     var isRedeemed by remember { mutableStateOf(false) }
+    // Code returned by the API on redeem; the coupon list never carries it.
+    var redeemedCode by remember { mutableStateOf<String?>(null) }
 
     val canAfford = userPoints >= coupon.cost
 
@@ -131,7 +133,7 @@ fun CouponDetailDialog(
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(onClick = onClose) {
-                        Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Gray)
+                        Icon(Icons.Default.Close, contentDescription = "Fechar", tint = Color.Gray)
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -148,9 +150,9 @@ fun CouponDetailDialog(
                     contentAlignment = Alignment.Center
                 ) {
                     if (isRedeemed) {
-                        // Show REAL Code
+                        // Show the code returned by the backend on redeem
                         Text(
-                            coupon.code,
+                            redeemedCode ?: coupon.code.orEmpty(),
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 32.sp,
                             color = Color(0xFF00796B)
@@ -182,8 +184,11 @@ fun CouponDetailDialog(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(stringResource(R.string.offer_details_label), fontWeight = FontWeight.Medium, style = MaterialTheme.typography.titleMedium, color = DarkText)
+                val offerText = coupon.details?.takeIf { it.isNotBlank() }
+                    ?: coupon.description?.takeIf { it.isNotBlank() }
+                    ?: stringResource(R.string.no_additional_details)
                 Text(
-                    coupon.details ?: stringResource(R.string.no_additional_details),
+                    offerText,
                     modifier = Modifier.padding(top = 8.dp),
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -205,13 +210,14 @@ fun CouponDetailDialog(
                                         val response = api.redeemCoupon(request)
 
                                         if (response.isSuccessful && response.body() != null) {
-                                            val newBalance = response.body()!!.newBalance
+                                            val body = response.body()!!
                                             Toast.makeText(context, "Cupão ativado com sucesso!", Toast.LENGTH_SHORT).show()
 
-                                            // Update Parent Points
-                                            onRedeemSuccess(newBalance)
+                                            // Update Parent Points with the server balance
+                                            onRedeemSuccess(body.newBalance)
 
-                                            // REVEAL CODE locally
+                                            // REVEAL the code returned by the server
+                                            redeemedCode = body.code
                                             isRedeemed = true
                                             isProcessing = false
                                         } else {
@@ -390,7 +396,7 @@ fun CouponCard(
                 }
 
                 Text(
-                    text = coupon.description,
+                    text = coupon.description.orEmpty(),
                     fontSize = 14.sp,
                     color = Color.Gray,
                     modifier = Modifier.padding(bottom = 8.dp)
