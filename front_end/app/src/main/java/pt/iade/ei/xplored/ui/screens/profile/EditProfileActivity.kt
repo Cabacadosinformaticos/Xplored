@@ -29,17 +29,22 @@ import java.util.Locale
 class EditProfileActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Only the signup flow (opened from LoginNewUserActivity) clears the auth screens.
+        val isSetup = intent.getBooleanExtra("is_setup", false)
         setContent {
             XploredTheme {
                 EditProfileScreen(
                     onBack = { finish() },
                     onSaved = {
-                        // Finish the setup flow: drop the auth screens from the back stack
-                        // and land on the app home.
-                        val intent = Intent(this, MainActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        if (isSetup) {
+                            // Finish the setup flow: drop the auth screens from the back
+                            // stack and land on the app home.
+                            val intent = Intent(this, MainActivity::class.java).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            }
+                            startActivity(intent)
                         }
-                        startActivity(intent)
+                        // Opened from Settings: just go back to the previous screen.
                         finish()
                     }
                 )

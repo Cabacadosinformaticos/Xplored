@@ -31,6 +31,8 @@ import pt.iade.ei.xplored.network.RegisterRequest
 import pt.iade.ei.xplored.network.UserApiService
 import pt.iade.ei.xplored.ui.screens.profile.EditProfileActivity
 import pt.iade.ei.xplored.ui.theme.XploredTheme
+import retrofit2.HttpException
+import java.io.IOException
 
 class LoginNewUserActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,8 +42,11 @@ class LoginNewUserActivity : ComponentActivity() {
             XploredTheme {
                 RegisterScreen(
                     onRegisterSuccess = {
-                        // After registration, go to Edit Profile to finish setup
-                        val intent = Intent(this, EditProfileActivity::class.java)
+                        // After registration, go to Edit Profile to finish setup.
+                        // is_setup tells EditProfile to clear the auth screens on save.
+                        val intent = Intent(this, EditProfileActivity::class.java).apply {
+                            putExtra("is_setup", true)
+                        }
                         startActivity(intent)
                         finish()
                     },
@@ -145,9 +150,25 @@ fun RegisterScreen(
                             Toast.makeText(context, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show()
                             onRegisterSuccess()
 
+                        } catch (e: HttpException) {
+                            val message = if (e.code() == 409) {
+                                context.getString(R.string.err_email_already_registered)
+                            } else {
+                                context.getString(R.string.login_server_error, e.code())
+                            }
+                            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                        } catch (e: IOException) {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.login_error_network),
+                                Toast.LENGTH_LONG
+                            ).show()
                         } catch (e: Exception) {
-                            e.printStackTrace()
-                            Toast.makeText(context, "Erro ao criar conta: ${e.message}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.err_register_generic),
+                                Toast.LENGTH_LONG
+                            ).show()
                         } finally {
                             isLoading = false
                         }

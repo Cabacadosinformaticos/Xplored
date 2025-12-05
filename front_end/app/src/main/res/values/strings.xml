@@ -69,6 +69,8 @@
     <string name="msg_registration_navigating_profile">Registo concluído! A navegar para o Perfil…</string>
     <string name="msg_registration_success_welcome">Registo concluído! Bem-vindo, %1$s</string>
     <string name="err_registration_api">Erro ao criar conta: %1$s</string>
+    <string name="err_email_already_registered">Este email já está registado.</string>
+    <string name="err_register_generic">Erro ao criar conta. Tenta novamente.</string>
 
     <string name="forgot_password_title">Perdeste a tua palavra-passe?</string>
     <string name="forgot_password_subtitle">Não te preocupes! Acontece. Por favor, introduz o endereço de email ligado à tua conta.</string>
@@ -77,9 +79,10 @@
     <string name="forgot_password_remember">Já te lembras da passe?</string>
     <string name="err_no_active_account">Erro: Nenhuma conta ativa encontrada.</string>
     <string name="err_account_not_found">Conta não encontrada.</string>
+    <string name="password_reset_code_sent">Se a conta existir, o código foi gerado. Consulta o registo do servidor.</string>
 
     <string name="otp_verification_title">Verificação de OTP</string>
-    <string name="otp_verification_subtitle">Introduz o código de verificação que acabámos de enviar para o teu e-mail.</string>
+    <string name="otp_verification_subtitle">Introduz o código de 6 dígitos gerado para a tua conta.</string>
     <string name="verify_button">Verificar</string>
     <string name="didnt_receive_code">Não recebeste o código?</string>
     <string name="resend_button">Reenviar</string>
@@ -96,6 +99,7 @@
     <string name="password_empty_fields">Por favor, preencha ambos os campos.</string>
     <string name="password_reset_success">Palavra-passe redefinida com sucesso!</string>
     <string name="password_mismatch">As palavras-passe não coincidem. Tente novamente.</string>
+    <string name="password_too_short">A palavra-passe deve ter pelo menos 6 caracteres.</string>
 
     <string name="settings_title">Definições</string>
     <string name="settings_account">Conta</string>

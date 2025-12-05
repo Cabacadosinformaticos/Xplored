@@ -40,9 +40,10 @@ class IdentityCheckActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val resetEmail = intent.getStringExtra("reset_email").orEmpty()
         setContent {
             XploredTheme {
-                IdentityCheckScreen()
+                IdentityCheckScreen(resetEmail)
             }
         }
     }
@@ -52,18 +53,18 @@ class IdentityCheckActivity : ComponentActivity() {
 fun OtpBox(text: String, isFocused: Boolean) {
     Box(
         modifier = Modifier
-            .size(80.dp)
+            .size(48.dp)
             .background(Color.White, RoundedCornerShape(12.dp))
             .border(
                 width = 2.dp,
                 color = if (isFocused) HighlightedColor else SecondaryLight,
-                shape = RoundedCornerShape(24.dp)
+                shape = RoundedCornerShape(12.dp)
             ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
-            fontSize = 32.sp,
+            fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = PrimaryDark
         )
@@ -71,25 +72,21 @@ fun OtpBox(text: String, isFocused: Boolean) {
 }
 
 @Composable
-fun IdentityCheckScreen() {
+fun IdentityCheckScreen(resetEmail: String) {
     val context = LocalContext.current
-    val otpLength = 4
-    val correctCode = "1234"
+    val otpLength = 6
 
     var otpValue by remember { mutableStateOf(TextFieldValue(text = "", selection = TextRange(0))) }
 
+    // The code is checked by the backend on the confirm step; here we only collect it.
     val verifyOtp: () -> Unit = {
         if (otpValue.text.length == otpLength) {
-            if (otpValue.text == correctCode) {
-                Toast.makeText(context, context.getString(R.string.verification_success), Toast.LENGTH_SHORT).show()
-                val intent = Intent(context, LoginNewPasswordActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                }
-                context.startActivity(intent)
-                (context as? ComponentActivity)?.finish()
-            } else {
-                Toast.makeText(context, context.getString(R.string.incorrect_code), Toast.LENGTH_SHORT).show()
+            val intent = Intent(context, LoginNewPasswordActivity::class.java).apply {
+                putExtra("reset_email", resetEmail)
+                putExtra("reset_code", otpValue.text)
             }
+            context.startActivity(intent)
+            (context as? ComponentActivity)?.finish()
         } else {
             Toast.makeText(context, context.getString(R.string.incomplete_code), Toast.LENGTH_SHORT).show()
         }
@@ -212,6 +209,6 @@ fun IdentityCheckScreen() {
 @Composable
 fun IdentityCheckScreenPreview() {
     XploredTheme {
-        IdentityCheckScreen()
+        IdentityCheckScreen(resetEmail = "teste@email.com")
     }
 }

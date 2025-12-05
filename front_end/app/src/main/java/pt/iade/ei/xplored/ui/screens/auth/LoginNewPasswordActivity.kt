@@ -1,6 +1,5 @@
 package pt.iade.ei.xplored.ui.screens.auth
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -25,31 +24,39 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pt.iade.ei.xplored.ui.theme.XploredTheme
-import androidx.core.content.edit
+import kotlinx.coroutines.launch
+import org.json.JSONObject
 import pt.iade.ei.xplored.R
-import pt.iade.ei.xplored.SessionManager
+import pt.iade.ei.xplored.network.ApiClient
+import pt.iade.ei.xplored.network.PasswordResetConfirmRequest
+import pt.iade.ei.xplored.network.UserApiService
+import pt.iade.ei.xplored.ui.theme.XploredTheme
+import retrofit2.HttpException
 
 class LoginNewPasswordActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val resetEmail = intent.getStringExtra("reset_email").orEmpty()
+        val resetCode = intent.getStringExtra("reset_code").orEmpty()
         setContent {
             XploredTheme {
-                NewPasswordScreen()
+                NewPasswordScreen(resetEmail, resetCode)
             }
         }
     }
 }
 
 @Composable
-fun NewPasswordScreen() {
+fun NewPasswordScreen(resetEmail: String, resetCode: String) {
     // Local state for inputs and visibility toggles
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var newPasswordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -122,17 +129,68 @@ fun NewPasswordScreen() {
 
                 Spacer(modifier = Modifier.height(48.dp))
 
-                // Triggers password update flow
+                // Triggers the real password reset on the backend
                 Button(
-                    onClick = { performPasswordReset(context, newPassword, confirmPassword) },
+                    onClick = {
+                        if (newPassword.isBlank() || confirmPassword.isBlank()) {
+                            Toast.makeText(context, context.getString(R.string.password_empty_fields), Toast.LENGTH_SHORT).show()
+                        } else if (newPassword != confirmPassword) {
+                            Toast.makeText(context, context.getString(R.string.password_mismatch), Toast.LENGTH_LONG).show()
+                        } else if (newPassword.length < 6) {
+                            Toast.makeText(context, context.getString(R.string.password_too_short), Toast.LENGTH_LONG).show()
+                        } else {
+                            isLoading = true
+                            scope.launch {
+                                try {
+                                    val api = ApiClient.instance.create(UserApiService::class.java)
+                                    api.confirmPasswordReset(
+                                        PasswordResetConfirmRequest(
+                                            email = resetEmail,
+                                            code = resetCode,
+                                            newPassword = newPassword
+                                        )
+                                    )
+
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.password_reset_success),
+                                        Toast.LENGTH_LONG
+                                    ).show()
+
+                                    // Back to login and drop the reset screens from the back stack.
+                                    val intent = Intent(context, LoginWelcomeBackActivity::class.java).apply {
+                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                    }
+                                    context.startActivity(intent)
+                                    (context as? ComponentActivity)?.finish()
+                                } catch (e: HttpException) {
+                                    val message = parseErrorMessage(e.response()?.errorBody()?.string())
+                                        ?: context.getString(R.string.login_server_error, e.code())
+                                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                                } catch (e: Exception) {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.login_error_network),
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                } finally {
+                                    isLoading = false
+                                }
+                            }
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = PrimaryDark),
-                    enabled = newPassword.isNotBlank() && confirmPassword.isNotBlank()
+                    enabled = newPassword.isNotBlank() && confirmPassword.isNotBlank() && !isLoading
                 ) {
-                    Text(text = stringResource(R.string.new_password_button), fontSize = 18.sp)
+                    if (isLoading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text(text = stringResource(R.string.new_password_button), fontSize = 18.sp)
+                    }
                 }
             }
         }
@@ -172,64 +230,20 @@ private fun PasswordInputField(
     )
 }
 
-private fun performPasswordReset(context: Context, newPass: String, confirmPass: String) {
-    // Basic validation
-    if (newPass.isBlank() || confirmPass.isBlank()) {
-        Toast.makeText(context, context.getString(R.string.password_empty_fields), Toast.LENGTH_SHORT).show()
-        return
+/** Reads the {error} field of a 400 response body, or null when it is not usable. */
+private fun parseErrorMessage(body: String?): String? {
+    if (body.isNullOrBlank()) return null
+    return try {
+        JSONObject(body).optString("error").ifBlank { null }
+    } catch (e: Exception) {
+        null
     }
-
-    if (newPass != confirmPass) {
-        Toast.makeText(context, context.getString(R.string.password_mismatch), Toast.LENGTH_LONG).show()
-        return
-    }
-
-    // Determine current user (email is used as key)
-    val email = SessionManager.getUserEmail(context)
-    if (email.isNullOrBlank()) {
-        Toast.makeText(context, context.getString(R.string.err_no_active_account), Toast.LENGTH_LONG).show()
-        return
-    }
-
-    // Load users and update matching record
-    val usersArray = SessionManager.getRegisteredUsersArray(context)
-    var userFound = false
-    for (i in 0 until usersArray.length()) {
-        val userObj = usersArray.getJSONObject(i)
-        if (userObj.optString("email").equals(email, ignoreCase = true)) {
-            userObj.put("password", newPass)
-            userFound = true
-            break
-        }
-    }
-
-    if (!userFound) {
-        Toast.makeText(context, context.getString(R.string.err_account_not_found), Toast.LENGTH_LONG).show()
-        return
-    }
-
-    // Persist updated list (mirrors SessionManager storage keys)
-    // PREF_USERS = "XploredUsers", KEY_USERS_LIST = "usersList"
-    context
-        .getSharedPreferences("XploredUsers", Context.MODE_PRIVATE)
-        .edit {
-            putString("usersList", usersArray.toString())
-        }
-
-    Toast.makeText(context, context.getString(R.string.password_reset_success), Toast.LENGTH_LONG).show()
-
-    // Navigate back to welcome/login and clear back stack
-    val intent = Intent(context, LoginWelcomeBackActivity::class.java).apply {
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-    }
-    context.startActivity(intent)
-    (context as? ComponentActivity)?.finish()
 }
 
 @Preview(showBackground = true)
 @Composable
 fun NewPasswordScreenPreview() {
     XploredTheme {
-        NewPasswordScreen()
+        NewPasswordScreen(resetEmail = "teste@email.com", resetCode = "123456")
     }
 }

@@ -24,9 +24,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import pt.iade.ei.xplored.R
-import pt.iade.ei.xplored.SessionManager
+import pt.iade.ei.xplored.network.ApiClient
+import pt.iade.ei.xplored.network.PasswordResetRequest
+import pt.iade.ei.xplored.network.UserApiService
 import pt.iade.ei.xplored.ui.theme.XploredTheme
+import retrofit2.HttpException
 
 class LoginForgotPasswordActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +47,9 @@ class LoginForgotPasswordActivity : ComponentActivity() {
 fun ForgotPasswordScreen() {
     // Local state for email input
     var email by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -107,34 +113,41 @@ fun ForgotPasswordScreen() {
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Submit: validates email existence and routes accordingly
+                // Submit: asks the backend for a reset code, then goes to the code screen
                 Button(
                     onClick = {
-                        val usersArray = SessionManager.getRegisteredUsersArray(context)
-                        var emailExists = false
+                        val target = email.trim()
+                        isLoading = true
+                        scope.launch {
+                            try {
+                                val api = ApiClient.instance.create(UserApiService::class.java)
+                                api.requestPasswordReset(PasswordResetRequest(email = target))
 
-                        // Linear scan for matching email in stored users
-                        for (i in 0 until usersArray.length()) {
-                            val user = usersArray.getJSONObject(i)
-                            if (user.optString("email").equals(email.trim(), ignoreCase = true)) {
-                                emailExists = true
-                                break
-                            }
-                        }
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.password_reset_code_sent),
+                                    Toast.LENGTH_LONG
+                                ).show()
 
-                        if (emailExists) {
-                            // Known account → proceed to identity verification
-                            val intent = Intent(context, IdentityCheckActivity::class.java).apply {
-                                putExtra("reset_email", email)
+                                val intent = Intent(context, IdentityCheckActivity::class.java).apply {
+                                    putExtra("reset_email", target)
+                                }
+                                context.startActivity(intent)
+                            } catch (e: HttpException) {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.login_server_error, e.code()),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } catch (e: Exception) {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.login_error_network),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } finally {
+                                isLoading = false
                             }
-                            context.startActivity(intent)
-                        } else {
-                            // Unknown account → inform user
-                            Toast.makeText(
-                                context,
-                                "Conta não encontrada. Verifica o endereço de email.",
-                                Toast.LENGTH_LONG
-                            ).show()
                         }
                     },
                     modifier = Modifier
@@ -142,9 +155,13 @@ fun ForgotPasswordScreen() {
                         .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E2835)),
-                    enabled = email.isNotBlank()
+                    enabled = email.isNotBlank() && !isLoading
                 ) {
-                    Text(text = stringResource(R.string.forgot_password_send_button), fontSize = 18.sp)
+                    if (isLoading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text(text = stringResource(R.string.forgot_password_send_button), fontSize = 18.sp)
+                    }
                 }
 
                 Spacer(modifier = Modifier.weight(1f))

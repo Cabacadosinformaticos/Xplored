@@ -3,19 +3,15 @@ package pt.iade.ei.xplored
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
-import org.json.JSONArray
 
 /**
- * Centralized session and user management for Xplored.
+ * Centralized session management for Xplored.
  *
- * - Stores a local list of known users (email, name, etc.)
- * - Persists login state for the currently active session
- * - Keeps users even after logout
+ * - Persists the login state and the data of the active user
+ * - Accounts live on the backend; there is no local user list anymore
  */
 object SessionManager {
-    // Two separate preference files (clean separation)
     private const val PREF_SESSION = "XploredSession"
-    private const val PREF_USERS = "XploredUsers"
 
     // Keys for session-level info
     private const val KEY_IS_LOGGED_IN = "isLoggedIn"
@@ -23,18 +19,11 @@ object SessionManager {
     private const val KEY_USER_EMAIL = "userEmail"
     private const val KEY_USER_POINTS = "userPoints"
     private const val KEY_USER_ABOUT = "userAbout"
-
-    // Keys for stored user list
-    private const val KEY_USERS_LIST = "usersList"
-
     private const val KEY_USER_COUNTRY = "userCountry"
 
-    // Helper accessors
+    // Helper accessor
     private fun sessionPrefs(context: Context): SharedPreferences =
         context.getSharedPreferences(PREF_SESSION, Context.MODE_PRIVATE)
-
-    private fun usersPrefs(context: Context): SharedPreferences =
-        context.getSharedPreferences(PREF_USERS, Context.MODE_PRIVATE)
 
     // ---------- SESSION STATE ----------
 
@@ -80,46 +69,18 @@ object SessionManager {
     fun getUserAbout(context: Context): String =
         sessionPrefs(context).getString(KEY_USER_ABOUT, "") ?: ""
 
-    // Update "about" in the registered users list (and keep session in sync)
-    fun updateUserAbout(context: Context, email: String, about: String) {
-        val users = getRegisteredUsersArray(context)
-        for (i in 0 until users.length()) {
-            val user = users.getJSONObject(i)
-            if (user.getString("email").trim().equals(email.trim(), ignoreCase = true)) {
-                user.put("about", about) // create or update
-                break
-            }
-        }
-        usersPrefs(context).edit().putString(KEY_USERS_LIST, users.toString()).apply()
-        saveUserAbout(context, about)
-        Log.d("SessionDebug", "Updated about for $email")
-    }
-
-    fun getAboutForEmail(context: Context, email: String): String {
-        if (email.isBlank()) return ""
-        val users = getRegisteredUsersArray(context)
-        for (i in 0 until users.length()) {
-            val u = users.getJSONObject(i)
-            if (u.getString("email").trim().equals(email.trim(), ignoreCase = true)) {
-                return u.optString("about", "")
-            }
-        }
-        return ""
-    }
+    // The local user list was removed; "about" now lives in the session.
+    // Kept because ProfileActivity still calls it with the active user's email.
+    fun getAboutForEmail(context: Context, email: String): String =
+        if (email.trim().equals(getUserEmail(context).trim(), ignoreCase = true)) getUserAbout(context) else ""
 
     /**
-     * Clears only the session data (keeps all registered users).
+     * Clears the session data (the backend keeps the account).
      */
     fun clearSession(context: Context) {
         val prefs = sessionPrefs(context)
         prefs.edit().clear().apply()
-        Log.d("SessionDebug", "Session cleared (users preserved)")
-    }
-
-    // ---------- REGISTERED USERS ----------
-    fun getRegisteredUsersArray(context: Context): JSONArray {
-        val json = usersPrefs(context).getString(KEY_USERS_LIST, "[]")
-        return JSONArray(json)
+        Log.d("SessionDebug", "Session cleared")
     }
 
     fun logoutUser(context: Context) {
@@ -135,18 +96,4 @@ object SessionManager {
 
     fun getUserCountry(context: Context): String =
         sessionPrefs(context).getString(KEY_USER_COUNTRY, "") ?: ""
-
-    fun updateUserPoints(context: Context, email: String, newPoints: Int) {
-        val users = getRegisteredUsersArray(context)
-        for (i in 0 until users.length()) {
-            val user = users.getJSONObject(i)
-            if (user.getString("email").trim().equals(email.trim(), ignoreCase = true)) {
-                user.put("points", newPoints)
-                break
-            }
-        }
-        usersPrefs(context).edit().putString(KEY_USERS_LIST, users.toString()).apply()
-        saveUserPoints(context, newPoints)
-        Log.d("SessionDebug", "Updated points for $email to $newPoints")
-    }
 }
