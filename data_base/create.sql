@@ -40,6 +40,8 @@ CREATE TABLE places (
     author_id BIGINT UNSIGNED,
     avg_rating DECIMAL(3,2) DEFAULT 0.0,
     is_verified BOOLEAN DEFAULT FALSE,
+    -- Moderation: PENDING (new place by a user), APPROVED, REJECTED
+    status VARCHAR(20) NOT NULL DEFAULT 'APPROVED',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_places_category FOREIGN KEY (category_id) REFERENCES categories(id),
     CONSTRAINT fk_places_author FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL
@@ -155,6 +157,56 @@ CREATE TABLE points_ledger (
     reason VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_ledger_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- 9. PASSWORD RESET
+CREATE TABLE password_reset_tokens (
+    id SERIAL PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    code_hash VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    attempts INT NOT NULL DEFAULT 0,
+    used BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_reset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- 10. PEDIPAPER STOP CHECK-INS
+CREATE TABLE route_stop_checkins (
+    id SERIAL PRIMARY KEY,
+    participation_id BIGINT UNSIGNED NOT NULL,
+    route_stop_id BIGINT UNSIGNED NOT NULL,
+    lat DECIMAL(9,6) NOT NULL,
+    lng DECIMAL(9,6) NOT NULL,
+    photo_id BIGINT UNSIGNED NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (participation_id, route_stop_id),
+    CONSTRAINT fk_checkin_part FOREIGN KEY (participation_id) REFERENCES route_participations(id) ON DELETE CASCADE,
+    CONSTRAINT fk_checkin_stop FOREIGN KEY (route_stop_id) REFERENCES route_stops(id) ON DELETE CASCADE,
+    CONSTRAINT fk_checkin_photo FOREIGN KEY (photo_id) REFERENCES photos(id) ON DELETE SET NULL
+);
+
+-- 11. FAVORITES
+CREATE TABLE favorites (
+    user_id BIGINT UNSIGNED NOT NULL,
+    place_id BIGINT UNSIGNED NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, place_id),
+    CONSTRAINT fk_fav_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_fav_place FOREIGN KEY (place_id) REFERENCES places(id) ON DELETE CASCADE
+);
+
+-- 12. VISITS (GPS check-in at a place, once per user and place)
+CREATE TABLE visits (
+    id SERIAL PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    place_id BIGINT UNSIGNED NOT NULL,
+    lat DECIMAL(9,6) NOT NULL,
+    lng DECIMAL(9,6) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (user_id, place_id),
+    CONSTRAINT fk_visit_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_visit_place FOREIGN KEY (place_id) REFERENCES places(id) ON DELETE CASCADE
 );
 
 INSERT INTO categories (id, name, color_hex, icon_name) VALUES 
