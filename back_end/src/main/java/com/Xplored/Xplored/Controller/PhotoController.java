@@ -128,7 +128,10 @@ public class PhotoController {
         photo.setReviewId(reviewIdValue);
         photoRepository.save(photo);
 
-        return ResponseEntity.ok(Map.of("status", "Photo Saved", "url", UrlUtil.toAbsolute(relativeUrl)));
+        return ResponseEntity.ok(Map.of(
+                "status", "Photo Saved",
+                "id", photo.getPhotoId(),
+                "url", UrlUtil.toAbsolute(relativeUrl)));
     }
 
     @GetMapping("/by-place/{placeId}")

@@ -30,6 +30,7 @@ import pt.iade.ei.xplored.SessionManager
 import pt.iade.ei.xplored.network.ApiClient
 import pt.iade.ei.xplored.network.Pedipaper
 import pt.iade.ei.xplored.network.PedipaperApiService
+import pt.iade.ei.xplored.network.RouteProgress
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 
 class PedipaperActivity : ComponentActivity() {
@@ -50,14 +51,28 @@ fun PedipaperListScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var routes by remember { mutableStateOf<List<Pedipaper>>(emptyList()) }
+    var progressByRoute by remember { mutableStateOf<Map<Long, RouteProgress>>(emptyMap()) }
     var isLoading by remember { mutableStateOf(true) }
 
     // Fetch Routes from Backend
     LaunchedEffect(Unit) {
         try {
             val api = ApiClient.instance.create(PedipaperApiService::class.java)
+            val email = SessionManager.getUserEmail(context)
             // Only routes that are still active can be played
-            routes = api.getAllPedipapers().filter { it.active }
+            val activeRoutes = api.getAllPedipapers().filter { it.active }
+            routes = activeRoutes
+
+            // One progress call per route is cheap for a handful of routes.
+            val progressMap = mutableMapOf<Long, RouteProgress>()
+            for (route in activeRoutes) {
+                try {
+                    progressMap[route.pediId] = api.getProgress(route.pediId, email)
+                } catch (ignored: Exception) {
+                    // A failed progress call just hides the badge for that route.
+                }
+            }
+            progressByRoute = progressMap
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(context, "Erro a carregar rotas", Toast.LENGTH_SHORT).show()
@@ -86,7 +101,7 @@ fun PedipaperListScreen(onBack: () -> Unit) {
             } else {
                 LazyColumn(contentPadding = PaddingValues(16.dp)) {
                     items(routes) { route ->
-                        PedipaperCard(route) {
+                        PedipaperCard(route, progressByRoute[route.pediId]) {
                             // On Click: JOIN and Start Game
                             scope.launch {
                                 try {
@@ -118,7 +133,7 @@ fun PedipaperListScreen(onBack: () -> Unit) {
 }
 
 @Composable
-fun PedipaperCard(route: Pedipaper, onClick: () -> Unit) {
+fun PedipaperCard(route: Pedipaper, progress: RouteProgress?, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp).clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(4.dp),
@@ -137,6 +152,19 @@ fun PedipaperCard(route: Pedipaper, onClick: () -> Unit) {
                 Text(route.description ?: "", fontSize = 14.sp, color = Color.Gray)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text("${route.totalPoints} pts", fontWeight = FontWeight.Bold, color = Color(0xFFE65100))
+
+                if (progress != null) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    if (progress.completed) {
+                        Text("Concluído", color = Color(0xFF2E7D32), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    } else if (progress.joined) {
+                        Text(
+                            "${progress.completedStopIds.size}/${progress.totalStops} paragens",
+                            color = Color.Gray,
+                            fontSize = 13.sp
+                        )
+                    }
+                }
             }
         }
     }

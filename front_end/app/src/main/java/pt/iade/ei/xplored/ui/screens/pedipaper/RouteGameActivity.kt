@@ -35,15 +35,17 @@ import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.gson.JsonParser
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.launch
 import pt.iade.ei.xplored.SessionManager
 import pt.iade.ei.xplored.network.ApiClient
+import pt.iade.ei.xplored.network.CheckinRequest
 import pt.iade.ei.xplored.network.PedipaperApiService
 import pt.iade.ei.xplored.network.PhotoUploadClient
 import pt.iade.ei.xplored.network.StopResponse
-import pt.iade.ei.xplored.network.UserApiService // IMPORT ADDED
 import pt.iade.ei.xplored.ui.theme.XploredTheme
+import retrofit2.HttpException
 
 class RouteGameActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,6 +73,8 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
     var currentStepIndex by remember { mutableIntStateOf(0) }
     var isFinished by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(true) }
+    // Points come from the server on completion, or from the route as a fallback.
+    var awardedPoints by remember { mutableIntStateOf(totalPoints) }
 
     // Location State
     var userLocation by remember { mutableStateOf<LatLng?>(null) }
@@ -138,15 +142,34 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
         onDispose { fusedLocationClient.removeLocationUpdates(locationCallback) }
     }
 
-    // --- 2. LOAD ROUTE DATA ---
+    // --- 2. LOAD ROUTE DATA AND SERVER PROGRESS ---
     LaunchedEffect(pediId) {
         try {
             val api = ApiClient.instance.create(PedipaperApiService::class.java)
-            stops = api.getStops(pediId)
+            val email = SessionManager.getUserEmail(context)
+            val loadedStops = api.getStops(pediId)
+            stops = loadedStops
 
-            if (stops.isNotEmpty()) {
-                val first = stops[0]
-                cameraPositionState.position = CameraPosition.fromLatLngZoom(LatLng(first.lat, first.lng), 16f)
+            // Resume where the user stopped: first stop without a check-in.
+            val progress = try {
+                api.getProgress(pediId, email)
+            } catch (e: Exception) {
+                null
+            }
+            if (progress != null) {
+                if (progress.completed) {
+                    awardedPoints = progress.pointsAwarded
+                    isFinished = true
+                } else {
+                    val done = progress.completedStopIds.toSet()
+                    val nextIndex = loadedStops.indexOfFirst { it.stopId !in done }
+                    currentStepIndex = if (nextIndex >= 0) nextIndex else 0
+                }
+            }
+
+            if (loadedStops.isNotEmpty() && !isFinished) {
+                val target = loadedStops[currentStepIndex.coerceIn(0, loadedStops.size - 1)]
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(LatLng(target.lat, target.lng), 16f)
             }
         } catch (e: Exception) {
             Toast.makeText(context, "Erro ao carregar rota", Toast.LENGTH_SHORT).show()
@@ -155,30 +178,79 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
         }
     }
 
-    // --- 3. HELPER: FINISH ROUTE & SYNC POINTS ---
+    // Reads the pt-PT "error" field the server returns, or a generic fallback.
+    fun serverError(e: Exception): String {
+        if (e is HttpException) {
+            val body = try {
+                e.response()?.errorBody()?.string()
+            } catch (ignored: Exception) {
+                null
+            }
+            if (!body.isNullOrBlank()) {
+                try {
+                    JsonParser.parseString(body).asJsonObject.get("error")?.asString?.let { return it }
+                } catch (ignored: Exception) {
+                    // Fall through to the generic message.
+                }
+            }
+        }
+        return "Não foi possível registar. Tenta novamente."
+    }
+
+    // --- 3. HELPER: FINISH ROUTE (server validates every stop) ---
     fun finishRoute(email: String) {
         if (isCompleting) return
         isCompleting = true
         scope.launch {
             try {
-                // 1. Tell backend we finished (Backend adds points to DB)
                 val api = ApiClient.instance.create(PedipaperApiService::class.java)
-                api.completePedipaper(pediId, email)
+                val result = api.completePedipaper(pediId, email)
 
-                // 2. Fetch updated user profile to get new points balance immediately
-                val userApi = ApiClient.instance.create(UserApiService::class.java)
-                val updatedUser = userApi.getUserByEmail(email)
-
-                // 3. Update Local Session
-                SessionManager.saveUserPoints(context, updatedUser.points)
+                // Points and balance come from the server.
+                awardedPoints = result.pointsAwarded
+                SessionManager.saveUserPoints(context, result.newBalance)
 
                 isFinished = true
             } catch (e: Exception) {
                 e.printStackTrace()
-                // Do not show the victory screen when the server did not record the route
-                Toast.makeText(context, "Não foi possível finalizar a rota. Tenta novamente.", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, serverError(e), Toast.LENGTH_LONG).show()
             } finally {
                 isCompleting = false
+            }
+        }
+    }
+
+    // Advances to the next stop, or completes the route after the last one.
+    suspend fun advanceStep(email: String) {
+        if (currentStepIndex < stops.size - 1) {
+            currentStepIndex++
+            distanceToTarget = Float.MAX_VALUE
+            Toast.makeText(context, "Boa! Próxima paragem desbloqueada.", Toast.LENGTH_SHORT).show()
+            val next = stops[currentStepIndex]
+            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(next.lat, next.lng), 16f))
+        } else {
+            finishRoute(email)
+        }
+    }
+
+    // Registers one GPS check-in for the current stop.
+    fun checkinCurrentStop(email: String, photoId: Long?) {
+        val location = userLocation
+        if (location == null) {
+            Toast.makeText(context, "Ainda sem localização. Tenta novamente.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        scope.launch {
+            try {
+                val api = ApiClient.instance.create(PedipaperApiService::class.java)
+                api.checkinStop(
+                    pediId,
+                    stops[currentStepIndex].stopId,
+                    CheckinRequest(email, location.latitude, location.longitude, photoId)
+                )
+                advanceStep(email)
+            } catch (e: Exception) {
+                Toast.makeText(context, serverError(e), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -191,6 +263,12 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
             scope.launch {
                 val currentStop = stops[currentStepIndex]
                 val email = SessionManager.getUserEmail(context)
+                val location = userLocation
+
+                if (location == null) {
+                    Toast.makeText(context, "Ainda sem localização. Tenta novamente.", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
 
                 Toast.makeText(context, "A enviar foto...", Toast.LENGTH_SHORT).show()
 
@@ -201,21 +279,23 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
                     reviewId = "STOP-EVIDENCE-${currentStop.stopId}"
                 )
 
-                // Without the evidence photo the stop is not completed
-                if (uploaded == null) {
+                // Without the evidence photo the stop cannot be checked in.
+                val photoId = uploaded?.photoId
+                if (photoId == null) {
                     Toast.makeText(context, "Não foi possível enviar a foto. Tenta novamente.", Toast.LENGTH_LONG).show()
                     return@launch
                 }
 
-                // Advance Game
-                if (currentStepIndex < stops.size - 1) {
-                    currentStepIndex++
-                    distanceToTarget = Float.MAX_VALUE
-                    Toast.makeText(context, "Boa! Próxima paragem desbloqueada.", Toast.LENGTH_SHORT).show()
-                    val next = stops[currentStepIndex]
-                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(next.lat, next.lng), 16f))
-                } else {
-                    finishRoute(email)
+                try {
+                    val api = ApiClient.instance.create(PedipaperApiService::class.java)
+                    api.checkinStop(
+                        pediId,
+                        currentStop.stopId,
+                        CheckinRequest(email, location.latitude, location.longitude, photoId)
+                    )
+                    advanceStep(email)
+                } catch (e: Exception) {
+                    Toast.makeText(context, serverError(e), Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -247,7 +327,7 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
                     Text("Missão Cumprida!", fontSize = 32.sp, fontWeight = FontWeight.Bold)
 
                     // Show actual points won
-                    Text("Ganhaste +$totalPoints pontos!", color = Color(0xFFE65100), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text("Ganhaste +$awardedPoints pontos!", color = Color(0xFFE65100), fontSize = 24.sp, fontWeight = FontWeight.Bold)
 
                     Spacer(Modifier.height(32.dp))
                     Button(
@@ -306,7 +386,17 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
                         Text(currentStop.taskDescription ?: "Vai até ao local.", color = Color(0xFF424242))
 
                         Spacer(Modifier.height(8.dp))
-                        if (!hasFix) {
+                        if (!hasLocationPermission) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.LocationOn, null, tint = Color.Red, modifier = Modifier.size(16.dp))
+                                Spacer(Modifier.width(4.dp))
+                                Text(
+                                    "Precisas de permitir a localização para fazer check-in nas paragens.",
+                                    color = Color.Red,
+                                    fontSize = 12.sp
+                                )
+                            }
+                        } else if (!hasFix) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.LocationOn, null, tint = Color.Gray, modifier = Modifier.size(16.dp))
                                 Spacer(Modifier.width(4.dp))
@@ -332,38 +422,47 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
 
                         Spacer(Modifier.height(24.dp))
 
-                        val buttonText = if (currentStop.requiresPhoto) "Tirar Foto & Continuar" else "Fazer Check-in"
-                        val buttonIcon = if (currentStop.requiresPhoto) Icons.Default.CameraAlt else Icons.Default.CheckCircle
+                        // Without the permission the only action is to ask for it again.
+                        if (!hasLocationPermission) {
+                            Button(
+                                onClick = {
+                                    locationPermissionLauncher.launch(
+                                        arrayOf(
+                                            Manifest.permission.ACCESS_FINE_LOCATION,
+                                            Manifest.permission.ACCESS_COARSE_LOCATION
+                                        )
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth().height(50.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E2835))
+                            ) {
+                                Icon(Icons.Default.LocationOn, null, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text("Permitir localização")
+                            }
+                        } else {
+                            val buttonText = if (currentStop.requiresPhoto) "Tirar Foto & Continuar" else "Fazer Check-in"
+                            val buttonIcon = if (currentStop.requiresPhoto) Icons.Default.CameraAlt else Icons.Default.CheckCircle
 
-                        Button(
-                            onClick = {
-                                if (currentStop.requiresPhoto) {
-                                    photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                                } else {
-                                    // Simple Check-in
-                                    scope.launch {
-                                        if (currentStepIndex < stops.size - 1) {
-                                            currentStepIndex++
-                                            distanceToTarget = Float.MAX_VALUE
-                                            Toast.makeText(context, "Check-in feito!", Toast.LENGTH_SHORT).show()
-                                            val next = stops[currentStepIndex]
-                                            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(next.lat, next.lng), 16f))
-                                        } else {
-                                            val email = SessionManager.getUserEmail(context)
-                                            finishRoute(email)
-                                        }
+                            Button(
+                                onClick = {
+                                    val email = SessionManager.getUserEmail(context)
+                                    if (currentStop.requiresPhoto) {
+                                        photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                                    } else {
+                                        checkinCurrentStop(email, null)
                                     }
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth().height(50.dp),
-                            enabled = isNearby,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isNearby) Color(0xFF1E2835) else Color.LightGray
-                            )
-                        ) {
-                            Icon(buttonIcon, null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(8.dp))
-                            Text(if (isNearby) buttonText else "Aproxima-te para desbloquear")
+                                },
+                                modifier = Modifier.fillMaxWidth().height(50.dp),
+                                enabled = isNearby,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (isNearby) Color(0xFF1E2835) else Color.LightGray
+                                )
+                            ) {
+                                Icon(buttonIcon, null, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text(if (isNearby) buttonText else "Aproxima-te para desbloquear")
+                            }
                         }
                     }
                 }
