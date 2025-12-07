@@ -55,6 +55,7 @@ import pt.iade.ei.xplored.network.ReactionRequest
 import pt.iade.ei.xplored.network.ReviewApiService
 import pt.iade.ei.xplored.network.UserApiService
 import pt.iade.ei.xplored.repositories.PhotoRepository
+import pt.iade.ei.xplored.ui.screens.history.HistoryActivity
 import pt.iade.ei.xplored.ui.screens.settings.SettingsActivity
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 import java.util.UUID
@@ -107,6 +108,9 @@ class ProfileActivity : ComponentActivity() {
                     onBack = { finish() },
                     onOpenSettings = {
                         runCatching { startActivity(Intent(context, SettingsActivity::class.java)) }
+                    },
+                    onOpenHistory = {
+                        runCatching { startActivity(Intent(context, HistoryActivity::class.java)) }
                     }
                 )
             }
@@ -124,7 +128,8 @@ private fun ProfileScreen(
     userAbout: String,   // NEW Param
     userCountry: String, // NEW Param
     onBack: () -> Unit,
-    onOpenSettings: () -> Unit
+    onOpenSettings: () -> Unit,
+    onOpenHistory: () -> Unit
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -261,6 +266,18 @@ private fun ProfileScreen(
 
                 Spacer(Modifier.height(8.dp))
                 AssistChip(onClick = {}, label = { Text(stringResource(R.string.points_label, userPoints)) })
+
+                // Entry point to the points and coupon history.
+                TextButton(onClick = onOpenHistory) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        tint = Color(0xFFFFCC66),
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text("Histórico de pontos e cupões", fontSize = 14.sp, color = Color(0xFF1E2835))
+                }
 
                 Spacer(Modifier.height(8.dp))
             }
@@ -516,6 +533,6 @@ private fun stableUserId(email: String): String = UUID.nameUUIDFromBytes(email.l
 @Composable
 private fun ProfileScreenPreview() {
     XploredTheme {
-        ProfileScreen("Tiago", "tiago@test.com", 1250, "About me...", "Portugal", {}, {})
+        ProfileScreen("Tiago", "tiago@test.com", 1250, "About me...", "Portugal", {}, {}, {})
     }
 }

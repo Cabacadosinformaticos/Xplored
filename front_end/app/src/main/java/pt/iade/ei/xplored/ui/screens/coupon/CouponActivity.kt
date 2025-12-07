@@ -1,5 +1,6 @@
 package pt.iade.ei.xplored.ui.screens.coupon
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -38,6 +39,9 @@ import pt.iade.ei.xplored.network.ApiClient
 import pt.iade.ei.xplored.network.CouponApiService
 import pt.iade.ei.xplored.network.CouponResponse
 import pt.iade.ei.xplored.network.RedemptionRequest
+import pt.iade.ei.xplored.ui.screens.history.EXTRA_HISTORY_TAB
+import pt.iade.ei.xplored.ui.screens.history.HISTORY_TAB_COUPONS
+import pt.iade.ei.xplored.ui.screens.history.HistoryActivity
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 
 // Custom colors
@@ -460,6 +464,21 @@ fun CouponScreen() {
                             contentDescription = stringResource(R.string.cd_back),
                             tint = Color.Black
                         )
+                    }
+                },
+                actions = {
+                    // Opens the history on the redeemed coupons tab.
+                    TextButton(
+                        onClick = {
+                            runCatching {
+                                context.startActivity(
+                                    Intent(context, HistoryActivity::class.java)
+                                        .putExtra(EXTRA_HISTORY_TAB, HISTORY_TAB_COUPONS)
+                                )
+                            }
+                        }
+                    ) {
+                        Text("Os meus cupões", color = DarkText, fontSize = 14.sp)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

@@ -4,6 +4,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 data class CouponResponse(
     val id: Long,
@@ -14,6 +15,15 @@ data class CouponResponse(
     val merchant: String,
     val details: String? = null,
     val cost: Int
+)
+
+// One coupon already redeemed by the user, with its code.
+data class RedeemedCouponResponse(
+    val couponId: Long,
+    val title: String,
+    val merchantName: String? = null,
+    val code: String? = null,
+    val redeemedAt: String? = null
 )
 
 // Request Object for redeeming
@@ -35,4 +45,7 @@ interface CouponApiService {
 
     @POST("coupons/redeem")
     suspend fun redeemCoupon(@Body request: RedemptionRequest): Response<RedemptionSuccessResponse>
+
+    @GET("coupons/redeemed")
+    suspend fun getRedeemedCoupons(@Query("email") email: String): List<RedeemedCouponResponse>
 }
