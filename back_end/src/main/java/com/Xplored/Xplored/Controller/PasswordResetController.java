@@ -10,9 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.SecureRandom;
-import java.sql.Timestamp;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -46,12 +43,11 @@ public class PasswordResetController {
                         "UPDATE password_reset_tokens SET used = TRUE WHERE user_id = ? AND used = FALSE",
                         userId);
                 String code = String.format("%06d", random.nextInt(1_000_000));
-                Timestamp expiresAt = Timestamp.from(
-                        Instant.now().plus(Duration.ofMinutes(CODE_TTL_MINUTES)));
+                // Expiry uses the database clock, the same one the confirm query compares against.
                 jdbcTemplate.update(
                         "INSERT INTO password_reset_tokens (user_id, code_hash, expires_at, attempts, used) "
-                                + "VALUES (?, ?, ?, 0, FALSE)",
-                        userId, passwordEncoder.encode(code), expiresAt);
+                                + "VALUES (?, ?, DATE_ADD(NOW(), INTERVAL ? MINUTE), 0, FALSE)",
+                        userId, passwordEncoder.encode(code), CODE_TTL_MINUTES);
                 // There is no mail service: the code is only visible in the server log, by design.
                 log.info("Password reset code for {}: {}", email, code);
             }
