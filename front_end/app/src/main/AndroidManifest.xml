@@ -38,6 +38,7 @@
         <activity android:name=".ui.screens.settings.SettingsActivity" android:exported="false" />
         <activity android:name=".ui.screens.coupon.CouponActivity" android:exported="false" />
         <activity android:name=".ui.screens.history.HistoryActivity" android:exported="false" />
+        <activity android:name=".ui.screens.favorites.FavoritesActivity" android:exported="false" />
         <activity android:name=".ui.screens.auth.IdentityCheckActivity" android:exported="false" />
         <activity android:name=".ui.screens.place.NewPlaceActivity" android:exported="false" />
         <activity android:name=".ui.screens.pedipaper.PedipaperActivity" android:exported="false" />

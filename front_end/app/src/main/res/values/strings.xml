@@ -202,4 +202,27 @@
     <string name="btn_approach_unlock">Aproxima-te para desbloquear</string>
     <string name="error_loading_route_details">Erro ao carregar rota</string>
 
+    <!-- F4: search, favourites, directions, sharing and check-in -->
+    <string name="search_places_hint">Pesquisar locais por nome</string>
+    <string name="cd_clear_search">Limpar pesquisa</string>
+    <string name="action_favorite">Favorito</string>
+    <string name="action_unfavorite">Guardado</string>
+    <string name="action_directions">Como chegar</string>
+    <string name="action_share">Partilhar</string>
+    <string name="action_checkin">Estive aqui</string>
+    <string name="share_place_title">Partilhar local</string>
+    <string name="checkin_need_permission">Permite a localização para fazer check-in neste local.</string>
+    <string name="checkin_waiting_location">A obter a tua localização...</string>
+    <string name="checkin_too_far">Estás a %1$d m. Aproxima-te (máximo 100 m).</string>
+    <string name="visit_points_toast">Boa! Ganhaste +%1$d pontos.</string>
+    <string name="visit_already_toast">Já tinhas feito check-in neste local.</string>
+    <string name="visit_error">Não foi possível fazer check-in. Tenta novamente.</string>
+    <string name="visit_error_network">Sem ligação. Tenta novamente.</string>
+    <string name="favorites_title">Favoritos</string>
+    <string name="favorites_empty">Ainda não tens locais favoritos.</string>
+    <string name="favorites_error">Não foi possível carregar os favoritos.</string>
+    <string name="favorite_add_error">Não foi possível adicionar aos favoritos.</string>
+    <string name="favorite_remove_error">Não foi possível remover dos favoritos.</string>
+    <string name="visited_places_label">Locais visitados: %1$d</string>
+
 </resources>

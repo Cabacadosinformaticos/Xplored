@@ -2,6 +2,7 @@ package pt.iade.ei.xplored.ui.screens.main
 
 import android.Manifest
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -60,6 +61,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.gson.JsonParser
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -71,12 +73,16 @@ import pt.iade.ei.xplored.data.models.photos.PhotoStatus.PhotoStatus
 import pt.iade.ei.xplored.data.models.places.Place
 import pt.iade.ei.xplored.data.models.reviews.Review
 import pt.iade.ei.xplored.network.ApiClient
+import pt.iade.ei.xplored.network.FavoriteApiService
+import pt.iade.ei.xplored.network.FavoriteRequest
 import pt.iade.ei.xplored.network.PhotoApiService
 import pt.iade.ei.xplored.network.PhotoUploadClient
 import pt.iade.ei.xplored.network.PlaceApiService
 import pt.iade.ei.xplored.network.PlaceRequest
 import pt.iade.ei.xplored.network.ReactionRequest
 import pt.iade.ei.xplored.network.ReviewApiService
+import pt.iade.ei.xplored.network.VisitApiService
+import pt.iade.ei.xplored.network.VisitRequest
 import pt.iade.ei.xplored.repositories.PhotoRepository
 import pt.iade.ei.xplored.repositories.PlaceRepository
 import pt.iade.ei.xplored.ui.screens.auth.LoginWelcomeBackActivity
@@ -87,8 +93,33 @@ import pt.iade.ei.xplored.ui.screens.profile.ProfileActivity
 import pt.iade.ei.xplored.ui.screens.reviews.NewReviewActivity
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 import java.io.IOException
+import java.text.Normalizer
 import java.util.Locale
 import kotlin.math.roundToInt
+
+// Extras used by FavoritesActivity to open the map on a saved place.
+const val EXTRA_FOCUS_PLACE_ID = "focus_place_id"
+const val EXTRA_FOCUS_LAT = "focus_lat"
+const val EXTRA_FOCUS_LNG = "focus_lng"
+
+// Radius (in metres) within which a check-in at a place counts.
+private const val CHECKIN_RADIUS_METERS = 100f
+
+// Case and accent insensitive key used by the place search (pt-PT names).
+private fun normalizeForSearch(text: String): String {
+    val lower = Normalizer.normalize(text.lowercase(Locale.getDefault()), Normalizer.Form.NFD)
+    return lower.replace("\\p{Mn}+".toRegex(), "")
+}
+
+// Reads the pt-PT "error" field from a server error body, or null.
+private fun parseServerError(raw: String?): String? {
+    if (raw.isNullOrBlank()) return null
+    return try {
+        JsonParser.parseString(raw).asJsonObject.get("error")?.asString
+    } catch (e: Exception) {
+        null
+    }
+}
 
 data class CategoryButtonInfo(
     val text: String,
@@ -142,6 +173,29 @@ fun ExpandedActionButton(
         ) {
             icon()
         }
+    }
+}
+
+// Compact icon + label action used in the place detail sheet.
+@Composable
+private fun PlaceActionButton(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    tint: Color = Color(0xFF1E2835),
+    enabled: Boolean = true
+) {
+    val alpha = if (enabled) 1f else 0.35f
+    Column(
+        modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(icon, contentDescription = label, tint = tint.copy(alpha = alpha), modifier = Modifier.size(26.dp))
+        Spacer(Modifier.height(4.dp))
+        Text(label, fontSize = 11.sp, color = Color(0xFF1E2835).copy(alpha = alpha))
     }
 }
 
@@ -236,9 +290,29 @@ fun MainView() {
     var radiusKm by remember { mutableFloatStateOf(50f) }
     var showFilterDialog by remember { mutableStateOf(false) }
     var userLocation by remember { mutableStateOf<LatLng?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
+
+    // --- FOCUS REQUEST ---
+    // FavoritesActivity can ask the map to open on a saved place.
+    val activity = context as? Activity
+    val focusPlaceId = remember { activity?.intent?.getStringExtra(EXTRA_FOCUS_PLACE_ID) }
+    val focusLat = remember { activity?.intent?.getDoubleExtra(EXTRA_FOCUS_LAT, Double.NaN) }
+    val focusLng = remember { activity?.intent?.getDoubleExtra(EXTRA_FOCUS_LNG, Double.NaN) }
+
+    LaunchedEffect(places, focusPlaceId) {
+        if (places.isEmpty()) return@LaunchedEffect
+        val target = focusPlaceId?.let { id -> places.firstOrNull { it.id == id } }
+        if (target != null) {
+            selectedPlace = target
+            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(target.latLng, 16f))
+        } else if (focusLat != null && focusLng != null) {
+            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(focusLat, focusLng), 16f))
+        }
+    }
 
     // --- UPDATED FILTER LOGIC ---
-    val filteredPlaces = remember(places, categoryFilter, radiusKm, userLocation) {
+    val filteredPlaces = remember(places, categoryFilter, radiusKm, userLocation, searchQuery) {
+        val searchKey = normalizeForSearch(searchQuery.trim())
         places.filter { place ->
             val matchesCategory = categoryFilter == null || place.category == categoryFilter
             val matchesDistance = if (userLocation != null) {
@@ -247,7 +321,8 @@ fun MainView() {
             } else {
                 true // Show everything if we don't know where the user is
             }
-            matchesCategory && matchesDistance
+            val matchesSearch = searchKey.isBlank() || normalizeForSearch(place.name).contains(searchKey)
+            matchesCategory && matchesDistance && matchesSearch
         }
     }
 
@@ -455,6 +530,16 @@ fun MainView() {
             } else {
                 PlaceDetailView(
                     place = selectedPlace!!,
+                    userLocation = userLocation,
+                    hasLocationPermission = hasLocationPermission,
+                    onRequestLocationPermission = {
+                        locationPermissionLauncher.launch(
+                            arrayOf(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            )
+                        )
+                    },
                     onClose = { selectedPlace = null },
                     onImageClick = { uri -> fullScreenImageUri = uri },
                     // PASS CALLBACK TO REFRESH STARS ON REVIEW ADD
@@ -498,51 +583,90 @@ fun MainView() {
                 }
             }
 
-            // --- CATEGORIES & FILTER BUTTON ---
-            Row(
+            // --- SEARCH, CATEGORIES & FILTER BUTTON ---
+            Column(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .statusBarsPadding()
                     .padding(top = 16.dp)
-                    .horizontalScroll(rememberScrollState())
-                    .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxWidth()
             ) {
-                // 1. Filter Button
-                Button(
-                    onClick = { showFilterDialog = true },
+                // Search by name: filters both the nearby list and the markers.
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    placeholder = { Text(stringResource(R.string.search_places_hint), fontSize = 14.sp) },
+                    leadingIcon = {
+                        Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF1E2835))
+                    },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.cd_clear_search),
+                                    tint = Color(0xFF1E2835)
+                                )
+                            }
+                        }
+                    },
+                    singleLine = true,
                     shape = RoundedCornerShape(50),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
-                    border = BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f)),
-                    contentPadding = PaddingValues(horizontal = 12.dp)
-                ) {
-                    Icon(Icons.Default.Tune, contentDescription = "Filtro", modifier = Modifier.size(20.dp))
-                    if (radiusKm < 50f) {
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("${radiusKm.toInt()}km", fontSize = 12.sp)
-                    }
-                }
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedTextColor = Color(0xFF1E2835),
+                        unfocusedTextColor = Color(0xFF1E2835)
+                    )
+                )
 
-                // 2. Category Buttons
-                categories.forEach { category ->
-                    val isSelected = categoryFilter == category.text
+                Spacer(Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // 1. Filter Button
                     Button(
-                        onClick = { categoryFilter = if (isSelected) null else category.text },
+                        onClick = { showFilterDialog = true },
                         shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(containerColor = category.color),
-                        border = if (isSelected) BorderStroke(2.dp, Color.Black.copy(alpha = 0.8f)) else null
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
+                        border = BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f)),
+                        contentPadding = PaddingValues(horizontal = 12.dp)
                     ) {
-                        Icon(imageVector = category.icon, contentDescription = category.contentDescription, tint = Color.Black)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = category.text, color = Color.Black, fontSize = 16.sp)
+                        Icon(Icons.Default.Tune, contentDescription = "Filtro", modifier = Modifier.size(20.dp))
+                        if (radiusKm < 50f) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("${radiusKm.toInt()}km", fontSize = 12.sp)
+                        }
+                    }
+
+                    // 2. Category Buttons
+                    categories.forEach { category ->
+                        val isSelected = categoryFilter == category.text
+                        Button(
+                            onClick = { categoryFilter = if (isSelected) null else category.text },
+                            shape = RoundedCornerShape(50),
+                            colors = ButtonDefaults.buttonColors(containerColor = category.color),
+                            border = if (isSelected) BorderStroke(2.dp, Color.Black.copy(alpha = 0.8f)) else null
+                        ) {
+                            Icon(imageVector = category.icon, contentDescription = category.contentDescription, tint = Color.Black)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(text = category.text, color = Color.Black, fontSize = 16.sp)
+                        }
                     }
                 }
             }
 
             // FABs (Right Side)
             Column(
-                modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(end = 16.dp, top = 96.dp),
+                modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(end = 16.dp, top = 168.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp), horizontalAlignment = Alignment.End
             ) {
                 FloatingActionButton(
@@ -581,6 +705,14 @@ fun MainView() {
                                 }
                             }
                         } catch (e: SecurityException) { e.printStackTrace() }
+                    } else {
+                        // Permission was denied before: ask for it again instead of doing nothing.
+                        locationPermissionLauncher.launch(
+                            arrayOf(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            )
+                        )
                     }
                 },
                 modifier = Modifier.align(Alignment.BottomEnd).padding(bottom = 112.dp, end = 16.dp),
@@ -716,6 +848,9 @@ fun PlaceCard(
 @Composable
 fun PlaceDetailView(
     place: Place,
+    userLocation: LatLng?,
+    hasLocationPermission: Boolean,
+    onRequestLocationPermission: () -> Unit,
     onClose: () -> Unit,
     onImageClick: (Uri) -> Unit,
     onReviewAdded: () -> Unit // CALLBACK
@@ -733,6 +868,9 @@ fun PlaceDetailView(
     // State
     var reviews by remember { mutableStateOf<List<Review>>(emptyList()) }
     var allPhotos by remember { mutableStateOf<List<String>>(emptyList()) }
+    var isFavorite by remember(place.id) { mutableStateOf(false) }
+    var hasCheckedIn by remember(place.id) { mutableStateOf(false) }
+    var isCheckingIn by remember { mutableStateOf(false) }
 
     // Helper to refresh data
     val refreshData = {
@@ -795,6 +933,111 @@ fun PlaceDetailView(
     // A place only has a reviewable id once the server confirmed it
     val numericPlaceId = remember(place.id) { place.id.toLongOrNull() }
 
+    // --- FAVOURITES ---
+    LaunchedEffect(place.id, numericPlaceId) {
+        val email = SessionManager.getUserEmail(context)
+        if (email.isNotBlank() && numericPlaceId != null) {
+            try {
+                val favorites = ApiClient.instance.create(FavoriteApiService::class.java).getFavorites(email)
+                isFavorite = favorites.any { it.placeId == numericPlaceId }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun toggleFavorite() {
+        val email = SessionManager.getUserEmail(context)
+        if (email.isBlank()) {
+            context.startActivity(Intent(context, LoginWelcomeBackActivity::class.java))
+            return
+        }
+        val placeId = numericPlaceId ?: return
+        scope.launch {
+            try {
+                val api = ApiClient.instance.create(FavoriteApiService::class.java)
+                if (isFavorite) {
+                    val response = api.removeFavorite(email, placeId)
+                    if (response.isSuccessful) isFavorite = false
+                    else Toast.makeText(context, context.getString(R.string.favorite_remove_error), Toast.LENGTH_SHORT).show()
+                } else {
+                    val response = api.addFavorite(FavoriteRequest(email, placeId))
+                    if (response.isSuccessful) isFavorite = true
+                    else Toast.makeText(context, context.getString(R.string.favorite_add_error), Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(context, context.getString(R.string.visit_error_network), Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // --- DIRECTIONS AND SHARING ---
+    fun openDirections() {
+        val coords = "${place.latLng.latitude},${place.latLng.longitude}"
+        val navigation = Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=$coords"))
+            .setPackage("com.google.android.apps.maps")
+        val fallback = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/dir/?api=1&destination=$coords"))
+        try {
+            context.startActivity(navigation)
+        } catch (e: ActivityNotFoundException) {
+            runCatching { context.startActivity(fallback) }
+        }
+    }
+
+    fun sharePlace() {
+        val coords = "${place.latLng.latitude},${place.latLng.longitude}"
+        val mapsLink = "https://www.google.com/maps/search/?api=1&query=$coords"
+        val sendIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, place.name)
+            putExtra(Intent.EXTRA_TEXT, "${place.name}\n${place.address}\n$mapsLink")
+        }
+        context.startActivity(Intent.createChooser(sendIntent, context.getString(R.string.share_place_title)))
+    }
+
+    // --- CHECK-IN ("Estive aqui") ---
+    val distanceToPlace = userLocation?.let { calculateDistanceKm(it, place.latLng) * 1000f }
+    val canCheckIn = numericPlaceId != null && hasLocationPermission &&
+        distanceToPlace != null && distanceToPlace <= CHECKIN_RADIUS_METERS
+
+    fun checkIn() {
+        val email = SessionManager.getUserEmail(context)
+        if (email.isBlank()) {
+            context.startActivity(Intent(context, LoginWelcomeBackActivity::class.java))
+            return
+        }
+        val placeId = numericPlaceId ?: return
+        val location = userLocation ?: return
+        if (isCheckingIn) return
+        isCheckingIn = true
+        scope.launch {
+            try {
+                val response = ApiClient.instance.create(VisitApiService::class.java)
+                    .checkin(VisitRequest(email, placeId, location.latitude, location.longitude))
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    SessionManager.saveUserPoints(context, body.newBalance)
+                    hasCheckedIn = true
+                    val message = if (body.pointsAwarded > 0) {
+                        context.getString(R.string.visit_points_toast, body.pointsAwarded)
+                    } else {
+                        context.getString(R.string.visit_already_toast)
+                    }
+                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                } else {
+                    val error = parseServerError(response.errorBody()?.string())
+                    Toast.makeText(context, error ?: context.getString(R.string.visit_error), Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(context, context.getString(R.string.visit_error_network), Toast.LENGTH_LONG).show()
+            } finally {
+                isCheckingIn = false
+            }
+        }
+    }
+
     Column(modifier = Modifier.padding(16.dp)) {
         // --- HEADER ---
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -824,6 +1067,56 @@ fun PlaceDetailView(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // --- ACTION ROW: favourite, directions, share, check-in ---
+        HorizontalDivider(color = Color(0xFFEDEFF2))
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.Top
+        ) {
+            PlaceActionButton(
+                icon = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                label = stringResource(if (isFavorite) R.string.action_unfavorite else R.string.action_favorite),
+                tint = if (isFavorite) Color(0xFFE53935) else Color(0xFF1E2835),
+                enabled = numericPlaceId != null,
+                onClick = { toggleFavorite() }
+            )
+            PlaceActionButton(
+                icon = Icons.Default.Directions,
+                label = stringResource(R.string.action_directions),
+                onClick = { openDirections() }
+            )
+            PlaceActionButton(
+                icon = Icons.Default.Share,
+                label = stringResource(R.string.action_share),
+                onClick = { sharePlace() }
+            )
+            PlaceActionButton(
+                icon = if (hasCheckedIn) Icons.Default.CheckCircle else Icons.Default.LocationOn,
+                label = stringResource(R.string.action_checkin),
+                tint = if (hasCheckedIn) Color(0xFF2E7D32) else Color(0xFF1E2835),
+                enabled = canCheckIn && !isCheckingIn,
+                onClick = { checkIn() }
+            )
+        }
+
+        // Explanation when "Estive aqui" cannot run yet.
+        if (numericPlaceId != null && !hasCheckedIn && !canCheckIn) {
+            val hint = when {
+                !hasLocationPermission -> stringResource(R.string.checkin_need_permission)
+                distanceToPlace == null -> stringResource(R.string.checkin_waiting_location)
+                else -> stringResource(R.string.checkin_too_far, distanceToPlace.toInt())
+            }
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 4.dp)) {
+                Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(14.dp))
+                Spacer(Modifier.width(4.dp))
+                Text(hint, fontSize = 12.sp, color = Color.Gray)
+            }
+        }
+        HorizontalDivider(color = Color(0xFFEDEFF2))
 
         Spacer(modifier = Modifier.height(16.dp))
 

@@ -54,7 +54,9 @@ import pt.iade.ei.xplored.network.PhotoUploadClient
 import pt.iade.ei.xplored.network.ReactionRequest
 import pt.iade.ei.xplored.network.ReviewApiService
 import pt.iade.ei.xplored.network.UserApiService
+import pt.iade.ei.xplored.network.VisitApiService
 import pt.iade.ei.xplored.repositories.PhotoRepository
+import pt.iade.ei.xplored.ui.screens.favorites.FavoritesActivity
 import pt.iade.ei.xplored.ui.screens.history.HistoryActivity
 import pt.iade.ei.xplored.ui.screens.settings.SettingsActivity
 import pt.iade.ei.xplored.ui.theme.XploredTheme
@@ -77,6 +79,9 @@ class ProfileActivity : ComponentActivity() {
                 var about by remember { mutableStateOf("") }
                 var country by remember { mutableStateOf("") }
                 var isLoggedIn by remember { mutableStateOf(false) }
+                var visitCount by remember { mutableIntStateOf(0) }
+                // Bumped on every resume so the visit counter is refetched.
+                var resumeTick by remember { mutableIntStateOf(0) }
 
                 // This function reloads data from SessionManager
                 fun refreshData() {
@@ -93,10 +98,23 @@ class ProfileActivity : ComponentActivity() {
                     val observer = LifecycleEventObserver { _, event ->
                         if (event == Lifecycle.Event.ON_RESUME) {
                             refreshData()
+                            resumeTick++
                         }
                     }
                     lifecycleOwner.lifecycle.addObserver(observer)
                     onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+                }
+
+                // Number of places the user checked in at, straight from the server.
+                LaunchedEffect(resumeTick, email) {
+                    if (email.isNotBlank()) {
+                        try {
+                            visitCount = ApiClient.instance.create(VisitApiService::class.java)
+                                .getVisitCount(email).visitCount
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
                 }
 
                 ProfileScreen(
@@ -105,12 +123,16 @@ class ProfileActivity : ComponentActivity() {
                     userPoints = points,
                     userAbout = about,
                     userCountry = country, // Pass the country
+                    userVisits = visitCount,
                     onBack = { finish() },
                     onOpenSettings = {
                         runCatching { startActivity(Intent(context, SettingsActivity::class.java)) }
                     },
                     onOpenHistory = {
                         runCatching { startActivity(Intent(context, HistoryActivity::class.java)) }
+                    },
+                    onOpenFavorites = {
+                        runCatching { startActivity(Intent(context, FavoritesActivity::class.java)) }
                     }
                 )
             }
@@ -127,9 +149,11 @@ private fun ProfileScreen(
     userPoints: Int,
     userAbout: String,   // NEW Param
     userCountry: String, // NEW Param
+    userVisits: Int,
     onBack: () -> Unit,
     onOpenSettings: () -> Unit,
-    onOpenHistory: () -> Unit
+    onOpenHistory: () -> Unit,
+    onOpenFavorites: () -> Unit
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -278,6 +302,25 @@ private fun ProfileScreen(
                     Spacer(Modifier.width(6.dp))
                     Text("Histórico de pontos e cupões", fontSize = 14.sp, color = Color(0xFF1E2835))
                 }
+
+                // Entry point to the saved places.
+                TextButton(onClick = onOpenFavorites) {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = null,
+                        tint = Color(0xFFE53935),
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(R.string.favorites_title), fontSize = 14.sp, color = Color(0xFF1E2835))
+                }
+
+                Text(
+                    text = stringResource(R.string.visited_places_label, userVisits),
+                    fontSize = 14.sp,
+                    color = Color(0xFF6B7280),
+                    fontWeight = FontWeight.Medium
+                )
 
                 Spacer(Modifier.height(8.dp))
             }
@@ -533,6 +576,6 @@ private fun stableUserId(email: String): String = UUID.nameUUIDFromBytes(email.l
 @Composable
 private fun ProfileScreenPreview() {
     XploredTheme {
-        ProfileScreen("Tiago", "tiago@test.com", 1250, "About me...", "Portugal", {}, {}, {})
+        ProfileScreen("Tiago", "tiago@test.com", 1250, "About me...", "Portugal", 7, {}, {}, {}, {})
     }
 }
