@@ -13,9 +13,19 @@ public class PlaceResponse {
     public String authorId;       // MATCHES ANDROID
     public double avgRating;      // MATCHES ANDROID
     public String coverImageUrl;  // MATCHES ANDROID
+    public boolean isVerified;    // MODERATION: false while a place is pending
+    public String status;         // MODERATION: APPROVED, PENDING or REJECTED
 
+    // Kept for callers that do not deal with moderation (favourites).
     public PlaceResponse(Long placeId, String name, String description, double lat, double lng,
                          String addressFull, Long categoryId, String authorId, double avgRating, String coverImageUrl) {
+        this(placeId, name, description, lat, lng, addressFull, categoryId, authorId,
+                avgRating, coverImageUrl, true, "APPROVED");
+    }
+
+    public PlaceResponse(Long placeId, String name, String description, double lat, double lng,
+                         String addressFull, Long categoryId, String authorId, double avgRating,
+                         String coverImageUrl, boolean isVerified, String status) {
         this.placeId = placeId;
         this.name = name;
         this.description = description;
@@ -26,5 +36,7 @@ public class PlaceResponse {
         this.authorId = authorId;
         this.avgRating = avgRating;
         this.coverImageUrl = UrlUtil.toAbsolute(coverImageUrl);
+        this.isVerified = isVerified;
+        this.status = status == null || status.isBlank() ? "APPROVED" : status;
     }
 }
