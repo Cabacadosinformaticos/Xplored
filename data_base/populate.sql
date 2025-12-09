@@ -365,19 +365,30 @@ INSERT INTO reviews (id, rating, title, comment, user_id, place_id) VALUES
 -- As fotos EVIDENCE usam o mesmo formato dos uploads reais: /uploads/<uuid>.<ext>
 INSERT INTO photos (id, url, place_id, user_id, review_id, kind, status, created_at) VALUES
 -- Fotos existentes
-(1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Jardim_de_Moscavide.jpg/800px-Jardim_de_Moscavide.jpg', 1, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 100 DAY),
-(2, 'https://upload.wikimedia.org/wikipedia/commons/5/52/Igreja_Santo_Antonio_Moscavide.jpg', 2, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 100 DAY),
-(3, 'https://www.nit.pt/wp-content/uploads/2018/10/d8b2d7156943890cacc0622501066746.jpg', 3, 1, 2, 'GALLERY', 'APPROVED', NOW() - INTERVAL 95 DAY);
+(1, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Jardim_na_Avenida_de_Moscavide%2C_em_Moscavide_07.jpg/960px-Jardim_na_Avenida_de_Moscavide%2C_em_Moscavide_07.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 1, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 100 DAY),
+(2, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Igreja_de_Santo_Ant%C3%B3nio_de_Moscavide.jpg/960px-Igreja_de_Santo_Ant%C3%B3nio_de_Moscavide.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 2, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 100 DAY),
+(3, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Prego_%2850644636392%29.jpg/960px-Prego_%2850644636392%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 3, 1, 2, 'GALLERY', 'APPROVED', NOW() - INTERVAL 95 DAY);
 
 -- Restauração: mesmo padrão de URL já usado na foto de comida existente.
 INSERT INTO photos (id, url, place_id, user_id, review_id, kind, status, created_at) VALUES
-(11, 'https://www.nit.pt/wp-content/uploads/2018/10/d8b2d7156943890cacc0622501066746.jpg', 15, 3, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 30 DAY),
-(12, 'https://www.nit.pt/wp-content/uploads/2018/10/d8b2d7156943890cacc0622501066746.jpg', 16, 6, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 28 DAY),
-(13, 'https://www.nit.pt/wp-content/uploads/2018/10/d8b2d7156943890cacc0622501066746.jpg', 17, 5, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 26 DAY);
+(11, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Bacalhau_a_Bras.jpg/960px-Bacalhau_a_Bras.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 15, 3, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 30 DAY),
+(12, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/2018-02-03_Chicken_Piri-Piri%2C_Albufeira_%281%29.JPG/960px-2018-02-03_Chicken_Piri-Piri%2C_Albufeira_%281%29.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 16, 6, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 28 DAY),
+(13, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/Pastel_de_nata_septembre_2015.jpg/960px-Pastel_de_nata_septembre_2015.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 17, 5, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 26 DAY);
 
--- NOTA: os restantes locais ficaram sem foto de galeria de propósito. Os ficheiros do
--- Wikimedia Commons para estes monumentos não puderam ser confirmados neste ambiente
--- (sem acesso à rede) e a regra é não inventar URLs que possam não existir.
+-- Fotos de galeria dos monumentos e espaços públicos (Wikimedia Commons, miniaturas de 800 px)
+INSERT INTO photos (id, url, place_id, user_id, review_id, kind, status, created_at) VALUES
+(20, 'https://upload.wikimedia.org/wikipedia/commons/e/ef/Centro_Comercial_da_Portela.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled', 4, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 60 DAY),
+(21, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/42/Lisbon_Oceanarium_%E2%80%A2_Ocean%C3%A1rio_de_Lisboa.jpg/960px-Lisbon_Oceanarium_%E2%80%A2_Ocean%C3%A1rio_de_Lisboa.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 5, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 59 DAY),
+(22, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Pavilh%C3%A3o_do_Conhecimento_01.jpg/960px-Pavilh%C3%A3o_do_Conhecimento_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 6, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 58 DAY),
+(23, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Telecabine_Lisboa%2C_Parque_das_Na%C3%A7%C3%B5es_%E2%80%A2_Park_of_Nations_%2849652019058%29.jpg/960px-Telecabine_Lisboa%2C_Parque_das_Na%C3%A7%C3%B5es_%E2%80%A2_Park_of_Nations_%2849652019058%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 7, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 57 DAY),
+(24, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4c/Jardins_de_%C3%81gua%2C_Parque_das_Na%C3%A7%C3%B5es%2C_Lisbon%2C_Portugal_julesvernex2.jpg/960px-Jardins_de_%C3%81gua%2C_Parque_das_Na%C3%A7%C3%B5es%2C_Lisbon%2C_Portugal_julesvernex2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 8, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 56 DAY),
+(25, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Lisbon_-_Vasco_da_Gama_tower.jpg/960px-Lisbon_-_Vasco_da_Gama_tower.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 9, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 55 DAY),
+(26, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Lisbon_Gare_do_Oriente.jpg/960px-Lisbon_Gare_do_Oriente.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 10, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 54 DAY),
+(27, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Ponte_Vasco_da_Gama_from_Parque_Tejo.jpg/960px-Ponte_Vasco_da_Gama_from_Parque_Tejo.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 11, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 53 DAY),
+(28, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/70/Passeio_das_T%C3%A1gides_with_Torre_Vasco_da_Gama_in_background.JPG/960px-Passeio_das_T%C3%A1gides_with_Torre_Vasco_da_Gama_in_background.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 12, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 52 DAY),
+(29, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/Centro_Vasco_de_Gama_%2819423028680%29.jpg/960px-Centro_Vasco_de_Gama_%2819423028680%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 13, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 51 DAY),
+(30, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Ponte_Vasco_da_Gama_at_Sunrise.jpg/960px-Ponte_Vasco_da_Gama_at_Sunrise.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 19, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 50 DAY),
+(31, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8b/Mata_do_Vale_do_Sil%C3%AAncio.jpg/960px-Mata_do_Vale_do_Sil%C3%AAncio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 20, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 49 DAY);
 
 -- Fotos de evidência (check-ins de pedipaper)
 INSERT INTO photos (id, url, place_id, user_id, review_id, kind, status, created_at) VALUES

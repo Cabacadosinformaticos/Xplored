@@ -15,7 +15,7 @@ CREATE TABLE users (
     about TEXT,
     country VARCHAR(80),
     role VARCHAR(20) DEFAULT 'USER',
-    profile_photo VARCHAR(255),
+    profile_photo VARCHAR(500),
     points INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -63,7 +63,7 @@ CREATE TABLE reviews (
 -- 5. PHOTOS
 CREATE TABLE photos (
     id SERIAL PRIMARY KEY,
-    url VARCHAR(255) NOT NULL,
+    url VARCHAR(500) NOT NULL,
     place_id BIGINT UNSIGNED,
     user_id BIGINT UNSIGNED,
     review_id BIGINT UNSIGNED,
