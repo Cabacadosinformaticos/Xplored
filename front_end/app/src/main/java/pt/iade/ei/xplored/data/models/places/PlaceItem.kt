@@ -17,6 +17,8 @@ data class Place(
     val address: String,
     val rating: Double,
     val isVerified: Boolean = false,
+    // Moderation state sent by the server: APPROVED, PENDING or REJECTED.
+    val status: String = "APPROVED",
     @SerializedName("photoUris")
     val photoUris: List<String> = emptyList()
 )

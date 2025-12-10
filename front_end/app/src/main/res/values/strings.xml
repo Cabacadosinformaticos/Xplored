@@ -225,4 +225,29 @@
     <string name="favorite_remove_error">Não foi possível remover dos favoritos.</string>
     <string name="visited_places_label">Locais visitados: %1$d</string>
 
+    <!-- F5: explorer leaderboard and place moderation -->
+    <string name="leaderboard_title">Ranking de exploradores</string>
+    <string name="leaderboard_empty">Ainda não há exploradores no ranking.</string>
+    <string name="leaderboard_error">Não foi possível carregar o ranking.</string>
+    <string name="leaderboard_your_position">A tua posição</string>
+    <string name="leaderboard_you">Tu</string>
+
+    <string name="place_pending_badge">Pendente</string>
+    <string name="place_pending_toast">Local enviado para aprovação</string>
+
+    <string name="settings_admin">Administração</string>
+    <string name="settings_moderation">Moderação de locais</string>
+
+    <string name="moderation_title">Moderação de locais</string>
+    <string name="moderation_empty">Não há locais pendentes.</string>
+    <string name="moderation_approve">Aprovar</string>
+    <string name="moderation_reject">Rejeitar</string>
+    <string name="moderation_suggested_by">Sugerido por: %1$s</string>
+    <string name="moderation_approved">Local aprovado.</string>
+    <string name="moderation_rejected">Local rejeitado.</string>
+    <string name="moderation_load_error">Não foi possível carregar os locais pendentes.</string>
+    <string name="moderation_action_error">Não foi possível concluir a ação. Tenta novamente.</string>
+
+    <string name="code_resend_error">Não foi possível reenviar o código.</string>
+
 </resources>

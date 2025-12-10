@@ -132,6 +132,7 @@ fun LoginWelcomeBackScreen(
                             SessionManager.saveUserPoints(context, user.points)
                             SessionManager.saveUserAbout(context, user.about ?: "")
                             SessionManager.saveUserCountry(context, user.country ?: "")
+                            SessionManager.saveUserRole(context, user.role ?: "USER")
                             SessionManager.setLoggedIn(context, true)
 
                             Toast.makeText(context, "Bem-vindo, ${user.name}!", Toast.LENGTH_SHORT).show()

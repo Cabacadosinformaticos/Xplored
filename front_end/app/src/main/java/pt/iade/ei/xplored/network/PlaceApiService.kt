@@ -19,7 +19,10 @@ data class PlaceResponse(
     val categoryId: Long,
     val avgRating: Double?,
     val coverImageUrl: String?,
-    val authorId: String? = null
+    val authorId: String? = null,
+    // Moderation: false while a place created by a USER waits for approval.
+    val isVerified: Boolean = false,
+    val status: String? = null
 )
 
 interface PlaceApiService {
@@ -27,9 +30,10 @@ interface PlaceApiService {
     @POST("places")
     suspend fun createPlace(@Body request: PlaceRequest): PlaceResponse
 
-    // FIX: Changed from "place/get-all" to "places" to match PlaceController
+    // Without userEmail the server returns approved places only; with it, the
+    // caller also sees their own pending ones.
     @GET("places")
-    suspend fun getAllPlaces(): List<PlaceResponse>
+    suspend fun getAllPlaces(@Query("userEmail") userEmail: String? = null): List<PlaceResponse>
 
     @DELETE("places/{id}")
     suspend fun deletePlace(

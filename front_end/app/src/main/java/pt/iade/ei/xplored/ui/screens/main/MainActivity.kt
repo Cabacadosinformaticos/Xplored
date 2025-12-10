@@ -176,6 +176,23 @@ fun ExpandedActionButton(
     }
 }
 
+// Small orange chip shown while the user's own place waits for moderation.
+@Composable
+private fun PendingBadge() {
+    Box(
+        modifier = Modifier
+            .background(Color(0xFFFFF3CD), RoundedCornerShape(50))
+            .padding(horizontal = 8.dp, vertical = 2.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.place_pending_badge),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color(0xFF8A6D3B)
+        )
+    }
+}
+
 // Compact icon + label action used in the place detail sheet.
 @Composable
 private fun PlaceActionButton(
@@ -405,7 +422,13 @@ fun MainView() {
                                     }
                                 }
                             }
-                            Toast.makeText(context, "Local guardado!", Toast.LENGTH_SHORT).show()
+                            // A place created by a USER waits for moderation.
+                            val savedMessage = if (savedPlace.status == "PENDING") {
+                                context.getString(R.string.place_pending_toast)
+                            } else {
+                                "Local guardado!"
+                            }
+                            Toast.makeText(context, savedMessage, Toast.LENGTH_LONG).show()
                         } catch (e: Exception) {
                             e.printStackTrace()
                             // Revert optimistic update on failure
@@ -1047,6 +1070,9 @@ fun PlaceDetailView(
                     if (place.isVerified) {
                         Spacer(modifier = Modifier.width(4.dp))
                         Icon(Icons.Default.CheckCircle, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                    } else if (place.status == "PENDING") {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        PendingBadge()
                     }
                 }
                 Text(place.address, color = Color.Gray, fontSize = 14.sp)

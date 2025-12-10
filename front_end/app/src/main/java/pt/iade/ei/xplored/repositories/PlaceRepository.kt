@@ -5,6 +5,7 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import pt.iade.ei.xplored.R
+import pt.iade.ei.xplored.SessionManager
 import pt.iade.ei.xplored.data.models.photos.PhotoItem
 import pt.iade.ei.xplored.data.models.photos.PhotoStatus.PhotoKind
 import pt.iade.ei.xplored.data.models.photos.PhotoStatus.PhotoStatus
@@ -30,7 +31,9 @@ object PlaceRepository {
         return withContext(Dispatchers.IO) {
             try {
                 val api = ApiClient.instance.create(PlaceApiService::class.java)
-                val networkPlaces = api.getAllPlaces()
+                // The email lets the server add the caller's own pending places.
+                val email = SessionManager.getUserEmail(context)
+                val networkPlaces = api.getAllPlaces(email.ifBlank { null })
 
                 // LOGGING: Check what we received
                 android.util.Log.d("PlaceRepo", "Received ${networkPlaces.size} places from backend.")
@@ -88,7 +91,8 @@ object PlaceRepository {
                         category = catName,
                         rating = np.avgRating ?: 0.0,
                         authorId = author,
-                        isVerified = true,
+                        isVerified = np.isVerified,
+                        status = np.status ?: "APPROVED",
                         photoUris = displayPhotos
                     )
                     refreshed.add(uiPlace)

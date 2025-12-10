@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pt.iade.ei.xplored.R
 import pt.iade.ei.xplored.SessionManager
+import pt.iade.ei.xplored.ui.screens.admin.ModerationActivity
 import pt.iade.ei.xplored.ui.screens.auth.LoginNewUserActivity
 import pt.iade.ei.xplored.ui.screens.auth.LoginWelcomeBackActivity
 import pt.iade.ei.xplored.ui.screens.main.MainActivity
@@ -183,6 +184,24 @@ fun SettingsScreen() {
                         onClick = { activity?.startActivity(Intent(activity, ComingSoonActivity::class.java)) },
                         showDivider = false
                     )
+                }
+
+                // Moderation: only the ADMIN role sees this section.
+                if (SessionManager.getUserRole(context).equals("ADMIN", ignoreCase = true)) {
+                    SettingsSection(title = stringResource(R.string.settings_admin))
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardBackground),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    ) {
+                        SettingsItem(
+                            icon = Icons.Default.VerifiedUser,
+                            title = stringResource(R.string.settings_moderation),
+                            onClick = { activity?.startActivity(Intent(activity, ModerationActivity::class.java)) },
+                            showDivider = false
+                        )
+                    }
                 }
 
                 // Support & About

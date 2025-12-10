@@ -58,6 +58,7 @@ import pt.iade.ei.xplored.network.VisitApiService
 import pt.iade.ei.xplored.repositories.PhotoRepository
 import pt.iade.ei.xplored.ui.screens.favorites.FavoritesActivity
 import pt.iade.ei.xplored.ui.screens.history.HistoryActivity
+import pt.iade.ei.xplored.ui.screens.leaderboard.LeaderboardActivity
 import pt.iade.ei.xplored.ui.screens.settings.SettingsActivity
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 import java.util.UUID
@@ -133,6 +134,9 @@ class ProfileActivity : ComponentActivity() {
                     },
                     onOpenFavorites = {
                         runCatching { startActivity(Intent(context, FavoritesActivity::class.java)) }
+                    },
+                    onOpenLeaderboard = {
+                        runCatching { startActivity(Intent(context, LeaderboardActivity::class.java)) }
                     }
                 )
             }
@@ -153,7 +157,8 @@ private fun ProfileScreen(
     onBack: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenHistory: () -> Unit,
-    onOpenFavorites: () -> Unit
+    onOpenFavorites: () -> Unit,
+    onOpenLeaderboard: () -> Unit
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -290,6 +295,18 @@ private fun ProfileScreen(
 
                 Spacer(Modifier.height(8.dp))
                 AssistChip(onClick = {}, label = { Text(stringResource(R.string.points_label, userPoints)) })
+
+                // Entry point to the explorers ranking.
+                TextButton(onClick = onOpenLeaderboard) {
+                    Icon(
+                        imageVector = Icons.Default.EmojiEvents,
+                        contentDescription = null,
+                        tint = Color(0xFFFFC107),
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(R.string.leaderboard_title), fontSize = 14.sp, color = Color(0xFF1E2835))
+                }
 
                 // Entry point to the points and coupon history.
                 TextButton(onClick = onOpenHistory) {
@@ -576,6 +593,6 @@ private fun stableUserId(email: String): String = UUID.nameUUIDFromBytes(email.l
 @Composable
 private fun ProfileScreenPreview() {
     XploredTheme {
-        ProfileScreen("Tiago", "tiago@test.com", 1250, "About me...", "Portugal", 7, {}, {}, {}, {})
+        ProfileScreen("Tiago", "tiago@test.com", 1250, "About me...", "Portugal", 7, {}, {}, {}, {}, {})
     }
 }

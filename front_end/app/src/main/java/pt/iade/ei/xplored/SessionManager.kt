@@ -20,6 +20,7 @@ object SessionManager {
     private const val KEY_USER_POINTS = "userPoints"
     private const val KEY_USER_ABOUT = "userAbout"
     private const val KEY_USER_COUNTRY = "userCountry"
+    private const val KEY_USER_ROLE = "userRole"
 
     // Helper accessor
     private fun sessionPrefs(context: Context): SharedPreferences =
@@ -96,4 +97,12 @@ object SessionManager {
 
     fun getUserCountry(context: Context): String =
         sessionPrefs(context).getString(KEY_USER_COUNTRY, "") ?: ""
+
+    // Role of the active user ("USER", "BUSINESS" or "ADMIN"), needed for moderation.
+    fun saveUserRole(context: Context, role: String) {
+        sessionPrefs(context).edit().putString(KEY_USER_ROLE, role).apply()
+    }
+
+    fun getUserRole(context: Context): String =
+        sessionPrefs(context).getString(KEY_USER_ROLE, "") ?: ""
 }

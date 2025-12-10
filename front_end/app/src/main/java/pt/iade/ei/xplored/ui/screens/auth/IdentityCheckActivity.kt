@@ -29,7 +29,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import pt.iade.ei.xplored.R
+import pt.iade.ei.xplored.network.ApiClient
+import pt.iade.ei.xplored.network.PasswordResetRequest
+import pt.iade.ei.xplored.network.UserApiService
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 
 val PrimaryDark = Color(0xFF1E2835)
@@ -74,6 +78,7 @@ fun OtpBox(text: String, isFocused: Boolean) {
 @Composable
 fun IdentityCheckScreen(resetEmail: String) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val otpLength = 6
 
     var otpValue by remember { mutableStateOf(TextFieldValue(text = "", selection = TextRange(0))) }
@@ -196,7 +201,21 @@ fun IdentityCheckScreen(resetEmail: String) {
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.clickable {
-                            Toast.makeText(context, context.getString(R.string.code_resent), Toast.LENGTH_SHORT).show()
+                            // Ask the backend for a fresh 6 digit code for the same email.
+                            if (resetEmail.isBlank()) {
+                                Toast.makeText(context, context.getString(R.string.code_resend_error), Toast.LENGTH_SHORT).show()
+                            } else {
+                                scope.launch {
+                                    try {
+                                        ApiClient.instance.create(UserApiService::class.java)
+                                            .requestPasswordReset(PasswordResetRequest(resetEmail))
+                                        Toast.makeText(context, context.getString(R.string.code_resent), Toast.LENGTH_SHORT).show()
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                        Toast.makeText(context, context.getString(R.string.code_resend_error), Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
                         }
                     )
                 }
