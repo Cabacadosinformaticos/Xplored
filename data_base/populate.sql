@@ -150,10 +150,10 @@ INSERT INTO places (id, name, description, lat, lng, address_full, category_id, 
     -9.094468,
     'Alameda dos Oceanos, 1990-038 Lisboa',
     5, -- Paisagens
-    4, -- Rita (USER)
+    1, -- Tiago (ADMIN)
     0.00,
-    FALSE,
-    'PENDING'
+    TRUE,
+    'APPROVED'
 ),
 (
     9,
@@ -310,6 +310,19 @@ INSERT INTO places (id, name, description, lat, lng, address_full, category_id, 
     3.50,
     TRUE,
     'APPROVED'
+),
+(
+    21,
+    'Discos do Oriente',
+    'Pequena loja de vinis e livros usados, sugerida por uma utilizadora. Aguarda aprovação.',
+    38.767301,
+    -9.098120,
+    'Rua do Bojador 21, 1990-075 Lisboa',
+    2, -- Lojas
+    4, -- Rita (USER)
+    0.00,
+    FALSE,
+    'PENDING'
 );
 
 -- =====================================================
