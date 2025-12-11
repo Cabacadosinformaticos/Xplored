@@ -53,7 +53,7 @@ fun ForgotPasswordScreen() {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.White
+        color = MaterialTheme.colorScheme.surface
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
 
@@ -68,7 +68,7 @@ fun ForgotPasswordScreen() {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.cd_back),
-                    tint = Color.Black
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -92,7 +92,7 @@ fun ForgotPasswordScreen() {
                 Text(
                     text = stringResource(R.string.forgot_password_subtitle),
                     fontSize = 16.sp,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp, bottom = 48.dp)
@@ -154,7 +154,7 @@ fun ForgotPasswordScreen() {
                         .fillMaxWidth()
                         .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E2835)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     enabled = email.isNotBlank() && !isLoading
                 ) {
                     if (isLoading) {
@@ -174,7 +174,7 @@ fun ForgotPasswordScreen() {
                     Text(
                         text = stringResource(R.string.forgot_password_remember),
                         fontSize = 14.sp,
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = stringResource(R.string.login_button),

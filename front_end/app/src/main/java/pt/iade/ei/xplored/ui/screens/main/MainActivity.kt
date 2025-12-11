@@ -91,7 +91,13 @@ import pt.iade.ei.xplored.ui.screens.pedipaper.PedipaperActivity
 import pt.iade.ei.xplored.ui.screens.place.NewPlaceActivity
 import pt.iade.ei.xplored.ui.screens.profile.ProfileActivity
 import pt.iade.ei.xplored.ui.screens.reviews.NewReviewActivity
+import pt.iade.ei.xplored.ui.theme.CategoryBlue
+import pt.iade.ei.xplored.ui.theme.CategoryGreen
+import pt.iade.ei.xplored.ui.theme.CategoryMagenta
+import pt.iade.ei.xplored.ui.theme.CategoryOrange
+import pt.iade.ei.xplored.ui.theme.CategoryYellow
 import pt.iade.ei.xplored.ui.theme.XploredTheme
+import pt.iade.ei.xplored.ui.theme.mapStyleResource
 import java.io.IOException
 import java.text.Normalizer
 import java.util.Locale
@@ -125,7 +131,9 @@ data class CategoryButtonInfo(
     val text: String,
     val icon: ImageVector,
     val contentDescription: String,
-    val color: Color
+    val color: Color,
+    // Text and icon colour that stays readable on the category chip.
+    val contentColor: Color
 )
 
 class MainActivity : ComponentActivity() {
@@ -162,13 +170,13 @@ fun ExpandedActionButton(
             text = label,
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF1E2835),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(end = 8.dp)
         )
         FloatingActionButton(
             onClick = onClick,
-            containerColor = Color.White,
-            contentColor = Color.Black,
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface,
             shape = RoundedCornerShape(50)
         ) {
             icon()
@@ -199,7 +207,7 @@ private fun PlaceActionButton(
     icon: ImageVector,
     label: String,
     onClick: () -> Unit,
-    tint: Color = Color(0xFF1E2835),
+    tint: Color = MaterialTheme.colorScheme.onSurface,
     enabled: Boolean = true
 ) {
     val alpha = if (enabled) 1f else 0.35f
@@ -212,7 +220,7 @@ private fun PlaceActionButton(
     ) {
         Icon(icon, contentDescription = label, tint = tint.copy(alpha = alpha), modifier = Modifier.size(26.dp))
         Spacer(Modifier.height(4.dp))
-        Text(label, fontSize = 11.sp, color = Color(0xFF1E2835).copy(alpha = alpha))
+        Text(label, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = alpha))
     }
 }
 
@@ -470,12 +478,13 @@ fun MainView() {
         }
     }
 
+    // Category colours stay the same in both modes; only the chip text colour changes.
     val categories = listOf(
-        CategoryButtonInfo(stringResource(R.string.category_atividades), Icons.Outlined.Hiking, stringResource(R.string.category_atividades), Color(0xFF4192FF)),
-        CategoryButtonInfo(stringResource(R.string.category_lojas), Icons.Default.ShoppingCart, stringResource(R.string.category_lojas), Color(0xFFFFEB3B)),
-        CategoryButtonInfo(stringResource(R.string.category_restauracao), Icons.Default.Restaurant, stringResource(R.string.category_restauracao), Color(0xFFE65100)),
-        CategoryButtonInfo(stringResource(R.string.category_historicos), Icons.Outlined.AccountBalance, stringResource(R.string.category_historicos), Color(0xFF880E4F)),
-        CategoryButtonInfo(stringResource(R.string.category_paisagens), Icons.Outlined.Landscape, stringResource(R.string.category_paisagens), Color(0xFF3D6E44))
+        CategoryButtonInfo(stringResource(R.string.category_atividades), Icons.Outlined.Hiking, stringResource(R.string.category_atividades), CategoryBlue, Color.Black),
+        CategoryButtonInfo(stringResource(R.string.category_lojas), Icons.Default.ShoppingCart, stringResource(R.string.category_lojas), CategoryYellow, Color.Black),
+        CategoryButtonInfo(stringResource(R.string.category_restauracao), Icons.Default.Restaurant, stringResource(R.string.category_restauracao), CategoryOrange, Color.White),
+        CategoryButtonInfo(stringResource(R.string.category_historicos), Icons.Outlined.AccountBalance, stringResource(R.string.category_historicos), CategoryMagenta, Color.White),
+        CategoryButtonInfo(stringResource(R.string.category_paisagens), Icons.Outlined.Landscape, stringResource(R.string.category_paisagens), CategoryGreen, Color.White)
     )
 
     // --- FILTER DIALOG ---
@@ -483,7 +492,7 @@ fun MainView() {
         Dialog(onDismissRequest = { showFilterDialog = false }) {
             Surface(
                 shape = RoundedCornerShape(16.dp),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 modifier = Modifier.padding(16.dp).fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -515,7 +524,7 @@ fun MainView() {
         scaffoldState = scaffoldState,
         sheetPeekHeight = if (selectedPlace != null) 300.dp else 80.dp,
         sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-        sheetContainerColor = Color.White,
+        sheetContainerColor = MaterialTheme.colorScheme.surface,
         sheetContent = {
             if (selectedPlace == null) {
                 Column(
@@ -528,8 +537,8 @@ fun MainView() {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(stringResource(R.string.bottomsheet_nearby_places), fontSize = 18.sp, color = Color.Black)
-                        Icon(Icons.Default.Info, contentDescription = stringResource(R.string.cd_info), tint = Color.Black)
+                        Text(stringResource(R.string.bottomsheet_nearby_places), fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
+                        Icon(Icons.Default.Info, contentDescription = stringResource(R.string.cd_info), tint = MaterialTheme.colorScheme.onSurface)
                     }
                     LazyColumn {
                         items(filteredPlaces) { place ->
@@ -583,7 +592,7 @@ fun MainView() {
                 },
                 properties = MapProperties(
                     isMyLocationEnabled = hasLocationPermission,
-                    mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style),
+                    mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, mapStyleResource()),
                 ),
                 uiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false)
             ) {
@@ -621,7 +630,7 @@ fun MainView() {
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     placeholder = { Text(stringResource(R.string.search_places_hint), fontSize = 14.sp) },
                     leadingIcon = {
-                        Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF1E2835))
+                        Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
                     },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
@@ -629,7 +638,7 @@ fun MainView() {
                                 Icon(
                                     Icons.Default.Close,
                                     contentDescription = stringResource(R.string.cd_clear_search),
-                                    tint = Color(0xFF1E2835)
+                                    tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
                         }
@@ -637,12 +646,12 @@ fun MainView() {
                     singleLine = true,
                     shape = RoundedCornerShape(50),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                         focusedBorderColor = Color.Transparent,
                         unfocusedBorderColor = Color.Transparent,
-                        focusedTextColor = Color(0xFF1E2835),
-                        unfocusedTextColor = Color(0xFF1E2835)
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
 
@@ -659,8 +668,8 @@ fun MainView() {
                     Button(
                         onClick = { showFilterDialog = true },
                         shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
-                        border = BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f)),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
                         contentPadding = PaddingValues(horizontal = 12.dp)
                     ) {
                         Icon(Icons.Default.Tune, contentDescription = "Filtro", modifier = Modifier.size(20.dp))
@@ -676,12 +685,12 @@ fun MainView() {
                         Button(
                             onClick = { categoryFilter = if (isSelected) null else category.text },
                             shape = RoundedCornerShape(50),
-                            colors = ButtonDefaults.buttonColors(containerColor = category.color),
-                            border = if (isSelected) BorderStroke(2.dp, Color.Black.copy(alpha = 0.8f)) else null
+                            colors = ButtonDefaults.buttonColors(containerColor = category.color, contentColor = category.contentColor),
+                            border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)) else null
                         ) {
-                            Icon(imageVector = category.icon, contentDescription = category.contentDescription, tint = Color.Black)
+                            Icon(imageVector = category.icon, contentDescription = category.contentDescription, tint = category.contentColor)
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(text = category.text, color = Color.Black, fontSize = 16.sp)
+                            Text(text = category.text, color = category.contentColor, fontSize = 16.sp)
                         }
                     }
                 }
@@ -694,7 +703,7 @@ fun MainView() {
             ) {
                 FloatingActionButton(
                     onClick = { isActionMenuExpanded = !isActionMenuExpanded },
-                    containerColor = Color.White, contentColor = Color(0xFF1E2835), shape = RoundedCornerShape(50)
+                    containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface, shape = RoundedCornerShape(50)
                 ) {
                     Icon(imageVector = if (isActionMenuExpanded) Icons.Default.Close else Icons.Default.Add, contentDescription = null)
                 }
@@ -739,7 +748,7 @@ fun MainView() {
                     }
                 },
                 modifier = Modifier.align(Alignment.BottomEnd).padding(bottom = 112.dp, end = 16.dp),
-                containerColor = Color.White, contentColor = Color(0xFF1E2835), shape = RoundedCornerShape(50)
+                containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface, shape = RoundedCornerShape(50)
             ) {
                 Icon(Icons.Filled.MyLocation, stringResource(R.string.cd_recenter_map))
             }
@@ -779,7 +788,7 @@ fun PlaceCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column {
             Box(modifier = Modifier.height(160.dp)) {
@@ -804,7 +813,7 @@ fun PlaceCard(
                         }
                     )
                 } else {
-                    Box(modifier = Modifier.fillMaxSize().background(Color.LightGray))
+                    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant))
                 }
                 if (canDelete) {
                     Box(
@@ -840,10 +849,10 @@ fun PlaceCard(
                         Icons.Default.LocationOn,
                         contentDescription = stringResource(R.string.cd_location),
                         modifier = Modifier.size(16.dp),
-                        tint = Color.Gray
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(place.address, color = Color.Gray, fontSize = 14.sp)
+                    Text(place.address, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                 }
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -855,12 +864,12 @@ fun PlaceCard(
                         Icon(
                             imageVector = if (isActive) Icons.Filled.Star else Icons.Outlined.Star,
                             contentDescription = null,
-                            tint = if (isActive) Color(0xFFFFC107) else Color.LightGray,
+                            tint = if (isActive) Color(0xFFFFC107) else MaterialTheme.colorScheme.outline,
                             modifier = Modifier.size(16.dp)
                         )
                     }
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(String.format("%.1f", place.rating), color = Color.Gray, fontSize = 14.sp)
+                    Text(String.format("%.1f", place.rating), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                 }
             }
         }
@@ -1075,20 +1084,20 @@ fun PlaceDetailView(
                         PendingBadge()
                     }
                 }
-                Text(place.address, color = Color.Gray, fontSize = 14.sp)
+                Text(place.address, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
 
                 val displayRating = if (reviews.isNotEmpty()) reviews.map { it.rating }.average() else place.rating
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Star, null, modifier = Modifier.size(16.dp), tint = Color.Gray)
+                    Icon(Icons.Default.Star, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(String.format("%.1f (%d avaliações)", displayRating, reviews.size), color = Color.Gray, fontSize = 14.sp)
+                    Text(String.format("%.1f (%d avaliações)", displayRating, reviews.size), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                 }
             }
             if (coverUrl != null) {
                 AsyncImage(
                     model = Uri.parse(coverUrl),
                     contentDescription = null,
-                    modifier = Modifier.size(80.dp).background(Color.Gray, RoundedCornerShape(8.dp)).clickable { onImageClick(Uri.parse(coverUrl)) },
+                    modifier = Modifier.size(80.dp).background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp)).clickable { onImageClick(Uri.parse(coverUrl)) },
                     contentScale = ContentScale.Crop
                 )
             }
@@ -1097,7 +1106,7 @@ fun PlaceDetailView(
         Spacer(modifier = Modifier.height(12.dp))
 
         // --- ACTION ROW: favourite, directions, share, check-in ---
-        HorizontalDivider(color = Color(0xFFEDEFF2))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         Row(
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -1106,7 +1115,7 @@ fun PlaceDetailView(
             PlaceActionButton(
                 icon = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                 label = stringResource(if (isFavorite) R.string.action_unfavorite else R.string.action_favorite),
-                tint = if (isFavorite) Color(0xFFE53935) else Color(0xFF1E2835),
+                tint = if (isFavorite) Color(0xFFE53935) else MaterialTheme.colorScheme.onSurface,
                 enabled = numericPlaceId != null,
                 onClick = { toggleFavorite() }
             )
@@ -1123,7 +1132,7 @@ fun PlaceDetailView(
             PlaceActionButton(
                 icon = if (hasCheckedIn) Icons.Default.CheckCircle else Icons.Default.LocationOn,
                 label = stringResource(R.string.action_checkin),
-                tint = if (hasCheckedIn) Color(0xFF2E7D32) else Color(0xFF1E2835),
+                tint = if (hasCheckedIn) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurface,
                 enabled = canCheckIn && !isCheckingIn,
                 onClick = { checkIn() }
             )
@@ -1137,12 +1146,12 @@ fun PlaceDetailView(
                 else -> stringResource(R.string.checkin_too_far, distanceToPlace.toInt())
             }
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 4.dp)) {
-                Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(14.dp))
+                Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp))
                 Spacer(Modifier.width(4.dp))
-                Text(hint, fontSize = 12.sp, color = Color.Gray)
+                Text(hint, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        HorizontalDivider(color = Color(0xFFEDEFF2))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -1175,27 +1184,27 @@ fun PlaceDetailView(
                         },
                         modifier = Modifier.fillMaxWidth().padding(bottom = if (numericPlaceId == null) 4.dp else 16.dp),
                         enabled = numericPlaceId != null,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E2835))
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
                         Text(stringResource(R.string.write_review_btn_label))
                     }
                     if (numericPlaceId == null) {
                         Text(
                             "Local ainda a sincronizar. Tenta novamente dentro de momentos.",
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
                     }
 
                     if (reviews.isEmpty()) {
-                        Text(stringResource(R.string.no_reviews_yet), color = Color.Gray, modifier = Modifier.align(Alignment.CenterHorizontally).padding(16.dp))
+                        Text(stringResource(R.string.no_reviews_yet), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.align(Alignment.CenterHorizontally).padding(16.dp))
                     } else {
                         LazyColumn(modifier = Modifier.height(300.dp)) {
                             items(reviews) { review ->
                                 Card(
                                     modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA)),
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                                     shape = RoundedCornerShape(12.dp),
                                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                                 ) {
@@ -1205,12 +1214,12 @@ fun PlaceDetailView(
                                             if (!review.userPhotoUrl.isNullOrBlank()) {
                                                 AsyncImage(model = review.userPhotoUrl, contentDescription = "Avatar", modifier = Modifier.size(40.dp).clip(androidx.compose.foundation.shape.CircleShape), contentScale = ContentScale.Crop)
                                             } else {
-                                                Icon(Icons.Default.AccountCircle, null, tint = Color.LightGray, modifier = Modifier.size(40.dp))
+                                                Icon(Icons.Default.AccountCircle, null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(40.dp))
                                             }
                                             Spacer(modifier = Modifier.width(12.dp))
                                             Column {
-                                                Text(text = review.userName ?: "Utilizador", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF1E2835))
-                                                Text(text = review.createdAt?.take(10) ?: "", fontSize = 12.sp, color = Color.Gray)
+                                                Text(text = review.userName ?: "Utilizador", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
+                                                Text(text = review.createdAt?.take(10) ?: "", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                             }
                                         }
                                         Spacer(modifier = Modifier.height(12.dp))
@@ -1219,7 +1228,7 @@ fun PlaceDetailView(
                                         Row {
                                             repeat(5) { index ->
                                                 val isActive = index < review.rating
-                                                Icon(imageVector = if (isActive) Icons.Filled.Star else Icons.Outlined.Star, contentDescription = null, tint = if (isActive) Color(0xFFFFC107) else Color.LightGray, modifier = Modifier.size(16.dp))
+                                                Icon(imageVector = if (isActive) Icons.Filled.Star else Icons.Outlined.Star, contentDescription = null, tint = if (isActive) Color(0xFFFFC107) else MaterialTheme.colorScheme.outline, modifier = Modifier.size(16.dp))
                                             }
                                         }
 
@@ -1229,7 +1238,7 @@ fun PlaceDetailView(
                                         }
                                         if (!review.comment.isNullOrBlank()) {
                                             Spacer(modifier = Modifier.height(4.dp))
-                                            Text(text = review.comment, fontSize = 14.sp, color = Color(0xFF4A4A4A))
+                                            Text(text = review.comment, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
 
                                         // Photos in Review
@@ -1252,14 +1261,14 @@ fun PlaceDetailView(
                                         // Reactions
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             IconButton(onClick = { sendReaction(review.reviewId, "USEFUL") }) {
-                                                Icon(if (review.currentUserReaction == "USEFUL") Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp, null, tint = if (review.currentUserReaction == "USEFUL") MaterialTheme.colorScheme.primary else Color.Gray)
+                                                Icon(if (review.currentUserReaction == "USEFUL") Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp, null, tint = if (review.currentUserReaction == "USEFUL") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                                             }
-                                            Text("${review.likesCount}", fontSize = 14.sp, color = Color.Gray)
+                                            Text("${review.likesCount}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                             Spacer(modifier = Modifier.width(16.dp))
                                             IconButton(onClick = { sendReaction(review.reviewId, "NOT_USEFUL") }) {
-                                                Icon(if (review.currentUserReaction == "NOT_USEFUL") Icons.Filled.ThumbDown else Icons.Outlined.ThumbDown, null, tint = if (review.currentUserReaction == "NOT_USEFUL") Color.Red else Color.Gray)
+                                                Icon(if (review.currentUserReaction == "NOT_USEFUL") Icons.Filled.ThumbDown else Icons.Outlined.ThumbDown, null, tint = if (review.currentUserReaction == "NOT_USEFUL") MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
                                             }
-                                            Text("${review.dislikesCount}", fontSize = 14.sp, color = Color.Gray)
+                                            Text("${review.dislikesCount}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
                                     }
                                 }
@@ -1271,7 +1280,7 @@ fun PlaceDetailView(
             2 -> { // Photos Tab
                 if (allPhotos.isEmpty()) {
                     Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                        Text("Ainda sem fotos.", color = Color.Gray)
+                        Text("Ainda sem fotos.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 } else {
                     LazyVerticalGrid(

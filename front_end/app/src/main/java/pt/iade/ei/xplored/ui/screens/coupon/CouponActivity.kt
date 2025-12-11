@@ -43,11 +43,11 @@ import pt.iade.ei.xplored.ui.screens.history.EXTRA_HISTORY_TAB
 import pt.iade.ei.xplored.ui.screens.history.HISTORY_TAB_COUPONS
 import pt.iade.ei.xplored.ui.screens.history.HistoryActivity
 import pt.iade.ei.xplored.ui.theme.XploredTheme
+import pt.iade.ei.xplored.ui.theme.pointsAccent
 
 // Custom colors
 val GoldCouponColor = Color(0xFFFFCC66)
 val YellowCouponColor = Color(0xFFFFFF99)
-val DarkText = Color(0xFF1E2835)
 
 // Extension to assign colors based on cost
 fun CouponResponse.getColor(): Color {
@@ -82,19 +82,19 @@ fun TermsAndConditionsDialog(terms: String, onClose: () -> Unit) {
                 Text(
                     text = terms.ifBlank { stringResource(R.string.no_additional_terms) },
                     fontSize = 16.sp,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = onClose,
-                colors = ButtonDefaults.textButtonColors(contentColor = DarkText)
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
             ) {
                 Text(stringResource(R.string.close))
             }
         },
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp)
     )
 }
@@ -121,7 +121,7 @@ fun CouponDetailDialog(
         Surface(
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
-            color = Color.White
+            color = MaterialTheme.colorScheme.surface
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
                 // Header
@@ -133,11 +133,11 @@ fun CouponDetailDialog(
                     Text(
                         coupon.title,
                         style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                        color = DarkText,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(onClick = onClose) {
-                        Icon(Icons.Default.Close, contentDescription = "Fechar", tint = Color.Gray)
+                        Icon(Icons.Default.Close, contentDescription = "Fechar", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -147,7 +147,7 @@ fun CouponDetailDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            if (isRedeemed) Color(0xFFE0F2F1) else Color.LightGray.copy(alpha = 0.3f),
+                            if (isRedeemed) Color(0xFFE0F2F1) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
                             RoundedCornerShape(8.dp)
                         )
                         .padding(vertical = 16.dp),
@@ -167,7 +167,7 @@ fun CouponDetailDialog(
                             "•••• - ••••",
                             fontWeight = FontWeight.Bold,
                             fontSize = 32.sp,
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             letterSpacing = 4.sp
                         )
                     }
@@ -184,10 +184,10 @@ fun CouponDetailDialog(
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(stringResource(R.string.coupon_from, coupon.merchant), fontSize = 16.sp, color = Color.Gray)
+                Text(stringResource(R.string.coupon_from, coupon.merchant), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Text(stringResource(R.string.offer_details_label), fontWeight = FontWeight.Medium, style = MaterialTheme.typography.titleMedium, color = DarkText)
+                Text(stringResource(R.string.offer_details_label), fontWeight = FontWeight.Medium, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
                 val offerText = coupon.details?.takeIf { it.isNotBlank() }
                     ?: coupon.description?.takeIf { it.isNotBlank() }
                     ?: stringResource(R.string.no_additional_details)
@@ -239,7 +239,7 @@ fun CouponDetailDialog(
                         },
                         modifier = Modifier.fillMaxWidth().height(56.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = if (canAfford) DarkText else Color.Gray),
+                        colors = ButtonDefaults.buttonColors(containerColor = if (canAfford) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant),
                         enabled = canAfford && !isProcessing
                     ) {
                         if (isProcessing) {
@@ -271,6 +271,9 @@ fun CouponDetailDialog(
 fun PointsProgressBar(currentPoints: Int, maxPoints: Int = 1000) {
     val stages = listOf(0, 250, 500, 750, 1000)
     val colorPrimary = MaterialTheme.colorScheme.primary
+    // Canvas runs outside composition, so resolve the colours here.
+    val trackColor = MaterialTheme.colorScheme.outlineVariant
+    val inactiveStageColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
 
     Column(
         modifier = Modifier
@@ -285,7 +288,6 @@ fun PointsProgressBar(currentPoints: Int, maxPoints: Int = 1000) {
                 .fillMaxWidth()
                 .height(4.dp)
         ) {
-            val trackColor = Color.LightGray.copy(alpha = 0.5f)
             val fillWidth = size.width * progress
 
             drawLine(
@@ -316,7 +318,7 @@ fun PointsProgressBar(currentPoints: Int, maxPoints: Int = 1000) {
                     Box(contentAlignment = Alignment.Center) {
                         Canvas(modifier = Modifier.size(12.dp)) {
                             drawCircle(
-                                color = if (isActive) colorPrimary else Color.LightGray,
+                                color = if (isActive) colorPrimary else inactiveStageColor,
                                 radius = size.minDimension / 2
                             )
                         }
@@ -332,7 +334,7 @@ fun PointsProgressBar(currentPoints: Int, maxPoints: Int = 1000) {
                     Text(
                         text = stage.toString(),
                         fontSize = 12.sp,
-                        color = if (isActive) Color.Black else Color.Gray,
+                        color = if (isActive) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
                         modifier = Modifier.padding(top = 4.dp)
                     )
@@ -355,7 +357,7 @@ fun CouponCard(
             .padding(bottom = 16.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -373,7 +375,7 @@ fun CouponCard(
                     text = coupon.title,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = DarkText
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -382,7 +384,7 @@ fun CouponCard(
                         text = "•••• - ••••",
                         fontSize = 24.sp, // Slightly smaller to fit mask
                         fontWeight = FontWeight.ExtraBold,
-                        color = Color.LightGray, // Gray implies "locked"
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, // Gray implies "locked"
                         letterSpacing = 2.sp,
                         modifier = Modifier.padding(vertical = 4.dp)
                     )
@@ -394,7 +396,7 @@ fun CouponCard(
                     Text(
                         text = stringResource(R.string.points_label, coupon.cost),
                         fontSize = 14.sp,
-                        color = Color(0xFFE65100),
+                        color = pointsAccent(),
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -402,14 +404,14 @@ fun CouponCard(
                 Text(
                     text = coupon.description.orEmpty(),
                     fontSize = 14.sp,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 Text(
                     text = stringResource(R.string.terms_and_conditions),
                     fontSize = 12.sp,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier
                         .padding(bottom = 12.dp)
@@ -462,7 +464,7 @@ fun CouponScreen() {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_back),
-                            tint = Color.Black
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
@@ -478,11 +480,11 @@ fun CouponScreen() {
                             }
                         }
                     ) {
-                        Text("Os meus cupões", color = DarkText, fontSize = 14.sp)
+                        Text("Os meus cupões", color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             )
         }
@@ -490,7 +492,7 @@ fun CouponScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(innerPadding)
                 .verticalScroll(scrollState)
                 .padding(horizontal = 24.dp)
@@ -506,7 +508,7 @@ fun CouponScreen() {
                     text = currentPoints.toString(),
                     fontSize = 32.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = DarkText
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Box(
                     modifier = Modifier
@@ -527,7 +529,7 @@ fun CouponScreen() {
                     CircularProgressIndicator()
                 }
             } else if (coupons.isEmpty()) {
-                Text(stringResource(R.string.no_coupons_available), modifier = Modifier.align(Alignment.CenterHorizontally), color = Color.Gray)
+                Text(stringResource(R.string.no_coupons_available), modifier = Modifier.align(Alignment.CenterHorizontally), color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 coupons.forEach { coupon ->
                     CouponCard(

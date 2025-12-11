@@ -18,9 +18,12 @@ import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -36,9 +39,8 @@ import pt.iade.ei.xplored.ui.screens.auth.LoginWelcomeBackActivity
 import pt.iade.ei.xplored.ui.screens.main.MainActivity
 import pt.iade.ei.xplored.ui.screens.misc.ComingSoonActivity
 import pt.iade.ei.xplored.ui.screens.profile.EditProfileActivity
+import pt.iade.ei.xplored.ui.theme.ThemePreferences
 import pt.iade.ei.xplored.ui.theme.XploredTheme
-
-val CardBackground = Color(0xFFF5F5F5)
 
 private tailrec fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this
@@ -75,14 +77,14 @@ fun SettingsItem(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (isAction) Color.Red else Color.Black,
+                tint = if (isAction) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.size(16.dp))
             Text(
                 text = title,
                 fontSize = 16.sp,
-                color = if (isAction) Color.Red else Color.Black,
+                color = if (isAction) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                 fontWeight = if (isAction) FontWeight.SemiBold else FontWeight.Normal
             )
         }
@@ -90,7 +92,7 @@ fun SettingsItem(
             HorizontalDivider(
                 modifier = Modifier.padding(start = 44.dp),
                 thickness = 0.5.dp,
-                color = Color.LightGray.copy(alpha = 0.5f)
+                color = MaterialTheme.colorScheme.outlineVariant
             )
         }
     }
@@ -102,7 +104,7 @@ fun SettingsSection(title: String) {
         text = title,
         fontSize = 16.sp,
         fontWeight = FontWeight.Bold,
-        color = Color.Gray,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 24.dp, bottom = 8.dp)
@@ -115,6 +117,7 @@ fun SettingsScreen() {
     val context = LocalContext.current
     val activity = context.findActivity()
     val scrollState = rememberScrollState()
+    var showThemeDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -130,12 +133,12 @@ fun SettingsScreen() {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_back),
-                            tint = Color.Black
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             )
         }
@@ -144,7 +147,7 @@ fun SettingsScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            color = Color.White
+            color = MaterialTheme.colorScheme.surface
         ) {
             Column(
                 modifier = Modifier
@@ -159,7 +162,7 @@ fun SettingsScreen() {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = CardBackground),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     // KEEPING THIS: Opens EditProfileActivity
@@ -192,7 +195,7 @@ fun SettingsScreen() {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = CardBackground),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         SettingsItem(
@@ -204,12 +207,28 @@ fun SettingsScreen() {
                     }
                 }
 
+                // Appearance: light, dark or follow the system.
+                SettingsSection(title = stringResource(R.string.settings_appearance))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                ) {
+                    SettingsItem(
+                        icon = Icons.Default.DarkMode,
+                        title = "${stringResource(R.string.settings_theme)}: ${themeModeLabel(context)}",
+                        onClick = { showThemeDialog = true },
+                        showDivider = false
+                    )
+                }
+
                 // Support & About
                 SettingsSection(title = stringResource(R.string.settings_support_about))
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = CardBackground),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     SettingsItem(
@@ -235,7 +254,7 @@ fun SettingsScreen() {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = CardBackground),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     SettingsItem(
@@ -263,7 +282,7 @@ fun SettingsScreen() {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = CardBackground),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     SettingsItem(
@@ -301,7 +320,54 @@ fun SettingsScreen() {
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
+
+        if (showThemeDialog) {
+            val currentMode = ThemePreferences.getMode(context)
+            AlertDialog(
+                onDismissRequest = { showThemeDialog = false },
+                title = { Text(stringResource(R.string.theme_dialog_title)) },
+                text = {
+                    Column {
+                        listOf(
+                            ThemePreferences.MODE_SYSTEM to R.string.theme_system,
+                            ThemePreferences.MODE_LIGHT to R.string.theme_light,
+                            ThemePreferences.MODE_DARK to R.string.theme_dark
+                        ).forEach { (mode, labelRes) ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        ThemePreferences.setMode(context, mode)
+                                        showThemeDialog = false
+                                        // Rebuild every screen with the new scheme.
+                                        activity?.recreate()
+                                    }
+                                    .padding(vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(selected = currentMode == mode, onClick = null)
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(stringResource(labelRes))
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showThemeDialog = false }) {
+                        Text(stringResource(android.R.string.cancel))
+                    }
+                }
+            )
+        }
     }
+}
+
+// Label shown in the Settings row for the stored theme mode.
+@Composable
+private fun themeModeLabel(context: Context): String = when (ThemePreferences.getMode(context)) {
+    ThemePreferences.MODE_LIGHT -> stringResource(R.string.theme_light)
+    ThemePreferences.MODE_DARK -> stringResource(R.string.theme_dark)
+    else -> stringResource(R.string.theme_system)
 }
 
 @Preview(showBackground = true)

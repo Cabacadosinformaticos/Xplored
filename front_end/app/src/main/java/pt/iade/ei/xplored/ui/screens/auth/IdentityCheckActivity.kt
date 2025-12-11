@@ -36,8 +36,6 @@ import pt.iade.ei.xplored.network.PasswordResetRequest
 import pt.iade.ei.xplored.network.UserApiService
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 
-val PrimaryDark = Color(0xFF1E2835)
-val SecondaryLight = Color(0xFFE0E0E0)
 val HighlightedColor = Color(0xFF35C2C1)
 
 class IdentityCheckActivity : ComponentActivity() {
@@ -58,10 +56,10 @@ fun OtpBox(text: String, isFocused: Boolean) {
     Box(
         modifier = Modifier
             .size(48.dp)
-            .background(Color.White, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
             .border(
                 width = 2.dp,
-                color = if (isFocused) HighlightedColor else SecondaryLight,
+                color = if (isFocused) HighlightedColor else MaterialTheme.colorScheme.outline,
                 shape = RoundedCornerShape(12.dp)
             ),
         contentAlignment = Alignment.Center
@@ -70,7 +68,7 @@ fun OtpBox(text: String, isFocused: Boolean) {
             text = text,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = PrimaryDark
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -99,7 +97,7 @@ fun IdentityCheckScreen(resetEmail: String) {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.White
+        color = MaterialTheme.colorScheme.surface
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
 
@@ -113,7 +111,7 @@ fun IdentityCheckScreen(resetEmail: String) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.cd_back),
-                    tint = Color.Black
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -137,7 +135,7 @@ fun IdentityCheckScreen(resetEmail: String) {
                 Text(
                     text = stringResource(R.string.otp_verification_subtitle),
                     fontSize = 16.sp,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 32.dp)
@@ -177,7 +175,7 @@ fun IdentityCheckScreen(resetEmail: String) {
                         .fillMaxWidth()
                         .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryDark),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     enabled = otpValue.text.length == otpLength
                 ) {
                     Text(stringResource(R.string.verify_button), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
@@ -192,7 +190,7 @@ fun IdentityCheckScreen(resetEmail: String) {
                     Text(
                         text = stringResource(R.string.didnt_receive_code),
                         fontSize = 14.sp,
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(

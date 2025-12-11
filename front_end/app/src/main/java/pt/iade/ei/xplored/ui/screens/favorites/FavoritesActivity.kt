@@ -41,9 +41,6 @@ import pt.iade.ei.xplored.ui.screens.main.EXTRA_FOCUS_PLACE_ID
 import pt.iade.ei.xplored.ui.screens.main.MainActivity
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 
-// Same palette as the rest of the app.
-private val DarkText = Color(0xFF1E2835)
-
 class FavoritesActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,25 +90,25 @@ private fun FavoritesScreen(onBack: () -> Unit) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(stringResource(R.string.favorites_title), fontWeight = FontWeight.Bold, color = DarkText)
+                    Text(stringResource(R.string.favorites_title), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_back),
-                            tint = Color.Black
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(innerPadding)
         ) {
             if (isLoading) {
@@ -120,7 +117,7 @@ private fun FavoritesScreen(onBack: () -> Unit) {
                 }
             } else if (favorites.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.favorites_empty), color = Color.Gray)
+                    Text(stringResource(R.string.favorites_empty), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
                 LazyColumn(
@@ -140,7 +137,7 @@ private fun FavoriteCard(place: PlaceResponse, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -156,7 +153,7 @@ private fun FavoriteCard(place: PlaceResponse, onClick: () -> Unit) {
                     modifier = Modifier
                         .size(72.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFFEDEFF2)),
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(Icons.Default.Favorite, null, tint = Color(0xFFE53935), modifier = Modifier.size(28.dp))
@@ -166,17 +163,17 @@ private fun FavoriteCard(place: PlaceResponse, onClick: () -> Unit) {
             Spacer(Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(place.name, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = DarkText)
+                Text(place.name, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = MaterialTheme.colorScheme.onSurface)
                 if (!place.addressFull.isNullOrBlank()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             Icons.Default.LocationOn,
                             contentDescription = null,
-                            tint = Color.Gray,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(14.dp)
                         )
                         Spacer(Modifier.width(4.dp))
-                        Text(place.addressFull, fontSize = 13.sp, color = Color.Gray)
+                        Text(place.addressFull, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -187,7 +184,7 @@ private fun FavoriteCard(place: PlaceResponse, onClick: () -> Unit) {
                         modifier = Modifier.size(14.dp)
                     )
                     Spacer(Modifier.width(4.dp))
-                    Text(String.format("%.1f", place.avgRating ?: 0.0), fontSize = 13.sp, color = Color.Gray)
+                    Text(String.format("%.1f", place.avgRating ?: 0.0), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

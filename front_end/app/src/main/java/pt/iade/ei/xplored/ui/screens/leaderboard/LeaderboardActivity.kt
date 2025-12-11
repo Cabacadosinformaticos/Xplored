@@ -39,12 +39,9 @@ import pt.iade.ei.xplored.network.LeaderboardMe
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 
 // Same palette as the rest of the app; podium uses gold, silver and bronze.
-private val DarkText = Color(0xFF1E2835)
-private val CardBackground = Color(0xFFF8F9FA)
 private val Gold = Color(0xFFFFC107)
 private val Silver = Color(0xFFB0BEC5)
 private val Bronze = Color(0xFFBCAAA4)
-private val HighlightBackground = Color(0xFFFFF3CD)
 
 class LeaderboardActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,25 +86,25 @@ private fun LeaderboardScreen(onBack: () -> Unit) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(stringResource(R.string.leaderboard_title), fontWeight = FontWeight.Bold, color = DarkText)
+                    Text(stringResource(R.string.leaderboard_title), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_back),
-                            tint = Color.Black
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(innerPadding)
         ) {
             if (isLoading) {
@@ -116,7 +113,7 @@ private fun LeaderboardScreen(onBack: () -> Unit) {
                 }
             } else if (top.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.leaderboard_empty), color = Color.Gray)
+                    Text(stringResource(R.string.leaderboard_empty), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
                 val podium = top.filter { it.position <= 3 }
@@ -148,7 +145,7 @@ private fun LeaderboardScreen(onBack: () -> Unit) {
                                 Text(
                                     text = stringResource(R.string.leaderboard_your_position),
                                     fontWeight = FontWeight.Bold,
-                                    color = DarkText,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     fontSize = 16.sp
                                 )
                                 Spacer(Modifier.height(8.dp))
@@ -210,16 +207,16 @@ private fun PodiumItem(entry: LeaderboardEntry, isMe: Boolean, modifier: Modifie
             text = entry.name,
             fontWeight = FontWeight.SemiBold,
             fontSize = 13.sp,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
             maxLines = 1
         )
-        Text(stringResource(R.string.points_label, entry.points), fontSize = 12.sp, color = Color.Gray)
+        Text(stringResource(R.string.points_label, entry.points), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (isMe) {
             Text(
                 stringResource(R.string.leaderboard_you),
                 fontSize = 12.sp,
-                color = Color(0xFF8A6D3B),
+                color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -255,7 +252,7 @@ private fun LeaderboardRow(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isMe) HighlightBackground else CardBackground
+            containerColor = if (isMe) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = if (isMe) 3.dp else 1.dp)
     ) {
@@ -267,18 +264,18 @@ private fun LeaderboardRow(
                 text = "$position",
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.width(28.dp)
             )
             Avatar(photo = photo, size = 40.dp)
             Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(name, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, color = DarkText, maxLines = 1)
+                Text(name, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
                 if (isMe) {
                     Text(
                         stringResource(R.string.leaderboard_you),
                         fontSize = 12.sp,
-                        color = Color(0xFF8A6D3B),
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -288,20 +285,20 @@ private fun LeaderboardRow(
                     Icon(Icons.Default.EmojiEvents, null, tint = Gold, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
                 }
-                Text(stringResource(R.string.points_label, points), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = DarkText)
+                Text(stringResource(R.string.points_label, points), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
             }
         }
     }
 }
 
 @Composable
-private fun Avatar(photo: String?, size: androidx.compose.ui.unit.Dp = 56.dp, borderColor: Color = Color(0xFFE2E6EF)) {
+private fun Avatar(photo: String?, size: androidx.compose.ui.unit.Dp = 56.dp, borderColor: Color = MaterialTheme.colorScheme.outline) {
     Box(
         modifier = Modifier
             .size(size)
             .clip(CircleShape)
             .border(2.dp, borderColor, CircleShape)
-            .background(Color(0xFFEDEFF2)),
+            .background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center
     ) {
         if (!photo.isNullOrBlank()) {
@@ -315,7 +312,7 @@ private fun Avatar(photo: String?, size: androidx.compose.ui.unit.Dp = 56.dp, bo
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = null,
-                tint = Color(0xFF6B7280),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(size * 0.55f)
             )
         }

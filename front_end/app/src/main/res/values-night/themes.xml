@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Dark window before Compose draws, used when the system is in night mode. -->
+    <style name="Theme.Xplored" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/dark_background</item>
+    </style>
+</resources>

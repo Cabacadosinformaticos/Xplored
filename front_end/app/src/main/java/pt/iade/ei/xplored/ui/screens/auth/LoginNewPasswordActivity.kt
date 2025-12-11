@@ -60,7 +60,7 @@ fun NewPasswordScreen(resetEmail: String, resetCode: String) {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.White
+        color = MaterialTheme.colorScheme.surface
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
 
@@ -75,7 +75,7 @@ fun NewPasswordScreen(resetEmail: String, resetCode: String) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.cd_back),
-                    tint = Color.Black
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -101,7 +101,7 @@ fun NewPasswordScreen(resetEmail: String, resetCode: String) {
                 Text(
                     text = stringResource(R.string.new_password_subtitle),
                     fontSize = 16.sp,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 48.dp)
@@ -183,7 +183,7 @@ fun NewPasswordScreen(resetEmail: String, resetCode: String) {
                         .fillMaxWidth()
                         .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryDark),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     enabled = newPassword.isNotBlank() && confirmPassword.isNotBlank() && !isLoading
                 ) {
                     if (isLoading) {

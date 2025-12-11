@@ -94,7 +94,7 @@ fun NewReviewScreen(placeId: Long, placeName: String) {
                 title = {
                     Column {
                         Text(text = stringResource(R.string.write_review_title), fontSize = 18.sp)
-                        Text(text = placeName, fontSize = 14.sp, color = Color.Gray)
+                        Text(text = placeName, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 },
                 navigationIcon = {
@@ -170,7 +170,7 @@ fun NewReviewScreen(placeId: Long, placeName: String) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Remover",
-                                tint = Color.Red,
+                                tint = MaterialTheme.colorScheme.error,
                                 modifier = Modifier
                                     .align(Alignment.TopEnd)
                                     .background(Color.White, androidx.compose.foundation.shape.CircleShape)
@@ -276,7 +276,7 @@ fun StarRatingInput(currentRating: Int, onRatingChanged: (Int) -> Unit) {
             Icon(
                 imageVector = if (isSelected) Icons.Filled.Star else Icons.Outlined.Star,
                 contentDescription = "$i estrelas",
-                tint = if (isSelected) Color(0xFFFFC107) else Color.LightGray,
+                tint = if (isSelected) Color(0xFFFFC107) else MaterialTheme.colorScheme.outline,
                 modifier = Modifier
                     .size(48.dp)
                     .clickable { onRatingChanged(i) }

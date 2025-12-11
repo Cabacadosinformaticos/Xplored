@@ -32,6 +32,7 @@ import pt.iade.ei.xplored.network.Pedipaper
 import pt.iade.ei.xplored.network.PedipaperApiService
 import pt.iade.ei.xplored.network.RouteProgress
 import pt.iade.ei.xplored.ui.theme.XploredTheme
+import pt.iade.ei.xplored.ui.theme.pointsAccent
 
 class PedipaperActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,7 +98,7 @@ fun PedipaperListScreen(onBack: () -> Unit) {
             if (isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (routes.isEmpty()) {
-                Text("Sem rotas disponíveis.", modifier = Modifier.align(Alignment.Center), color = Color.Gray)
+                Text("Sem rotas disponíveis.", modifier = Modifier.align(Alignment.Center), color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 LazyColumn(contentPadding = PaddingValues(16.dp)) {
                     items(routes) { route ->
@@ -137,7 +138,7 @@ fun PedipaperCard(route: Pedipaper, progress: RouteProgress?, onClick: () -> Uni
     Card(
         modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp).clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -149,9 +150,9 @@ fun PedipaperCard(route: Pedipaper, progress: RouteProgress?, onClick: () -> Uni
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(route.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text(route.description ?: "", fontSize = 14.sp, color = Color.Gray)
+                Text(route.description ?: "", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("${route.totalPoints} pts", fontWeight = FontWeight.Bold, color = Color(0xFFE65100))
+                Text("${route.totalPoints} pts", fontWeight = FontWeight.Bold, color = pointsAccent())
 
                 if (progress != null) {
                     Spacer(modifier = Modifier.height(4.dp))
@@ -160,7 +161,7 @@ fun PedipaperCard(route: Pedipaper, progress: RouteProgress?, onClick: () -> Uni
                     } else if (progress.joined) {
                         Text(
                             "${progress.completedStopIds.size}/${progress.totalStops} paragens",
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 13.sp
                         )
                     }

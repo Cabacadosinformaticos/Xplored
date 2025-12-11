@@ -218,14 +218,14 @@ private fun ProfileScreen(
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.cd_back),
-                        tint = Color.Black
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 IconButton(onClick = onOpenSettings, modifier = Modifier.align(Alignment.TopEnd)) {
                     Icon(
                         Icons.Default.Settings,
                         contentDescription = stringResource(R.string.cd_settings),
-                        tint = Color.Black
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -233,7 +233,7 @@ private fun ProfileScreen(
     ) { padding ->
 
         Column(
-            modifier = Modifier.fillMaxSize().background(Color.White).padding(padding)
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).padding(padding)
         ) {
             // --- HEADER SECTION ---
             Column(
@@ -245,8 +245,8 @@ private fun ProfileScreen(
                         modifier = Modifier
                             .matchParentSize()
                             .clip(CircleShape)
-                            .border(2.dp, Color(0xFFE2E6EF), CircleShape)
-                            .background(Color(0xFFEDEFF2))
+                            .border(2.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                             .clickable {
                                 if (profilePhoto != null) fullScreenUri = profilePhoto
                                 else pickAvatarLauncher.launch(
@@ -265,7 +265,7 @@ private fun ProfileScreen(
                             Icon(
                                 imageVector = Icons.Default.Person,
                                 contentDescription = stringResource(R.string.cd_profile),
-                                tint = Color(0xFF6B7280),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(64.dp).align(Alignment.Center)
                             )
                         }
@@ -282,14 +282,14 @@ private fun ProfileScreen(
                 }
 
                 Spacer(Modifier.height(12.dp))
-                Text(userName, fontSize = 26.sp, color = Color(0xFF1E2835))
+                Text(userName, fontSize = 26.sp, color = MaterialTheme.colorScheme.onSurface)
 
                 // --- NEW: Display Country if available ---
                 if (userCountry.isNotBlank()) {
-                    Text(userCountry, fontSize = 14.sp, color = Color(0xFF6B7280), fontWeight = FontWeight.Medium)
+                    Text(userCountry, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
                 } else if (userEmail.isNotBlank()) {
                     Spacer(Modifier.height(2.dp))
-                    Text(userEmail, fontSize = 14.sp, color = Color(0xFF6B7280))
+                    Text(userEmail, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 // -----------------------------------------
 
@@ -305,7 +305,7 @@ private fun ProfileScreen(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.leaderboard_title), fontSize = 14.sp, color = Color(0xFF1E2835))
+                    Text(stringResource(R.string.leaderboard_title), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
                 }
 
                 // Entry point to the points and coupon history.
@@ -317,7 +317,7 @@ private fun ProfileScreen(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(6.dp))
-                    Text("Histórico de pontos e cupões", fontSize = 14.sp, color = Color(0xFF1E2835))
+                    Text("Histórico de pontos e cupões", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
                 }
 
                 // Entry point to the saved places.
@@ -329,13 +329,13 @@ private fun ProfileScreen(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.favorites_title), fontSize = 14.sp, color = Color(0xFF1E2835))
+                    Text(stringResource(R.string.favorites_title), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
                 }
 
                 Text(
                     text = stringResource(R.string.visited_places_label, userVisits),
                     fontSize = 14.sp,
-                    color = Color(0xFF6B7280),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Medium
                 )
 
@@ -347,8 +347,8 @@ private fun ProfileScreen(
 
             TabRow(
                 selectedTabIndex = tabs.indexOf(selectedTab),
-                containerColor = Color.White,
-                contentColor = Color(0xFF1E2835),
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface,
                 indicator = { positions ->
                     val idx = tabs.indexOf(selectedTab)
                     if (idx < positions.size) {
@@ -364,8 +364,8 @@ private fun ProfileScreen(
                     Tab(
                         selected = selectedTab == tab,
                         onClick = { selectedTab = tab },
-                        selectedContentColor = Color(0xFF1E2835),
-                        unselectedContentColor = Color(0xFF9AA3AE),
+                        selectedContentColor = MaterialTheme.colorScheme.onSurface,
+                        unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         text = {
                             Text(
                                 when (tab) {
@@ -401,13 +401,13 @@ private fun ProfileScreen(
                             Text(
                                 text = displayText,
                                 fontSize = 16.sp,
-                                color = Color(0xFF4A4A4A),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 lineHeight = 24.sp
                             )
                         } else {
                             Text(
                                 text = "Ainda sem descrição.",
-                                color = Color.Gray,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                             )
                         }
@@ -436,7 +436,7 @@ private fun ProfileScreen(
 
                     if (userReviews.isEmpty() && !isLoading) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Ainda não escreveste avaliações.", color = Color.Gray)
+                            Text("Ainda não escreveste avaliações.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     } else {
                         LazyVerticalGrid(
@@ -447,7 +447,7 @@ private fun ProfileScreen(
                         ) {
                             items(userReviews) { review ->
                                 Card(
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA)),
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                                     shape = RoundedCornerShape(12.dp),
                                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                                 ) {
@@ -461,12 +461,12 @@ private fun ProfileScreen(
                                                     contentScale = ContentScale.Crop
                                                 )
                                             } else {
-                                                Icon(Icons.Default.Place, null, tint = Color.LightGray, modifier = Modifier.size(40.dp))
+                                                Icon(Icons.Default.Place, null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(40.dp))
                                             }
                                             Spacer(modifier = Modifier.width(12.dp))
                                             Column {
                                                 Text(review.placeName ?: "Local", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                                                Text(review.createdAt?.take(10) ?: "", fontSize = 12.sp, color = Color.Gray)
+                                                Text(review.createdAt?.take(10) ?: "", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                             }
                                         }
                                         Spacer(modifier = Modifier.height(8.dp))
@@ -476,7 +476,7 @@ private fun ProfileScreen(
                                                 Icon(
                                                     imageVector = if (isActive) Icons.Filled.Star else Icons.Outlined.Star,
                                                     contentDescription = null,
-                                                    tint = if (isActive) Color(0xFFFFC107) else Color.LightGray,
+                                                    tint = if (isActive) Color(0xFFFFC107) else MaterialTheme.colorScheme.outline,
                                                     modifier = Modifier.size(16.dp)
                                                 )
                                             }
@@ -520,7 +520,7 @@ private fun ProfileScreen(
                         }
                     } else if (photos.isEmpty()) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Sem fotos na galeria.", color = Color.Gray)
+                            Text("Sem fotos na galeria.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     } else {
                         LazyVerticalGrid(
@@ -576,11 +576,11 @@ private fun ProfileScreen(
 
 @Composable
 private fun AvatarEditButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Surface(modifier = modifier.size(40.dp), shape = CircleShape, color = Color.White, shadowElevation = 8.dp) {
+    Surface(modifier = modifier.size(40.dp), shape = CircleShape, color = MaterialTheme.colorScheme.surface, shadowElevation = 8.dp) {
         Box(modifier = Modifier.clickable(onClick = onClick), contentAlignment = Alignment.Center) {
-            Surface(modifier = Modifier.size(28.dp), shape = CircleShape, color = Color(0xFF1E2835)) {
+            Surface(modifier = Modifier.size(28.dp), shape = CircleShape, color = MaterialTheme.colorScheme.primary) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Filled.Edit, null, tint = Color.White, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Filled.Edit, null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(16.dp))
                 }
             }
         }

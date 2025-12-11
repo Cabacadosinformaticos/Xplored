@@ -34,10 +34,7 @@ import pt.iade.ei.xplored.network.PlaceResponse
 import pt.iade.ei.xplored.ui.theme.XploredTheme
 
 // Same palette as the rest of the app.
-private val DarkText = Color(0xFF1E2835)
-private val CardBackground = Color(0xFFF8F9FA)
 private val ApproveGreen = Color(0xFF2E7D32)
-private val RejectRed = Color(0xFFC62828)
 
 class ModerationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,25 +103,25 @@ private fun ModerationScreen(onBack: () -> Unit) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(stringResource(R.string.moderation_title), fontWeight = FontWeight.Bold, color = DarkText)
+                    Text(stringResource(R.string.moderation_title), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_back),
-                            tint = Color.Black
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(innerPadding)
         ) {
             if (isLoading) {
@@ -133,7 +130,7 @@ private fun ModerationScreen(onBack: () -> Unit) {
                 }
             } else if (pending.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.moderation_empty), color = Color.Gray)
+                    Text(stringResource(R.string.moderation_empty), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
                 LazyColumn(
@@ -165,22 +162,22 @@ private fun PendingPlaceCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = CardBackground),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            Text(place.name, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = DarkText)
+            Text(place.name, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = MaterialTheme.colorScheme.onSurface)
 
             if (!place.addressFull.isNullOrBlank()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.LocationOn,
                         contentDescription = null,
-                        tint = Color.Gray,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(14.dp)
                     )
                     Spacer(Modifier.width(4.dp))
-                    Text(place.addressFull, fontSize = 13.sp, color = Color.Gray)
+                    Text(place.addressFull, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
@@ -188,13 +185,13 @@ private fun PendingPlaceCard(
                 Text(
                     text = stringResource(R.string.moderation_suggested_by, place.authorId),
                     fontSize = 12.sp,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             if (!place.description.isNullOrBlank()) {
                 Spacer(Modifier.height(6.dp))
-                Text(place.description, fontSize = 14.sp, color = Color(0xFF4A4A4A), maxLines = 3)
+                Text(place.description, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 3)
             }
 
             Spacer(Modifier.height(12.dp))
@@ -203,7 +200,7 @@ private fun PendingPlaceCard(
                 OutlinedButton(
                     onClick = onReject,
                     enabled = !busy,
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = RejectRed)
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
                 ) {
                     Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))

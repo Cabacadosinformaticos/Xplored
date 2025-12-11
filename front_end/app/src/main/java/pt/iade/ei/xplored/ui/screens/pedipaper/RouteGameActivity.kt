@@ -35,6 +35,7 @@ import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.gson.JsonParser
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.launch
@@ -45,6 +46,8 @@ import pt.iade.ei.xplored.network.PedipaperApiService
 import pt.iade.ei.xplored.network.PhotoUploadClient
 import pt.iade.ei.xplored.network.StopResponse
 import pt.iade.ei.xplored.ui.theme.XploredTheme
+import pt.iade.ei.xplored.ui.theme.mapStyleResource
+import pt.iade.ei.xplored.ui.theme.pointsAccent
 import retrofit2.HttpException
 
 class RouteGameActivity : ComponentActivity() {
@@ -327,12 +330,12 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
                     Text("Missão Cumprida!", fontSize = 32.sp, fontWeight = FontWeight.Bold)
 
                     // Show actual points won
-                    Text("Ganhaste +$awardedPoints pontos!", color = Color(0xFFE65100), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text("Ganhaste +$awardedPoints pontos!", color = pointsAccent(), fontSize = 24.sp, fontWeight = FontWeight.Bold)
 
                     Spacer(Modifier.height(32.dp))
                     Button(
                         onClick = onBack,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E2835))
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
                         Text("Voltar ao Menu")
                     }
@@ -346,7 +349,10 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
                 GoogleMap(
                     modifier = Modifier.fillMaxSize(),
                     cameraPositionState = cameraPositionState,
-                    properties = MapProperties(isMyLocationEnabled = hasLocationPermission)
+                    properties = MapProperties(
+                        isMyLocationEnabled = hasLocationPermission,
+                        mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, mapStyleResource())
+                    )
                 ) {
                     Marker(
                         state = MarkerState(position = LatLng(currentStop.lat, currentStop.lng)),
@@ -362,7 +368,7 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
                         .fillMaxWidth()
                         .padding(16.dp),
                     elevation = CardDefaults.cardElevation(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -377,38 +383,38 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
                             }
                             Spacer(Modifier.width(16.dp))
                             Column {
-                                Text("Próxima Paragem", fontSize = 12.sp, color = Color.Gray)
+                                Text("Próxima Paragem", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text(currentStop.placeName, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                             }
                         }
 
                         Spacer(Modifier.height(16.dp))
-                        Text(currentStop.taskDescription ?: "Vai até ao local.", color = Color(0xFF424242))
+                        Text(currentStop.taskDescription ?: "Vai até ao local.", color = MaterialTheme.colorScheme.onSurfaceVariant)
 
                         Spacer(Modifier.height(8.dp))
                         if (!hasLocationPermission) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.LocationOn, null, tint = Color.Red, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.LocationOn, null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp))
                                 Spacer(Modifier.width(4.dp))
                                 Text(
                                     "Precisas de permitir a localização para fazer check-in nas paragens.",
-                                    color = Color.Red,
+                                    color = MaterialTheme.colorScheme.error,
                                     fontSize = 12.sp
                                 )
                             }
                         } else if (!hasFix) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.LocationOn, null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.LocationOn, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
                                 Spacer(Modifier.width(4.dp))
-                                Text("A obter localização...", color = Color.Gray, fontSize = 12.sp)
+                                Text("A obter localização...", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                             }
                         } else if (!isNearby) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.LocationOn, null, tint = Color.Red, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.LocationOn, null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp))
                                 Spacer(Modifier.width(4.dp))
                                 Text(
                                     "Estás a ${distanceToTarget.toInt()}m. Aproxima-te (<50m).",
-                                    color = Color.Red,
+                                    color = MaterialTheme.colorScheme.error,
                                     fontSize = 12.sp
                                 )
                             }
@@ -434,7 +440,7 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
                                     )
                                 },
                                 modifier = Modifier.fillMaxWidth().height(50.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E2835))
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                             ) {
                                 Icon(Icons.Default.LocationOn, null, modifier = Modifier.size(18.dp))
                                 Spacer(Modifier.width(8.dp))
@@ -456,7 +462,7 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
                                 modifier = Modifier.fillMaxWidth().height(50.dp),
                                 enabled = isNearby,
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (isNearby) Color(0xFF1E2835) else Color.LightGray
+                                    containerColor = if (isNearby) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
                                 )
                             ) {
                                 Icon(buttonIcon, null, modifier = Modifier.size(18.dp))

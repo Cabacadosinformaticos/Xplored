@@ -34,12 +34,10 @@ import pt.iade.ei.xplored.network.HistoryApiService
 import pt.iade.ei.xplored.network.PointsHistoryResponse
 import pt.iade.ei.xplored.network.RedeemedCouponResponse
 import pt.iade.ei.xplored.ui.theme.XploredTheme
+import pt.iade.ei.xplored.ui.theme.pointsAccent
 
 // Same palette as the rest of the app.
-private val DarkText = Color(0xFF1E2835)
-private val CardBackground = Color(0xFFF8F9FA)
 private val PointsGreen = Color(0xFF2E7D32)
-private val PointsRed = Color(0xFFC62828)
 private val CodeBackground = Color(0xFFE0F2F1)
 private val CodeGreen = Color(0xFF00796B)
 
@@ -100,32 +98,32 @@ private fun HistoryScreen(startTab: HistoryTab, onBack: () -> Unit) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Pontos e cupões", fontWeight = FontWeight.Bold, color = DarkText)
+                    Text("Pontos e cupões", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_back),
-                            tint = Color.Black
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(innerPadding)
         ) {
             val tabs = listOf(HistoryTab.Pontos, HistoryTab.Cupoes)
             TabRow(
                 selectedTabIndex = tabs.indexOf(selectedTab),
-                containerColor = Color.White,
-                contentColor = DarkText,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface,
                 indicator = { positions ->
                     val idx = tabs.indexOf(selectedTab)
                     if (idx < positions.size) {
@@ -141,8 +139,8 @@ private fun HistoryScreen(startTab: HistoryTab, onBack: () -> Unit) {
                     Tab(
                         selected = selectedTab == tab,
                         onClick = { selectedTab = tab },
-                        selectedContentColor = DarkText,
-                        unselectedContentColor = Color(0xFF9AA3AE),
+                        selectedContentColor = MaterialTheme.colorScheme.onSurface,
+                        unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         text = {
                             Text(
                                 when (tab) {
@@ -190,7 +188,7 @@ private fun PointsRow(entry: PointsHistoryResponse) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = CardBackground),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -209,19 +207,19 @@ private fun PointsRow(entry: PointsHistoryResponse) {
                     text = entry.reason ?: "Movimento de pontos",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Medium,
-                    color = DarkText
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 val date = formatDate(entry.createdAt)
                 if (date.isNotBlank()) {
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(date, fontSize = 12.sp, color = Color.Gray)
+                    Text(date, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             Text(
                 text = if (entry.amount >= 0) "+${entry.amount}" else entry.amount.toString(),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = if (entry.amount >= 0) PointsGreen else PointsRed
+                color = if (entry.amount >= 0) PointsGreen else MaterialTheme.colorScheme.error
             )
         }
     }
@@ -247,7 +245,7 @@ private fun RedeemedCouponCard(coupon: RedeemedCouponResponse) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
@@ -255,7 +253,7 @@ private fun RedeemedCouponCard(coupon: RedeemedCouponResponse) {
                 Icon(
                     imageVector = Icons.Default.ShoppingCart,
                     contentDescription = null,
-                    tint = Color(0xFFE65100),
+                    tint = pointsAccent(),
                     modifier = Modifier.size(22.dp)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
@@ -264,10 +262,10 @@ private fun RedeemedCouponCard(coupon: RedeemedCouponResponse) {
                         text = coupon.title,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = DarkText
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     if (!coupon.merchantName.isNullOrBlank()) {
-                        Text(coupon.merchantName, fontSize = 13.sp, color = Color.Gray)
+                        Text(coupon.merchantName, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -293,7 +291,7 @@ private fun RedeemedCouponCard(coupon: RedeemedCouponResponse) {
             val date = formatDate(coupon.redeemedAt)
             if (date.isNotBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Resgatado em $date", fontSize = 12.sp, color = Color.Gray)
+                Text("Resgatado em $date", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
@@ -302,7 +300,7 @@ private fun RedeemedCouponCard(coupon: RedeemedCouponResponse) {
 @Composable
 private fun EmptyMessage(text: String) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text, color = Color.Gray)
+        Text(text, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

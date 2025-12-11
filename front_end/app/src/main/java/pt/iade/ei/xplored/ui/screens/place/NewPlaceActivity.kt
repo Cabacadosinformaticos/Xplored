@@ -73,6 +73,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import pt.iade.ei.xplored.R
 import pt.iade.ei.xplored.ui.theme.XploredTheme
+import pt.iade.ei.xplored.ui.theme.mapStyleResource
 import java.util.Locale
 
 class NewPlaceActivity : ComponentActivity() {
@@ -219,7 +220,7 @@ fun NewPlaceScreen() {
                     showMapView = false
                 },
                 properties = MapProperties(
-                    mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style)
+                    mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, mapStyleResource())
                 )
             ) {
                 selectedLatLng?.let {
