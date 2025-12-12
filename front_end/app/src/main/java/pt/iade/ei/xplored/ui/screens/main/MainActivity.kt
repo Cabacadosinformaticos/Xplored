@@ -362,6 +362,10 @@ fun MainView() {
             }
             val matchesSearch = searchKey.isBlank() || normalizeForSearch(place.name).contains(searchKey)
             matchesCategory && matchesDistance && matchesSearch
+        }.let { list ->
+            // "Locais perto de ti": nearest first when the location is known
+            val here = userLocation
+            if (here == null) list else list.sortedBy { calculateDistanceKm(here, it.latLng) }
         }
     }
 

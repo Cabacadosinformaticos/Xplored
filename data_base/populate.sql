@@ -380,7 +380,7 @@ INSERT INTO photos (id, url, place_id, user_id, review_id, kind, status, created
 -- Fotos existentes
 (1, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Jardim_na_Avenida_de_Moscavide%2C_em_Moscavide_07.jpg/960px-Jardim_na_Avenida_de_Moscavide%2C_em_Moscavide_07.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 1, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 100 DAY),
 (2, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Igreja_de_Santo_Ant%C3%B3nio_de_Moscavide.jpg/960px-Igreja_de_Santo_Ant%C3%B3nio_de_Moscavide.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 2, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 100 DAY),
-(3, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Prego_%2850644636392%29.jpg/960px-Prego_%2850644636392%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 3, 1, 2, 'GALLERY', 'APPROVED', NOW() - INTERVAL 95 DAY);
+(3, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Bife_a_cavalo.jpg/960px-Bife_a_cavalo.jpg', 3, 1, 2, 'GALLERY', 'APPROVED', NOW() - INTERVAL 95 DAY);
 
 -- Restauração: mesmo padrão de URL já usado na foto de comida existente.
 INSERT INTO photos (id, url, place_id, user_id, review_id, kind, status, created_at) VALUES
