@@ -344,7 +344,7 @@ fun MainView() {
         if (target != null) {
             selectedPlace = target
             cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(target.latLng, 16f))
-        } else if (focusLat != null && focusLng != null) {
+        } else if (focusLat != null && focusLng != null && !focusLat.isNaN() && !focusLng.isNaN()) {
             cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(focusLat, focusLng), 16f))
         }
     }
