@@ -192,7 +192,7 @@ fun NewReviewScreen(placeId: Long, placeName: String) {
                             try {
                                 val userEmail = SessionManager.getUserEmail(context)
                                 if (userEmail.isBlank()) {
-                                    Toast.makeText(context, "Erro: Login necessário.", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, context.getString(R.string.error_login_required), Toast.LENGTH_LONG).show()
                                     isSubmitting = false
                                     return@launch
                                 }

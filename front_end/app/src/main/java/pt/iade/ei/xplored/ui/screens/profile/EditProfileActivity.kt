@@ -14,10 +14,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+import pt.iade.ei.xplored.R
 import pt.iade.ei.xplored.SessionManager
 import pt.iade.ei.xplored.network.ApiClient
 import pt.iade.ei.xplored.network.UserApiService
@@ -86,7 +88,7 @@ fun EditProfileScreen(onBack: () -> Unit, onSaved: () -> Unit) {
                 title = { Text("Editar Perfil") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
                     }
                 }
             )

@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -43,8 +44,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -56,6 +59,7 @@ import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -64,6 +68,7 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.gson.JsonParser
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pt.iade.ei.xplored.R
@@ -85,6 +90,7 @@ import pt.iade.ei.xplored.network.VisitApiService
 import pt.iade.ei.xplored.network.VisitRequest
 import pt.iade.ei.xplored.repositories.PhotoRepository
 import pt.iade.ei.xplored.repositories.PlaceRepository
+import pt.iade.ei.xplored.ui.components.InitialsAvatar
 import pt.iade.ei.xplored.ui.screens.auth.LoginWelcomeBackActivity
 import pt.iade.ei.xplored.ui.screens.coupon.CouponActivity
 import pt.iade.ei.xplored.ui.screens.pedipaper.PedipaperActivity
@@ -157,14 +163,18 @@ fun calculateDistanceKm(start: LatLng, end: LatLng): Float {
 
 @Composable
 fun ExpandedActionButton(
-    icon: @Composable () -> Unit,
+    icon: ImageVector,
     label: String,
     onClick: () -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.End,
-        modifier = Modifier.fillMaxWidth().padding(start = 16.dp)
+        // The whole row is the tap target, not just the round icon.
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(start = 16.dp)
     ) {
         Text(
             text = label,
@@ -179,7 +189,7 @@ fun ExpandedActionButton(
             contentColor = MaterialTheme.colorScheme.onSurface,
             shape = RoundedCornerShape(50)
         ) {
-            icon()
+            Icon(imageVector = icon, contentDescription = label)
         }
     }
 }
@@ -250,9 +260,10 @@ private suspend fun getAddressFromLatLng(context: Context, latLng: LatLng): Stri
 fun MainView() {
     val context = LocalContext.current
 
-    val lisbon = LatLng(38.7223, -9.1393)
+    // Fallback centre: the seeded places around Parque das Nações, never (0,0).
+    val defaultPosition = LatLng(38.7680, -9.0960)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(lisbon, 10f)
+        position = CameraPosition.fromLatLngZoom(defaultPosition, 14f)
     }
     val scaffoldState = rememberBottomSheetScaffoldState()
     // Start from the real permission state, otherwise the map crashes on first launch
@@ -263,6 +274,9 @@ fun MainView() {
         )
     }
     var isActionMenuExpanded by remember { mutableStateOf(false) }
+    // True once the camera moved to the user (or fell back to the default centre).
+    var centeredOnUser by remember { mutableStateOf(false) }
+    var isSearchFocused by remember { mutableStateOf(false) }
 
     // --- MAIN PLACE LIST STATE ---
     // Initialize with local data, then refresh from server
@@ -464,17 +478,36 @@ fun MainView() {
         }
     }
 
+    // Move to the user's location on the first fix. The map already sits on the
+    // default centre, so a fix or the timeout below only refines it.
+    fun onLocationFix(location: Location) {
+        val userLatLng = LatLng(location.latitude, location.longitude)
+        userLocation = userLatLng
+        if (!centeredOnUser) {
+            centeredOnUser = true
+            scope.launch { cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f)) }
+        }
+    }
+
     LaunchedEffect(hasLocationPermission) {
         if (hasLocationPermission) {
             try {
                 fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                    location?.let {
-                        val userLatLng = LatLng(it.latitude, it.longitude)
-                        userLocation = userLatLng
-                        cameraPositionState.position = CameraPosition.fromLatLngZoom(userLatLng, 15f)
-                    }
+                    location?.let { onLocationFix(it) }
                 }
+                // Ask for a fresh fix too; lastLocation is often null on a cold start.
+                fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                    .addOnSuccessListener { location -> location?.let { onLocationFix(it) } }
             } catch (e: SecurityException) { e.printStackTrace() }
+        }
+    }
+
+    // No permission or no fix within a few seconds: keep the default centre.
+    LaunchedEffect(Unit) {
+        delay(5000)
+        if (!centeredOnUser) {
+            centeredOnUser = true
+            scope.launch { cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(defaultPosition, 14f)) }
         }
     }
 
@@ -517,6 +550,17 @@ fun MainView() {
                     }
                 }
             }
+        }
+    }
+
+    // System Back closes the FAB menu, then the place detail, then clears the
+    // search focus; only when none applies does it exit the app.
+    val focusManager = LocalFocusManager.current
+    BackHandler(enabled = isActionMenuExpanded || selectedPlace != null || isSearchFocused) {
+        when {
+            isActionMenuExpanded -> isActionMenuExpanded = false
+            selectedPlace != null -> selectedPlace = null
+            else -> focusManager.clearFocus()
         }
     }
 
@@ -627,7 +671,10 @@ fun MainView() {
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .onFocusChanged { isSearchFocused = it.isFocused },
                     placeholder = { Text(stringResource(R.string.search_places_hint), fontSize = 14.sp) },
                     leadingIcon = {
                         Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
@@ -672,7 +719,7 @@ fun MainView() {
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
                         contentPadding = PaddingValues(horizontal = 12.dp)
                     ) {
-                        Icon(Icons.Default.Tune, contentDescription = "Filtro", modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.Tune, contentDescription = stringResource(R.string.cd_filter), modifier = Modifier.size(20.dp))
                         if (radiusKm < 50f) {
                             Spacer(modifier = Modifier.width(4.dp))
                             Text("${radiusKm.toInt()}km", fontSize = 12.sp)
@@ -705,21 +752,26 @@ fun MainView() {
                     onClick = { isActionMenuExpanded = !isActionMenuExpanded },
                     containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface, shape = RoundedCornerShape(50)
                 ) {
-                    Icon(imageVector = if (isActionMenuExpanded) Icons.Default.Close else Icons.Default.Add, contentDescription = null)
+                    Icon(
+                        imageVector = if (isActionMenuExpanded) Icons.Default.Close else Icons.Default.Add,
+                        contentDescription = stringResource(
+                            if (isActionMenuExpanded) R.string.cd_close_menu else R.string.cd_open_menu
+                        )
+                    )
                 }
                 if (isActionMenuExpanded) {
-                    ExpandedActionButton({ Icon(Icons.Default.Person, null) }, stringResource(R.string.fab_profile)) {
+                    ExpandedActionButton(Icons.Default.Person, stringResource(R.string.fab_profile)) {
                         val next = if (SessionManager.isLoggedIn(context)) ProfileActivity::class.java else LoginWelcomeBackActivity::class.java
                         context.startActivity(Intent(context, next))
                     }
-                    ExpandedActionButton({ Icon(Icons.Default.Camera, null) }, stringResource(R.string.fab_add_place)) {
+                    ExpandedActionButton(Icons.Default.Camera, stringResource(R.string.fab_add_place)) {
                         if (SessionManager.isLoggedIn(context)) newPlaceLauncher.launch(Intent(context, NewPlaceActivity::class.java))
                         else context.startActivity(Intent(context, LoginWelcomeBackActivity::class.java))
                     }
-                    ExpandedActionButton({ Icon(Icons.Default.LocalOffer, null) }, stringResource(R.string.fab_coupons)) {
+                    ExpandedActionButton(Icons.Default.LocalOffer, stringResource(R.string.fab_coupons)) {
                         context.startActivity(Intent(context, CouponActivity::class.java))
                     }
-                    ExpandedActionButton({ Icon(Icons.Default.Directions, null) }, stringResource(R.string.fab_pedipaper)) {
+                    ExpandedActionButton(Icons.Default.Directions, stringResource(R.string.fab_pedipaper)) {
                         val next = if (SessionManager.isLoggedIn(context)) PedipaperActivity::class.java else LoginWelcomeBackActivity::class.java
                         context.startActivity(Intent(context, next))
                     }
@@ -758,7 +810,7 @@ fun MainView() {
                     Box(modifier = Modifier.fillMaxSize().background(Color.Black).clickable { fullScreenImageUri = null }) {
                         AsyncImage(model = fullScreenImageUri, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
                         IconButton(onClick = { fullScreenImageUri = null }, modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)) {
-                            Icon(Icons.Default.Close, null, tint = Color.White)
+                            Icon(Icons.Default.Close, stringResource(R.string.cd_close), tint = Color.White)
                         }
                     }
                 }
@@ -1211,11 +1263,11 @@ fun PlaceDetailView(
                                     Column(modifier = Modifier.padding(16.dp)) {
                                         // User Info
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            if (!review.userPhotoUrl.isNullOrBlank()) {
-                                                AsyncImage(model = review.userPhotoUrl, contentDescription = "Avatar", modifier = Modifier.size(40.dp).clip(androidx.compose.foundation.shape.CircleShape), contentScale = ContentScale.Crop)
-                                            } else {
-                                                Icon(Icons.Default.AccountCircle, null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(40.dp))
-                                            }
+                                            InitialsAvatar(
+                                                name = review.userName,
+                                                photoUrl = review.userPhotoUrl,
+                                                size = 40.dp
+                                            )
                                             Spacer(modifier = Modifier.width(12.dp))
                                             Column {
                                                 Text(text = review.userName ?: "Utilizador", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
@@ -1261,12 +1313,12 @@ fun PlaceDetailView(
                                         // Reactions
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             IconButton(onClick = { sendReaction(review.reviewId, "USEFUL") }) {
-                                                Icon(if (review.currentUserReaction == "USEFUL") Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp, null, tint = if (review.currentUserReaction == "USEFUL") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                                                Icon(if (review.currentUserReaction == "USEFUL") Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp, stringResource(R.string.cd_mark_useful), tint = if (review.currentUserReaction == "USEFUL") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                                             }
                                             Text("${review.likesCount}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                             Spacer(modifier = Modifier.width(16.dp))
                                             IconButton(onClick = { sendReaction(review.reviewId, "NOT_USEFUL") }) {
-                                                Icon(if (review.currentUserReaction == "NOT_USEFUL") Icons.Filled.ThumbDown else Icons.Outlined.ThumbDown, null, tint = if (review.currentUserReaction == "NOT_USEFUL") MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
+                                                Icon(if (review.currentUserReaction == "NOT_USEFUL") Icons.Filled.ThumbDown else Icons.Outlined.ThumbDown, stringResource(R.string.cd_mark_not_useful), tint = if (review.currentUserReaction == "NOT_USEFUL") MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
                                             }
                                             Text("${review.dislikesCount}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }

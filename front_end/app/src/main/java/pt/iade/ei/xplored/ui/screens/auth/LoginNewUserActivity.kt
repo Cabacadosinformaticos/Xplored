@@ -106,7 +106,7 @@ fun RegisterScreen(
             trailingIcon = {
                 val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(image, contentDescription = null)
+                    Icon(image, contentDescription = stringResource(R.string.cd_toggle_password))
                 }
             },
             modifier = Modifier.fillMaxWidth()

@@ -10,7 +10,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -22,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -56,6 +57,7 @@ import pt.iade.ei.xplored.network.ReviewApiService
 import pt.iade.ei.xplored.network.UserApiService
 import pt.iade.ei.xplored.network.VisitApiService
 import pt.iade.ei.xplored.repositories.PhotoRepository
+import pt.iade.ei.xplored.ui.components.InitialsAvatar
 import pt.iade.ei.xplored.ui.screens.favorites.FavoritesActivity
 import pt.iade.ei.xplored.ui.screens.history.HistoryActivity
 import pt.iade.ei.xplored.ui.screens.leaderboard.LeaderboardActivity
@@ -163,7 +165,7 @@ private fun ProfileScreen(
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    var selectedTab by remember { mutableStateOf(ProfileTab.Fotos) }
+    var selectedTab by remember { mutableStateOf(ProfileTab.Sobre) }
 
     val userId = remember(userEmail) {
         if (userEmail.isNotBlank()) stableUserId(userEmail) else ""
@@ -241,35 +243,20 @@ private fun ProfileScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(modifier = Modifier.size(132.dp), contentAlignment = Alignment.Center) {
-                    Box(
+                    InitialsAvatar(
+                        name = userName,
+                        photoUrl = profilePhoto?.toString(),
+                        size = 132.dp,
+                        borderColor = MaterialTheme.colorScheme.outline,
                         modifier = Modifier
                             .matchParentSize()
-                            .clip(CircleShape)
-                            .border(2.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .clickable {
+                            .clickable(onClickLabel = stringResource(R.string.cd_edit_avatar)) {
                                 if (profilePhoto != null) fullScreenUri = profilePhoto
                                 else pickAvatarLauncher.launch(
                                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                                 )
                             }
-                    ) {
-                        if (profilePhoto != null) {
-                            AsyncImage(
-                                model = profilePhoto,
-                                contentDescription = stringResource(R.string.cd_profile_photo),
-                                modifier = Modifier.matchParentSize().clip(CircleShape),
-                                contentScale = ContentScale.Crop
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = stringResource(R.string.cd_profile),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(64.dp).align(Alignment.Center)
-                            )
-                        }
-                    }
+                    )
 
                     AvatarEditButton(
                         onClick = {
@@ -294,50 +281,47 @@ private fun ProfileScreen(
                 // -----------------------------------------
 
                 Spacer(Modifier.height(8.dp))
-                AssistChip(onClick = {}, label = { Text(stringResource(R.string.points_label, userPoints)) })
-
-                // Entry point to the explorers ranking.
-                TextButton(onClick = onOpenLeaderboard) {
-                    Icon(
-                        imageVector = Icons.Default.EmojiEvents,
-                        contentDescription = null,
-                        tint = Color(0xFFFFC107),
-                        modifier = Modifier.size(18.dp)
+                // Points chip with the visited places stat beside it.
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    AssistChip(onClick = {}, label = { Text(stringResource(R.string.points_label, userPoints)) })
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.visited_places_label, userVisits),
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Medium
                     )
-                    Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.leaderboard_title), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
                 }
 
-                // Entry point to the points and coupon history.
-                TextButton(onClick = onOpenHistory) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = null,
-                        tint = Color(0xFFFFCC66),
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Text("Histórico de pontos e cupões", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
-                }
+                Spacer(Modifier.height(12.dp))
 
-                // Entry point to the saved places.
-                TextButton(onClick = onOpenFavorites) {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = null,
-                        tint = Color(0xFFE53935),
-                        modifier = Modifier.size(18.dp)
+                // Shortcut rows (icon, label, chevron) inside a rounded card.
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                ) {
+                    ProfileLinkRow(
+                        icon = Icons.Default.EmojiEvents,
+                        iconTint = Color(0xFFFFC107),
+                        label = stringResource(R.string.leaderboard_title),
+                        onClick = onOpenLeaderboard
                     )
-                    Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.favorites_title), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
+                    ProfileLinkRow(
+                        icon = Icons.Default.Star,
+                        iconTint = Color(0xFFFFCC66),
+                        label = stringResource(R.string.history_title),
+                        onClick = onOpenHistory
+                    )
+                    ProfileLinkRow(
+                        icon = Icons.Default.Favorite,
+                        iconTint = Color(0xFFE53935),
+                        label = stringResource(R.string.favorites_title),
+                        onClick = onOpenFavorites,
+                        showDivider = false
+                    )
                 }
-
-                Text(
-                    text = stringResource(R.string.visited_places_label, userVisits),
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Medium
-                )
 
                 Spacer(Modifier.height(8.dp))
             }
@@ -386,7 +370,7 @@ private fun ProfileScreen(
                     // NEW: Read-Only View of About
                     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                         Text(
-                            text = "Sobre Mim",
+                            text = stringResource(R.string.profile_about_title),
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
                             modifier = Modifier.padding(bottom = 8.dp)
@@ -406,7 +390,7 @@ private fun ProfileScreen(
                             )
                         } else {
                             Text(
-                                text = "Ainda sem descrição.",
+                                text = stringResource(R.string.profile_no_about),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                             )
@@ -436,7 +420,7 @@ private fun ProfileScreen(
 
                     if (userReviews.isEmpty() && !isLoading) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Ainda não escreveste avaliações.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.profile_no_reviews), color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     } else {
                         LazyVerticalGrid(
@@ -520,7 +504,7 @@ private fun ProfileScreen(
                         }
                     } else if (photos.isEmpty()) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Sem fotos na galeria.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.profile_no_photos), color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     } else {
                         LazyVerticalGrid(
@@ -566,10 +550,45 @@ private fun ProfileScreen(
                         onClick = { fullScreenUri = null },
                         modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)
                     ) {
-                        Icon(Icons.Filled.Close, null, tint = Color.White)
+                        Icon(Icons.Filled.Close, stringResource(R.string.cd_close), tint = Color.White)
                     }
                 }
             }
+        }
+    }
+}
+
+// Tappable shortcut row: coloured icon, label and a chevron.
+@Composable
+private fun ProfileLinkRow(
+    icon: ImageVector,
+    iconTint: Color,
+    label: String,
+    onClick: () -> Unit,
+    showDivider: Boolean = true
+) {
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(22.dp))
+            Spacer(Modifier.width(14.dp))
+            Text(label, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        if (showDivider) {
+            HorizontalDivider(
+                modifier = Modifier.padding(start = 52.dp),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
         }
     }
 }
@@ -580,7 +599,7 @@ private fun AvatarEditButton(onClick: () -> Unit, modifier: Modifier = Modifier)
         Box(modifier = Modifier.clickable(onClick = onClick), contentAlignment = Alignment.Center) {
             Surface(modifier = Modifier.size(28.dp), shape = CircleShape, color = MaterialTheme.colorScheme.primary) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Filled.Edit, null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Filled.Edit, stringResource(R.string.cd_edit_avatar), tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(16.dp))
                 }
             }
         }
