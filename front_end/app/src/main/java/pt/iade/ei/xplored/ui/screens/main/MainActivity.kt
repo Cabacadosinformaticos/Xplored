@@ -10,6 +10,7 @@ import android.location.Geocoder
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -58,6 +59,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -504,6 +508,23 @@ fun MainView() {
                     .addOnSuccessListener { location -> location?.let { onLocationFix(it) } }
             } catch (e: SecurityException) { e.printStackTrace() }
         }
+    }
+
+    // Keep the position current while the map is open, so distances and the
+    // "Estive aqui" check use where the user is now, not the first fix.
+    DisposableEffect(hasLocationPermission) {
+        val callback = object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+                result.lastLocation?.let { onLocationFix(it) }
+            }
+        }
+        if (hasLocationPermission) {
+            try {
+                val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000).build()
+                fusedLocationClient.requestLocationUpdates(request, callback, Looper.getMainLooper())
+            } catch (e: SecurityException) { e.printStackTrace() }
+        }
+        onDispose { fusedLocationClient.removeLocationUpdates(callback) }
     }
 
     // No permission or no fix within a few seconds: keep the default centre.
