@@ -378,44 +378,44 @@ INSERT INTO reviews (id, rating, title, comment, user_id, place_id) VALUES
 -- As fotos EVIDENCE usam o mesmo formato dos uploads reais: /uploads/<uuid>.<ext>
 INSERT INTO photos (id, url, place_id, user_id, review_id, kind, status, created_at) VALUES
 -- Fotos existentes
-(1, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Jardim_na_Avenida_de_Moscavide%2C_em_Moscavide_07.jpg/960px-Jardim_na_Avenida_de_Moscavide%2C_em_Moscavide_07.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 1, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 100 DAY),
-(2, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Igreja_de_Santo_Ant%C3%B3nio_de_Moscavide.jpg/960px-Igreja_de_Santo_Ant%C3%B3nio_de_Moscavide.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 2, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 100 DAY),
-(3, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Bife_a_cavalo.jpg/960px-Bife_a_cavalo.jpg', 3, 1, 2, 'GALLERY', 'APPROVED', NOW() - INTERVAL 95 DAY);
+(1, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Jardim_na_Avenida_de_Moscavide%2C_em_Moscavide_07.jpg/960px-Jardim_na_Avenida_de_Moscavide%2C_em_Moscavide_07.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 1, 1, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 100 DAY),
+(2, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Igreja_de_Santo_Ant%C3%B3nio_de_Moscavide.jpg/960px-Igreja_de_Santo_Ant%C3%B3nio_de_Moscavide.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 2, 1, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 100 DAY),
+(3, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Bife_a_cavalo.jpg/960px-Bife_a_cavalo.jpg', 3, 1, 2, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 95 DAY);
 
 -- Restauração: mesmo padrão de URL já usado na foto de comida existente.
 INSERT INTO photos (id, url, place_id, user_id, review_id, kind, status, created_at) VALUES
-(11, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Bacalhau_a_Bras.jpg/960px-Bacalhau_a_Bras.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 15, 3, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 30 DAY),
-(12, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/2018-02-03_Chicken_Piri-Piri%2C_Albufeira_%281%29.JPG/960px-2018-02-03_Chicken_Piri-Piri%2C_Albufeira_%281%29.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 16, 6, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 28 DAY),
-(13, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/Pastel_de_nata_septembre_2015.jpg/960px-Pastel_de_nata_septembre_2015.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 17, 5, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 26 DAY);
+(11, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Bacalhau_a_Bras.jpg/960px-Bacalhau_a_Bras.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 15, 3, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 30 DAY),
+(12, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/2018-02-03_Chicken_Piri-Piri%2C_Albufeira_%281%29.JPG/960px-2018-02-03_Chicken_Piri-Piri%2C_Albufeira_%281%29.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 16, 6, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 28 DAY),
+(13, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/Pastel_de_nata_septembre_2015.jpg/960px-Pastel_de_nata_septembre_2015.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 17, 5, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 26 DAY);
 
 -- Fotos de galeria dos monumentos e espaços públicos (Wikimedia Commons, miniaturas de 800 px)
 INSERT INTO photos (id, url, place_id, user_id, review_id, kind, status, created_at) VALUES
-(20, 'https://upload.wikimedia.org/wikipedia/commons/e/ef/Centro_Comercial_da_Portela.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled', 4, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 60 DAY),
-(21, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/42/Lisbon_Oceanarium_%E2%80%A2_Ocean%C3%A1rio_de_Lisboa.jpg/960px-Lisbon_Oceanarium_%E2%80%A2_Ocean%C3%A1rio_de_Lisboa.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 5, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 59 DAY),
-(22, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Pavilh%C3%A3o_do_Conhecimento_01.jpg/960px-Pavilh%C3%A3o_do_Conhecimento_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 6, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 58 DAY),
-(23, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Telecabine_Lisboa%2C_Parque_das_Na%C3%A7%C3%B5es_%E2%80%A2_Park_of_Nations_%2849652019058%29.jpg/960px-Telecabine_Lisboa%2C_Parque_das_Na%C3%A7%C3%B5es_%E2%80%A2_Park_of_Nations_%2849652019058%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 7, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 57 DAY),
-(24, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4c/Jardins_de_%C3%81gua%2C_Parque_das_Na%C3%A7%C3%B5es%2C_Lisbon%2C_Portugal_julesvernex2.jpg/960px-Jardins_de_%C3%81gua%2C_Parque_das_Na%C3%A7%C3%B5es%2C_Lisbon%2C_Portugal_julesvernex2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 8, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 56 DAY),
-(25, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Lisbon_-_Vasco_da_Gama_tower.jpg/960px-Lisbon_-_Vasco_da_Gama_tower.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 9, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 55 DAY),
-(26, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Lisbon_Gare_do_Oriente.jpg/960px-Lisbon_Gare_do_Oriente.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 10, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 54 DAY),
-(27, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Ponte_Vasco_da_Gama_from_Parque_Tejo.jpg/960px-Ponte_Vasco_da_Gama_from_Parque_Tejo.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 11, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 53 DAY),
-(28, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/70/Passeio_das_T%C3%A1gides_with_Torre_Vasco_da_Gama_in_background.JPG/960px-Passeio_das_T%C3%A1gides_with_Torre_Vasco_da_Gama_in_background.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 12, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 52 DAY),
-(29, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/Centro_Vasco_de_Gama_%2819423028680%29.jpg/960px-Centro_Vasco_de_Gama_%2819423028680%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 13, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 51 DAY),
-(30, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Ponte_Vasco_da_Gama_at_Sunrise.jpg/960px-Ponte_Vasco_da_Gama_at_Sunrise.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 19, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 50 DAY),
-(31, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8b/Mata_do_Vale_do_Sil%C3%AAncio.jpg/960px-Mata_do_Vale_do_Sil%C3%AAncio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 20, 1, NULL, 'GALLERY', 'APPROVED', NOW() - INTERVAL 49 DAY);
+(20, 'https://upload.wikimedia.org/wikipedia/commons/e/ef/Centro_Comercial_da_Portela.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled', 4, 1, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 60 DAY),
+(21, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/42/Lisbon_Oceanarium_%E2%80%A2_Ocean%C3%A1rio_de_Lisboa.jpg/960px-Lisbon_Oceanarium_%E2%80%A2_Ocean%C3%A1rio_de_Lisboa.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 5, 1, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 59 DAY),
+(22, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Pavilh%C3%A3o_do_Conhecimento_01.jpg/960px-Pavilh%C3%A3o_do_Conhecimento_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 6, 1, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 58 DAY),
+(23, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Telecabine_Lisboa%2C_Parque_das_Na%C3%A7%C3%B5es_%E2%80%A2_Park_of_Nations_%2849652019058%29.jpg/960px-Telecabine_Lisboa%2C_Parque_das_Na%C3%A7%C3%B5es_%E2%80%A2_Park_of_Nations_%2849652019058%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 7, 1, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 57 DAY),
+(24, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4c/Jardins_de_%C3%81gua%2C_Parque_das_Na%C3%A7%C3%B5es%2C_Lisbon%2C_Portugal_julesvernex2.jpg/960px-Jardins_de_%C3%81gua%2C_Parque_das_Na%C3%A7%C3%B5es%2C_Lisbon%2C_Portugal_julesvernex2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 8, 1, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 56 DAY),
+(25, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Lisbon_-_Vasco_da_Gama_tower.jpg/960px-Lisbon_-_Vasco_da_Gama_tower.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 9, 1, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 55 DAY),
+(26, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Lisbon_Gare_do_Oriente.jpg/960px-Lisbon_Gare_do_Oriente.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 10, 1, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 54 DAY),
+(27, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Ponte_Vasco_da_Gama_from_Parque_Tejo.jpg/960px-Ponte_Vasco_da_Gama_from_Parque_Tejo.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 11, 1, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 53 DAY),
+(28, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/70/Passeio_das_T%C3%A1gides_with_Torre_Vasco_da_Gama_in_background.JPG/960px-Passeio_das_T%C3%A1gides_with_Torre_Vasco_da_Gama_in_background.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 12, 1, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 52 DAY),
+(29, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/Centro_Vasco_de_Gama_%2819423028680%29.jpg/960px-Centro_Vasco_de_Gama_%2819423028680%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 13, 1, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 51 DAY),
+(30, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Ponte_Vasco_da_Gama_at_Sunrise.jpg/960px-Ponte_Vasco_da_Gama_at_Sunrise.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 19, 1, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 50 DAY),
+(31, 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8b/Mata_do_Vale_do_Sil%C3%AAncio.jpg/960px-Mata_do_Vale_do_Sil%C3%AAncio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail', 20, 1, NULL, 'GALLERY', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 49 DAY);
 
 -- Fotos de evidência (check-ins de pedipaper)
 INSERT INTO photos (id, url, place_id, user_id, review_id, kind, status, created_at) VALUES
-(101, '/uploads/2a41c0d9-1b3e-4a52-9c77-1e0d6b4f7a01.jpg', 1, 2, NULL, 'EVIDENCE', 'APPROVED', NOW() - INTERVAL 40 DAY),
-(102, '/uploads/5f8b7c12-9d2a-4be1-8f30-6a1c9d2e7b02.jpg', 5, 2, NULL, 'EVIDENCE', 'APPROVED', NOW() - INTERVAL 25 DAY),
-(103, '/uploads/9c3e5a77-4f18-4d92-b6a1-3e8f0c5d9b03.jpg', 7, 2, NULL, 'EVIDENCE', 'APPROVED', NOW() - INTERVAL 25 DAY),
-(104, '/uploads/1d7f2b84-6a5c-4e37-9b02-8c4e1a7f3d04.jpg', 19, 4, NULL, 'EVIDENCE', 'APPROVED', NOW() - INTERVAL 18 DAY),
-(105, '/uploads/6b9a4e21-3c7d-4f85-a1e9-2d7c0b6e8f05.jpg', 5, 6, NULL, 'EVIDENCE', 'APPROVED', NOW() - INTERVAL 12 DAY),
-(106, '/uploads/8e2c7d95-1f4b-4a63-8d27-5b9e3f1a0c06.jpg', 7, 6, NULL, 'EVIDENCE', 'APPROVED', NOW() - INTERVAL 12 DAY),
-(107, '/uploads/3a5d9c48-7b2e-4c19-9f64-1e8b6d2a4f07.jpg', 1, 8, NULL, 'EVIDENCE', 'APPROVED', NOW() - INTERVAL 9 DAY),
-(108, '/uploads/4c8e1f63-2a9d-4b75-8e13-7f0a5c9b2d08.jpg', 1, 11, NULL, 'EVIDENCE', 'APPROVED', NOW() - INTERVAL 7 DAY),
-(109, '/uploads/7f1b6a39-5d8c-4e20-a47b-9c3d1e8f5a09.jpg', 5, 13, NULL, 'EVIDENCE', 'APPROVED', NOW() - INTERVAL 5 DAY),
-(110, '/uploads/2e9d4b71-8c3f-4a56-b9d8-4a1f7c0e6b10.jpg', 7, 13, NULL, 'EVIDENCE', 'APPROVED', NOW() - INTERVAL 5 DAY),
-(111, '/uploads/5a3c8e27-9f1b-4d64-8a02-6e4b9d1f7c11.jpg', 5, 10, NULL, 'EVIDENCE', 'APPROVED', NOW() - INTERVAL 3 DAY);
+(101, '/uploads/2a41c0d9-1b3e-4a52-9c77-1e0d6b4f7a01.jpg', 1, 2, NULL, 'EVIDENCE', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 40 DAY),
+(102, '/uploads/5f8b7c12-9d2a-4be1-8f30-6a1c9d2e7b02.jpg', 5, 2, NULL, 'EVIDENCE', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 25 DAY),
+(103, '/uploads/9c3e5a77-4f18-4d92-b6a1-3e8f0c5d9b03.jpg', 7, 2, NULL, 'EVIDENCE', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 25 DAY),
+(104, '/uploads/1d7f2b84-6a5c-4e37-9b02-8c4e1a7f3d04.jpg', 19, 4, NULL, 'EVIDENCE', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 18 DAY),
+(105, '/uploads/6b9a4e21-3c7d-4f85-a1e9-2d7c0b6e8f05.jpg', 5, 6, NULL, 'EVIDENCE', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 12 DAY),
+(106, '/uploads/8e2c7d95-1f4b-4a63-8d27-5b9e3f1a0c06.jpg', 7, 6, NULL, 'EVIDENCE', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 12 DAY),
+(107, '/uploads/3a5d9c48-7b2e-4c19-9f64-1e8b6d2a4f07.jpg', 1, 8, NULL, 'EVIDENCE', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 9 DAY),
+(108, '/uploads/4c8e1f63-2a9d-4b75-8e13-7f0a5c9b2d08.jpg', 1, 11, NULL, 'EVIDENCE', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 7 DAY),
+(109, '/uploads/7f1b6a39-5d8c-4e20-a47b-9c3d1e8f5a09.jpg', 5, 13, NULL, 'EVIDENCE', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY),
+(110, '/uploads/2e9d4b71-8c3f-4a56-b9d8-4a1f7c0e6b10.jpg', 7, 13, NULL, 'EVIDENCE', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY),
+(111, '/uploads/5a3c8e27-9f1b-4d64-8a02-6e4b9d1f7c11.jpg', 5, 10, NULL, 'EVIDENCE', 'APPROVED', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 3 DAY);
 
 -- =====================================================
 -- 6. REAÇÕES (REACTIONS)
@@ -473,61 +473,61 @@ INSERT INTO route_stops (id, pedipaper_id, place_id, stop_order, task_descriptio
 -- 9. PARTICIPAÇÕES (ROUTE PARTICIPATIONS)
 -- =====================================================
 INSERT INTO route_participations (id, user_id, pedipaper_id, completed, points_awarded, started_at, completed_at) VALUES
-(1, 2, 1, FALSE, 0, NOW() - INTERVAL 40 DAY, NULL),          -- Ana começou "Descobrir Moscavide"
-(2, 2, 2, TRUE, 400, NOW() - INTERVAL 27 DAY, NOW() - INTERVAL 25 DAY),  -- Ana concluiu
-(3, 4, 4, TRUE, 500, NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 18 DAY),  -- Rita concluiu
-(4, 6, 2, TRUE, 400, NOW() - INTERVAL 14 DAY, NOW() - INTERVAL 12 DAY),  -- Beatriz concluiu
-(5, 8, 3, TRUE, 350, NOW() - INTERVAL 11 DAY, NOW() - INTERVAL 9 DAY),   -- Inês concluiu
-(6, 11, 3, TRUE, 350, NOW() - INTERVAL 9 DAY, NOW() - INTERVAL 7 DAY),   -- André concluiu
-(7, 13, 2, TRUE, 400, NOW() - INTERVAL 7 DAY, NOW() - INTERVAL 5 DAY),   -- Bruno concluiu
-(8, 5, 3, FALSE, 0, NOW() - INTERVAL 3 DAY, NULL),           -- Miguel a meio
-(9, 7, 4, FALSE, 0, NOW() - INTERVAL 2 DAY, NULL),           -- Diogo a meio
-(10, 10, 2, FALSE, 0, NOW() - INTERVAL 3 DAY, NULL),         -- Carolina a meio
-(11, 12, 3, FALSE, 0, NOW() - INTERVAL 1 DAY, NULL);         -- Sofia começou agora
+(1, 2, 1, FALSE, 0, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 40 DAY, NULL),          -- Ana começou "Descobrir Moscavide"
+(2, 2, 2, TRUE, 400, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 27 DAY, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 25 DAY),  -- Ana concluiu
+(3, 4, 4, TRUE, 500, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 20 DAY, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 18 DAY),  -- Rita concluiu
+(4, 6, 2, TRUE, 400, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 14 DAY, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 12 DAY),  -- Beatriz concluiu
+(5, 8, 3, TRUE, 350, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 11 DAY, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 9 DAY),   -- Inês concluiu
+(6, 11, 3, TRUE, 350, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 9 DAY, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 7 DAY),   -- André concluiu
+(7, 13, 2, TRUE, 400, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 7 DAY, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY),   -- Bruno concluiu
+(8, 5, 3, FALSE, 0, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 3 DAY, NULL),           -- Miguel a meio
+(9, 7, 4, FALSE, 0, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 2 DAY, NULL),           -- Diogo a meio
+(10, 10, 2, FALSE, 0, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 3 DAY, NULL),         -- Carolina a meio
+(11, 12, 3, FALSE, 0, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 1 DAY, NULL);         -- Sofia começou agora
 
 -- =====================================================
 -- 9b. CHECK-INS DAS PARAGENS (ROUTE STOP CHECKINS)
 -- =====================================================
 INSERT INTO route_stop_checkins (participation_id, route_stop_id, lat, lng, photo_id, created_at) VALUES
 -- Ana, rota 1 (parcial)
-(1, 1, 38.776900, -9.102300, 101, NOW() - INTERVAL 40 DAY),
+(1, 1, 38.776900, -9.102300, 101, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 40 DAY),
 -- Ana, rota 2 (concluída)
-(2, 4, 38.763517, -9.095928, 102, NOW() - INTERVAL 27 DAY),
-(2, 5, 38.762888, -9.095858, NULL, NOW() - INTERVAL 27 DAY),
-(2, 6, 38.771892, -9.092551, 103, NOW() - INTERVAL 25 DAY),
-(2, 7, 38.764812, -9.094468, NULL, NOW() - INTERVAL 25 DAY),
+(2, 4, 38.763517, -9.095928, 102, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 27 DAY),
+(2, 5, 38.762888, -9.095858, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 27 DAY),
+(2, 6, 38.771892, -9.092551, 103, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 25 DAY),
+(2, 7, 38.764812, -9.094468, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 25 DAY),
 -- Rita, rota 4 (concluída)
-(3, 12, 38.770209, -9.092078, NULL, NOW() - INTERVAL 20 DAY),
-(3, 13, 38.779745, -9.088712, NULL, NOW() - INTERVAL 20 DAY),
-(3, 14, 38.774836, -9.090461, 104, NOW() - INTERVAL 18 DAY),
-(3, 15, 38.774472, -9.092751, NULL, NOW() - INTERVAL 18 DAY),
+(3, 12, 38.770209, -9.092078, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 20 DAY),
+(3, 13, 38.779745, -9.088712, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 20 DAY),
+(3, 14, 38.774836, -9.090461, 104, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 18 DAY),
+(3, 15, 38.774472, -9.092751, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 18 DAY),
 -- Beatriz, rota 2 (concluída)
-(4, 4, 38.763517, -9.095928, 105, NOW() - INTERVAL 14 DAY),
-(4, 5, 38.762888, -9.095858, NULL, NOW() - INTERVAL 14 DAY),
-(4, 6, 38.771892, -9.092551, 106, NOW() - INTERVAL 12 DAY),
-(4, 7, 38.764812, -9.094468, NULL, NOW() - INTERVAL 12 DAY),
+(4, 4, 38.763517, -9.095928, 105, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 14 DAY),
+(4, 5, 38.762888, -9.095858, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 14 DAY),
+(4, 6, 38.771892, -9.092551, 106, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 12 DAY),
+(4, 7, 38.764812, -9.094468, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 12 DAY),
 -- Inês, rota 3 (concluída)
-(5, 8, 38.777252, -9.101867, NULL, NOW() - INTERVAL 11 DAY),
-(5, 9, 38.775800, -9.103100, NULL, NOW() - INTERVAL 11 DAY),
-(5, 10, 38.776900, -9.102300, 107, NOW() - INTERVAL 9 DAY),
-(5, 11, 38.776748, -9.100921, NULL, NOW() - INTERVAL 9 DAY),
+(5, 8, 38.777252, -9.101867, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 11 DAY),
+(5, 9, 38.775800, -9.103100, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 11 DAY),
+(5, 10, 38.776900, -9.102300, 107, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 9 DAY),
+(5, 11, 38.776748, -9.100921, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 9 DAY),
 -- André, rota 3 (concluída)
-(6, 8, 38.777252, -9.101867, NULL, NOW() - INTERVAL 9 DAY),
-(6, 9, 38.775800, -9.103100, NULL, NOW() - INTERVAL 9 DAY),
-(6, 10, 38.776900, -9.102300, 108, NOW() - INTERVAL 7 DAY),
-(6, 11, 38.776748, -9.100921, NULL, NOW() - INTERVAL 7 DAY),
+(6, 8, 38.777252, -9.101867, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 9 DAY),
+(6, 9, 38.775800, -9.103100, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 9 DAY),
+(6, 10, 38.776900, -9.102300, 108, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 7 DAY),
+(6, 11, 38.776748, -9.100921, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 7 DAY),
 -- Bruno, rota 2 (concluída)
-(7, 4, 38.763517, -9.095928, 109, NOW() - INTERVAL 7 DAY),
-(7, 5, 38.762888, -9.095858, NULL, NOW() - INTERVAL 7 DAY),
-(7, 6, 38.771892, -9.092551, 110, NOW() - INTERVAL 5 DAY),
-(7, 7, 38.764812, -9.094468, NULL, NOW() - INTERVAL 5 DAY),
+(7, 4, 38.763517, -9.095928, 109, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 7 DAY),
+(7, 5, 38.762888, -9.095858, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 7 DAY),
+(7, 6, 38.771892, -9.092551, 110, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY),
+(7, 7, 38.764812, -9.094468, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY),
 -- Miguel, rota 3 (a meio)
-(8, 8, 38.777252, -9.101867, NULL, NOW() - INTERVAL 3 DAY),
-(8, 9, 38.775800, -9.103100, NULL, NOW() - INTERVAL 3 DAY),
+(8, 8, 38.777252, -9.101867, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 3 DAY),
+(8, 9, 38.775800, -9.103100, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 3 DAY),
 -- Diogo, rota 4 (a meio)
-(9, 12, 38.770209, -9.092078, NULL, NOW() - INTERVAL 2 DAY),
+(9, 12, 38.770209, -9.092078, NULL, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 2 DAY),
 -- Carolina, rota 2 (a meio)
-(10, 4, 38.763517, -9.095928, 111, NOW() - INTERVAL 3 DAY);
+(10, 4, 38.763517, -9.095928, 111, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 3 DAY);
 
 -- =====================================================
 -- 10. CONTAS DE NEGÓCIO & CUPÕES
@@ -549,62 +549,62 @@ INSERT INTO coupons (id, title, description, cost_points, business_account_id, c
 -- 11. REDEMPTIONS (Cupões resgatados)
 -- =====================================================
 INSERT INTO redemptions (user_id, coupon_id, redeemed_at) VALUES
-(1, 2, NOW() - INTERVAL 30 DAY),   -- Tiago -> 10% Desconto Almoço
-(2, 1, NOW() - INTERVAL 24 DAY),   -- Ana -> Café Grátis
-(6, 6, NOW() - INTERVAL 11 DAY),   -- Beatriz -> Teleférico ida e volta
-(11, 3, NOW() - INTERVAL 6 DAY);   -- André -> 10% Desconto no Oceanário
+(1, 2, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 30 DAY),   -- Tiago -> 10% Desconto Almoço
+(2, 1, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 24 DAY),   -- Ana -> Café Grátis
+(6, 6, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 11 DAY),   -- Beatriz -> Teleférico ida e volta
+(11, 3, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 6 DAY);   -- André -> 10% Desconto no Oceanário
 
 -- =====================================================
 -- 12. FAVORITOS (FAVORITES)
 -- =====================================================
 INSERT INTO favorites (user_id, place_id, created_at) VALUES
-(1, 5, NOW() - INTERVAL 50 DAY),
-(2, 5, NOW() - INTERVAL 45 DAY),
-(2, 6, NOW() - INTERVAL 44 DAY),
-(4, 19, NOW() - INTERVAL 20 DAY),
-(4, 10, NOW() - INTERVAL 19 DAY),
-(5, 14, NOW() - INTERVAL 15 DAY),
-(6, 7, NOW() - INTERVAL 13 DAY),
-(7, 11, NOW() - INTERVAL 12 DAY),
-(8, 5, NOW() - INTERVAL 10 DAY),
-(8, 15, NOW() - INTERVAL 10 DAY),
-(9, 1, NOW() - INTERVAL 8 DAY),
-(10, 16, NOW() - INTERVAL 6 DAY),
-(11, 19, NOW() - INTERVAL 6 DAY),
-(12, 9, NOW() - INTERVAL 4 DAY),
-(13, 6, NOW() - INTERVAL 3 DAY);
+(1, 5, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 50 DAY),
+(2, 5, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 45 DAY),
+(2, 6, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 44 DAY),
+(4, 19, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 20 DAY),
+(4, 10, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 19 DAY),
+(5, 14, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 15 DAY),
+(6, 7, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 13 DAY),
+(7, 11, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 12 DAY),
+(8, 5, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 10 DAY),
+(8, 15, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 10 DAY),
+(9, 1, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 8 DAY),
+(10, 16, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 6 DAY),
+(11, 19, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 6 DAY),
+(12, 9, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 4 DAY),
+(13, 6, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 3 DAY);
 
 -- =====================================================
 -- 13. VISITAS (VISITS) – check-in GPS no local, +10 pontos
 -- =====================================================
 INSERT INTO visits (user_id, place_id, lat, lng, created_at) VALUES
-(2, 1, 38.776900, -9.102300, NOW() - INTERVAL 40 DAY),
-(2, 6, 38.762888, -9.095858, NOW() - INTERVAL 27 DAY),
-(2, 5, 38.763517, -9.095928, NOW() - INTERVAL 25 DAY),
-(4, 5, 38.763517, -9.095928, NOW() - INTERVAL 21 DAY),
-(4, 10, 38.767943, -9.099732, NOW() - INTERVAL 19 DAY),
-(4, 13, 38.768084, -9.095257, NOW() - INTERVAL 18 DAY),
-(5, 14, 38.777252, -9.101867, NOW() - INTERVAL 15 DAY),
-(5, 2, 38.775800, -9.103100, NOW() - INTERVAL 15 DAY),
-(6, 6, 38.762888, -9.095858, NOW() - INTERVAL 14 DAY),
-(6, 7, 38.771892, -9.092551, NOW() - INTERVAL 12 DAY),
-(7, 12, 38.770209, -9.092078, NOW() - INTERVAL 10 DAY),
-(7, 11, 38.779745, -9.088712, NOW() - INTERVAL 9 DAY),
-(7, 19, 38.774836, -9.090461, NOW() - INTERVAL 9 DAY),
-(8, 13, 38.768084, -9.095257, NOW() - INTERVAL 8 DAY),
-(8, 5, 38.763517, -9.095928, NOW() - INTERVAL 7 DAY),
-(8, 15, 38.769412, -9.096337, NOW() - INTERVAL 7 DAY),
-(9, 1, 38.776900, -9.102300, NOW() - INTERVAL 6 DAY),
-(10, 10, 38.767943, -9.099732, NOW() - INTERVAL 5 DAY),
-(10, 14, 38.777252, -9.101867, NOW() - INTERVAL 5 DAY),
-(10, 16, 38.776748, -9.100921, NOW() - INTERVAL 4 DAY),
-(10, 18, 38.773118, -9.113216, NOW() - INTERVAL 4 DAY),
-(12, 9, 38.774472, -9.092751, NOW() - INTERVAL 3 DAY),
-(12, 20, 38.772688, -9.109529, NOW() - INTERVAL 2 DAY),
-(13, 5, 38.763517, -9.095928, NOW() - INTERVAL 5 DAY),
-(13, 6, 38.762888, -9.095858, NOW() - INTERVAL 5 DAY),
-(13, 7, 38.771892, -9.092551, NOW() - INTERVAL 5 DAY),
-(13, 12, 38.770209, -9.092078, NOW() - INTERVAL 4 DAY);
+(2, 1, 38.776900, -9.102300, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 40 DAY),
+(2, 6, 38.762888, -9.095858, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 27 DAY),
+(2, 5, 38.763517, -9.095928, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 25 DAY),
+(4, 5, 38.763517, -9.095928, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 21 DAY),
+(4, 10, 38.767943, -9.099732, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 19 DAY),
+(4, 13, 38.768084, -9.095257, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 18 DAY),
+(5, 14, 38.777252, -9.101867, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 15 DAY),
+(5, 2, 38.775800, -9.103100, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 15 DAY),
+(6, 6, 38.762888, -9.095858, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 14 DAY),
+(6, 7, 38.771892, -9.092551, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 12 DAY),
+(7, 12, 38.770209, -9.092078, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 10 DAY),
+(7, 11, 38.779745, -9.088712, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 9 DAY),
+(7, 19, 38.774836, -9.090461, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 9 DAY),
+(8, 13, 38.768084, -9.095257, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 8 DAY),
+(8, 5, 38.763517, -9.095928, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 7 DAY),
+(8, 15, 38.769412, -9.096337, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 7 DAY),
+(9, 1, 38.776900, -9.102300, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 6 DAY),
+(10, 10, 38.767943, -9.099732, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY),
+(10, 14, 38.777252, -9.101867, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY),
+(10, 16, 38.776748, -9.100921, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 4 DAY),
+(10, 18, 38.773118, -9.113216, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 4 DAY),
+(12, 9, 38.774472, -9.092751, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 3 DAY),
+(12, 20, 38.772688, -9.109529, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 2 DAY),
+(13, 5, 38.763517, -9.095928, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY),
+(13, 6, 38.762888, -9.095858, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY),
+(13, 7, 38.771892, -9.092551, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY),
+(13, 12, 38.770209, -9.092078, TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 4 DAY);
 
 -- =====================================================
 -- 14. LEDGER DE PONTOS (Histórico)
@@ -614,63 +614,63 @@ INSERT INTO visits (user_id, place_id, lat, lng, created_at) VALUES
 --           "Cupão resgatado: <título>" e um bónus de registo/boas-vindas.
 INSERT INTO points_ledger (user_id, amount, reason, created_at) VALUES
 -- Tiago (250)
-(1, 500, 'Bónus de Registo Inicial', NOW() - INTERVAL 120 DAY),
-(1, -250, 'Cupão resgatado: 10% Desconto Almoço', NOW() - INTERVAL 30 DAY),
+(1, 500, 'Bónus de Registo Inicial', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 120 DAY),
+(1, -250, 'Cupão resgatado: 10% Desconto Almoço', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 30 DAY),
 -- Ana (480)
-(2, 150, 'Bónus de boas-vindas', NOW() - INTERVAL 90 DAY),
-(2, 10, 'Visita: Jardim de Moscavide', NOW() - INTERVAL 40 DAY),
-(2, 10, 'Visita: Pavilhão do Conhecimento', NOW() - INTERVAL 27 DAY),
-(2, 10, 'Visita: Oceanário de Lisboa', NOW() - INTERVAL 25 DAY),
-(2, 400, 'Pedipaper concluído: Parque das Nações em família', NOW() - INTERVAL 25 DAY),
-(2, -100, 'Cupão resgatado: Café Grátis', NOW() - INTERVAL 24 DAY),
+(2, 150, 'Bónus de boas-vindas', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 90 DAY),
+(2, 10, 'Visita: Jardim de Moscavide', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 40 DAY),
+(2, 10, 'Visita: Pavilhão do Conhecimento', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 27 DAY),
+(2, 10, 'Visita: Oceanário de Lisboa', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 25 DAY),
+(2, 400, 'Pedipaper concluído: Parque das Nações em família', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 25 DAY),
+(2, -100, 'Cupão resgatado: Café Grátis', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 24 DAY),
 -- Rita (630)
-(4, 100, 'Bónus de Registo Inicial', NOW() - INTERVAL 60 DAY),
-(4, 10, 'Visita: Centro Vasco da Gama', NOW() - INTERVAL 21 DAY),
-(4, 10, 'Visita: Oceanário de Lisboa', NOW() - INTERVAL 21 DAY),
-(4, 10, 'Visita: Gare do Oriente', NOW() - INTERVAL 19 DAY),
-(4, 500, 'Pedipaper concluído: À beira Tejo', NOW() - INTERVAL 18 DAY),
+(4, 100, 'Bónus de Registo Inicial', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 60 DAY),
+(4, 10, 'Visita: Centro Vasco da Gama', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 21 DAY),
+(4, 10, 'Visita: Oceanário de Lisboa', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 21 DAY),
+(4, 10, 'Visita: Gare do Oriente', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 19 DAY),
+(4, 500, 'Pedipaper concluído: À beira Tejo', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 18 DAY),
 -- Miguel (120)
-(5, 100, 'Bónus de Registo Inicial', NOW() - INTERVAL 50 DAY),
-(5, 10, 'Visita: Mercado de Moscavide', NOW() - INTERVAL 15 DAY),
-(5, 10, 'Visita: Igreja de Santo António', NOW() - INTERVAL 15 DAY),
+(5, 100, 'Bónus de Registo Inicial', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 50 DAY),
+(5, 10, 'Visita: Mercado de Moscavide', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 15 DAY),
+(5, 10, 'Visita: Igreja de Santo António', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 15 DAY),
 -- Beatriz (320)
-(6, 100, 'Bónus de Registo Inicial', NOW() - INTERVAL 45 DAY),
-(6, 10, 'Visita: Pavilhão do Conhecimento', NOW() - INTERVAL 14 DAY),
-(6, 10, 'Visita: Teleférico do Parque das Nações', NOW() - INTERVAL 12 DAY),
-(6, 400, 'Pedipaper concluído: Parque das Nações em família', NOW() - INTERVAL 12 DAY),
-(6, -200, 'Cupão resgatado: Teleférico ida e volta', NOW() - INTERVAL 11 DAY),
+(6, 100, 'Bónus de Registo Inicial', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 45 DAY),
+(6, 10, 'Visita: Pavilhão do Conhecimento', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 14 DAY),
+(6, 10, 'Visita: Teleférico do Parque das Nações', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 12 DAY),
+(6, 400, 'Pedipaper concluído: Parque das Nações em família', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 12 DAY),
+(6, -200, 'Cupão resgatado: Teleférico ida e volta', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 11 DAY),
 -- Diogo (130)
-(7, 100, 'Bónus de Registo Inicial', NOW() - INTERVAL 40 DAY),
-(7, 10, 'Visita: Passeio das Tágides', NOW() - INTERVAL 10 DAY),
-(7, 10, 'Visita: Parque Tejo', NOW() - INTERVAL 9 DAY),
-(7, 10, 'Visita: Ponte Vasco da Gama', NOW() - INTERVAL 9 DAY),
+(7, 100, 'Bónus de Registo Inicial', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 40 DAY),
+(7, 10, 'Visita: Passeio das Tágides', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 10 DAY),
+(7, 10, 'Visita: Parque Tejo', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 9 DAY),
+(7, 10, 'Visita: Ponte Vasco da Gama', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 9 DAY),
 -- Inês (480)
-(8, 100, 'Bónus de Registo Inicial', NOW() - INTERVAL 35 DAY),
-(8, 10, 'Visita: Centro Vasco da Gama', NOW() - INTERVAL 8 DAY),
-(8, 10, 'Visita: Oceanário de Lisboa', NOW() - INTERVAL 7 DAY),
-(8, 10, 'Visita: Restaurante Sabores do Oriente', NOW() - INTERVAL 7 DAY),
-(8, 350, 'Pedipaper concluído: Origens de Moscavide', NOW() - INTERVAL 9 DAY),
+(8, 100, 'Bónus de Registo Inicial', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 35 DAY),
+(8, 10, 'Visita: Centro Vasco da Gama', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 8 DAY),
+(8, 10, 'Visita: Oceanário de Lisboa', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 7 DAY),
+(8, 10, 'Visita: Restaurante Sabores do Oriente', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 7 DAY),
+(8, 350, 'Pedipaper concluído: Origens de Moscavide', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 9 DAY),
 -- Pedro (110)
-(9, 100, 'Bónus de Registo Inicial', NOW() - INTERVAL 30 DAY),
-(9, 10, 'Visita: Jardim de Moscavide', NOW() - INTERVAL 6 DAY),
+(9, 100, 'Bónus de Registo Inicial', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 30 DAY),
+(9, 10, 'Visita: Jardim de Moscavide', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 6 DAY),
 -- Carolina (140)
-(10, 100, 'Bónus de Registo Inicial', NOW() - INTERVAL 30 DAY),
-(10, 10, 'Visita: Gare do Oriente', NOW() - INTERVAL 5 DAY),
-(10, 10, 'Visita: Mercado de Moscavide', NOW() - INTERVAL 5 DAY),
-(10, 10, 'Visita: Churrasqueira do Bairro', NOW() - INTERVAL 4 DAY),
-(10, 10, 'Visita: Igreja de Nossa Senhora dos Olivais', NOW() - INTERVAL 4 DAY),
+(10, 100, 'Bónus de Registo Inicial', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 30 DAY),
+(10, 10, 'Visita: Gare do Oriente', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY),
+(10, 10, 'Visita: Mercado de Moscavide', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY),
+(10, 10, 'Visita: Churrasqueira do Bairro', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 4 DAY),
+(10, 10, 'Visita: Igreja de Nossa Senhora dos Olivais', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 4 DAY),
 -- André (150)
-(11, 100, 'Bónus de Registo Inicial', NOW() - INTERVAL 25 DAY),
-(11, 350, 'Pedipaper concluído: Origens de Moscavide', NOW() - INTERVAL 7 DAY),
-(11, -300, 'Cupão resgatado: 10% Desconto no Oceanário', NOW() - INTERVAL 6 DAY),
+(11, 100, 'Bónus de Registo Inicial', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 25 DAY),
+(11, 350, 'Pedipaper concluído: Origens de Moscavide', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 7 DAY),
+(11, -300, 'Cupão resgatado: 10% Desconto no Oceanário', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 6 DAY),
 -- Sofia (120)
-(12, 100, 'Bónus de Registo Inicial', NOW() - INTERVAL 20 DAY),
-(12, 10, 'Visita: Torre Vasco da Gama', NOW() - INTERVAL 3 DAY),
-(12, 10, 'Visita: Parque do Vale do Silêncio', NOW() - INTERVAL 2 DAY),
+(12, 100, 'Bónus de Registo Inicial', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 20 DAY),
+(12, 10, 'Visita: Torre Vasco da Gama', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 3 DAY),
+(12, 10, 'Visita: Parque do Vale do Silêncio', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 2 DAY),
 -- Bruno (540)
-(13, 100, 'Bónus de Registo Inicial', NOW() - INTERVAL 15 DAY),
-(13, 10, 'Visita: Oceanário de Lisboa', NOW() - INTERVAL 5 DAY),
-(13, 10, 'Visita: Pavilhão do Conhecimento', NOW() - INTERVAL 5 DAY),
-(13, 10, 'Visita: Teleférico do Parque das Nações', NOW() - INTERVAL 5 DAY),
-(13, 10, 'Visita: Passeio das Tágides', NOW() - INTERVAL 4 DAY),
-(13, 400, 'Pedipaper concluído: Parque das Nações em família', NOW() - INTERVAL 5 DAY);
+(13, 100, 'Bónus de Registo Inicial', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 15 DAY),
+(13, 10, 'Visita: Oceanário de Lisboa', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY),
+(13, 10, 'Visita: Pavilhão do Conhecimento', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY),
+(13, 10, 'Visita: Teleférico do Parque das Nações', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY),
+(13, 10, 'Visita: Passeio das Tágides', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 4 DAY),
+(13, 400, 'Pedipaper concluído: Parque das Nações em família', TIMESTAMP('2025-12-12 18:30:00') - INTERVAL 5 DAY);
