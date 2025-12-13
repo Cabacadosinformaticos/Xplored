@@ -786,17 +786,21 @@ fun MainView() {
                 }
                 if (isActionMenuExpanded) {
                     ExpandedActionButton(Icons.Default.Person, stringResource(R.string.fab_profile)) {
+                        isActionMenuExpanded = false
                         val next = if (SessionManager.isLoggedIn(context)) ProfileActivity::class.java else LoginWelcomeBackActivity::class.java
                         context.startActivity(Intent(context, next))
                     }
                     ExpandedActionButton(Icons.Default.Camera, stringResource(R.string.fab_add_place)) {
+                        isActionMenuExpanded = false
                         if (SessionManager.isLoggedIn(context)) newPlaceLauncher.launch(Intent(context, NewPlaceActivity::class.java))
                         else context.startActivity(Intent(context, LoginWelcomeBackActivity::class.java))
                     }
                     ExpandedActionButton(Icons.Default.LocalOffer, stringResource(R.string.fab_coupons)) {
+                        isActionMenuExpanded = false
                         context.startActivity(Intent(context, CouponActivity::class.java))
                     }
                     ExpandedActionButton(Icons.Default.Directions, stringResource(R.string.fab_pedipaper)) {
+                        isActionMenuExpanded = false
                         val next = if (SessionManager.isLoggedIn(context)) PedipaperActivity::class.java else LoginWelcomeBackActivity::class.java
                         context.startActivity(Intent(context, next))
                     }
