@@ -354,7 +354,7 @@ fun SettingsScreen() {
                 },
                 confirmButton = {
                     TextButton(onClick = { showThemeDialog = false }) {
-                        Text(stringResource(android.R.string.cancel))
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             )

@@ -81,7 +81,7 @@
     <string name="forgot_password_subtitle">Não te preocupes! Acontece. Por favor, introduz o endereço de email ligado à tua conta.</string>
     <string name="forgot_password_email_label">Insere a tua conta de email</string>
     <string name="forgot_password_send_button">Enviar código de recuperação</string>
-    <string name="forgot_password_remember">Já te lembras da passe?</string>
+    <string name="forgot_password_remember">Já te lembras da palavra-passe?</string>
     <string name="err_no_active_account">Erro: Nenhuma conta ativa encontrada.</string>
     <string name="err_account_not_found">Conta não encontrada.</string>
     <string name="password_reset_code_sent">Se a conta existir, o código foi gerado. Consulta o registo do servidor.</string>

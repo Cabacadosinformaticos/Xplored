@@ -9,6 +9,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -97,11 +98,16 @@ object ThemePreferences {
     private fun prefs(context: Context) =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
+    // Snapshot state, so every open screen recomposes when the mode changes,
+    // not only the Settings screen that gets recreated.
+    private val mode = mutableStateOf<String?>(null)
+
     fun getMode(context: Context): String =
-        prefs(context).getString(KEY_MODE, MODE_SYSTEM) ?: MODE_SYSTEM
+        mode.value ?: (prefs(context).getString(KEY_MODE, MODE_SYSTEM) ?: MODE_SYSTEM).also { mode.value = it }
 
     fun setMode(context: Context, mode: String) {
         prefs(context).edit().putString(KEY_MODE, mode).apply()
+        this.mode.value = mode
     }
 
     /** Resolves the stored mode against the system setting. */
