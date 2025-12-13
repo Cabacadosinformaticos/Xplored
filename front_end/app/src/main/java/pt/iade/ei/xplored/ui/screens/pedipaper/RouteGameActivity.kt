@@ -39,6 +39,7 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.gson.JsonParser
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.launch
+import pt.iade.ei.xplored.R
 import pt.iade.ei.xplored.SessionManager
 import pt.iade.ei.xplored.network.ApiClient
 import pt.iade.ei.xplored.network.CheckinRequest
@@ -285,7 +286,7 @@ fun RouteGameScreen(pediId: Long, pediName: String, totalPoints: Int, onBack: ()
                 // Without the evidence photo the stop cannot be checked in.
                 val photoId = uploaded?.photoId
                 if (photoId == null) {
-                    Toast.makeText(context, "Não foi possível enviar a foto. Tenta novamente.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(R.string.route_photo_upload_failed), Toast.LENGTH_LONG).show()
                     return@launch
                 }
 
