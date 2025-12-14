@@ -7,7 +7,6 @@ import java.util.List;
 
 @Repository
 public interface RouteParticipationRepository extends JpaRepository<RouteParticipation, Long> {
-    // Check if user has already started/completed a route
     Optional<RouteParticipation> findByUserIdAndPediId(Long userId, Long pediId);
 
     List<RouteParticipation> findByUserId(Long userId);

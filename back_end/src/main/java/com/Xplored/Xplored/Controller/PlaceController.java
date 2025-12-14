@@ -25,23 +25,28 @@ public class PlaceController {
     // --- 1. Get All Places ---
     @GetMapping("")
     public List<PlaceResponse> getAllPlaces() {
-        // Updated SQL to match Android expectations
+        // Updated SQL for new Schema:
+        // 1. Uses 'id' instead of 'place_id'
+        // 2. Uses 'author_id' instead of 'user_id'
+        // 3. Selects 'avg_rating' column instead of live calculation
+        // 4. Subquery for cover image (since cover_image_url column is gone)
         String sql = """
             SELECT 
-                p.place_id, 
+                p.id AS place_id, 
                 p.name, 
                 p.description, 
                 p.lat, 
                 p.lng, 
                 p.address_full, 
-                p.category_id, -- We need the ID, not the name, for Android logic
-                u.email as author_email,
-                -- Live calculation of rating
-                COALESCE((SELECT AVG(r.rating) FROM reviews r WHERE r.place_id = p.place_id), 0.0) as calculated_rating,
-                p.cover_image_url
+                p.category_id, 
+                p.avg_rating,
+                u.email AS author_email,
+                -- Get the first 'GALLERY' photo as cover
+                (SELECT ph.url FROM photos ph WHERE ph.place_id = p.id AND ph.kind = 'GALLERY' LIMIT 1) AS cover_image_url
             FROM places p
-            JOIN users u ON p.user_id = u.user_id
-            WHERE p.status = 'APPROVED'
+            LEFT JOIN users u ON p.author_id = u.id
+            -- Optional: Filter by verified if you strictly want approved places
+            -- WHERE p.is_verified = TRUE 
         """;
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> new PlaceResponse(
@@ -50,10 +55,10 @@ public class PlaceController {
                 rs.getString("description"),
                 rs.getDouble("lat"),
                 rs.getDouble("lng"),
-                rs.getString("address_full"),   // Maps to addressFull
-                rs.getLong("category_id"),      // Maps to categoryId
-                rs.getString("author_email"),   // Maps to authorId
-                rs.getDouble("calculated_rating"), // Maps to avgRating (Tricks app into showing live rating)
+                rs.getString("address_full"),
+                rs.getLong("category_id"),
+                rs.getString("author_email"), // Returns email as authorId for frontend logic
+                rs.getDouble("avg_rating"),
                 rs.getString("cover_image_url")
         ));
     }
@@ -62,14 +67,18 @@ public class PlaceController {
     @PostMapping("")
     public ResponseEntity<?> createPlace(@RequestBody PlaceRequest req) {
         try {
+            // 1. Resolve author email to Database ID
             Integer userId = jdbcTemplate.queryForObject(
-                    "SELECT user_id FROM users WHERE email = ?", Integer.class, req.authorId
+                    "SELECT id FROM users WHERE email = ?", Integer.class, req.authorId
             );
 
             if (userId == null) return ResponseEntity.badRequest().body("User not found");
+
+            // 2. Insert into new schema
+            // Note: We default avg_rating to 0.0 and is_verified to TRUE (or FALSE if you want moderation)
             String sql = """
-            INSERT INTO places (name, description, lat, lng, address_full, category_id, user_id, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'APPROVED')
+            INSERT INTO places (name, description, lat, lng, address_full, category_id, author_id, avg_rating, is_verified)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 0.0, TRUE)
            """;
 
             KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -87,7 +96,7 @@ public class PlaceController {
 
             long newId = keyHolder.getKey().longValue();
 
-            // Return response matching the new structure
+            // Return success response matching frontend model
             return ResponseEntity.ok(new PlaceResponse(
                     newId, req.name, req.description, req.lat, req.lng,
                     req.addressFull, req.categoryId, req.authorId, 0.0, null
@@ -102,7 +111,8 @@ public class PlaceController {
     // --- 3. Delete Place ---
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePlace(@PathVariable Long id) {
-        String sql = "DELETE FROM places WHERE place_id = ?";
+        // Updated WHERE clause to use 'id'
+        String sql = "DELETE FROM places WHERE id = ?";
         int rows = jdbcTemplate.update(sql, id);
         if (rows > 0) return ResponseEntity.ok("Deleted");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Place not found");

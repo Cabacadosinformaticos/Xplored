@@ -92,6 +92,7 @@ CREATE TABLE pedipapers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
 CREATE TABLE route_stops (
     id SERIAL PRIMARY KEY,
     pedipaper_id BIGINT UNSIGNED NOT NULL,
@@ -103,12 +104,13 @@ CREATE TABLE route_stops (
     CONSTRAINT fk_stops_place FOREIGN KEY (place_id) REFERENCES places(id) ON DELETE CASCADE
 );
 
+
 CREATE TABLE route_participations (
     id SERIAL PRIMARY KEY,
     user_id BIGINT UNSIGNED NOT NULL,
     pedipaper_id BIGINT UNSIGNED NOT NULL,
     completed BOOLEAN DEFAULT FALSE,
-    progress INT DEFAULT 0,
+    points_awarded INT DEFAULT 0,
     started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     completed_at TIMESTAMP NULL,
     CONSTRAINT fk_part_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -151,7 +153,6 @@ CREATE TABLE points_ledger (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_ledger_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-
 
 INSERT INTO categories (id, name, color_hex, icon_name) VALUES 
 (1, 'Atividades', '#4192FF', 'hiking'),

@@ -25,8 +25,13 @@ object SessionManager {
     private const val KEY_USER_POINTS = "userPoints"
     private const val KEY_USER_ABOUT = "userAbout"
 
+    // --- ADDED: Key for the Auth Token ---
+    private const val KEY_AUTH_TOKEN = "authToken"
+
     // Keys for stored user list
     private const val KEY_USERS_LIST = "usersList"
+
+    private const val KEY_USER_COUNTRY = "userCountry"
 
     // Helper accessors
     private fun sessionPrefs(context: Context): SharedPreferences =
@@ -36,6 +41,22 @@ object SessionManager {
         context.getSharedPreferences(PREF_USERS, Context.MODE_PRIVATE)
 
     // ---------- SESSION STATE ----------
+
+    /**
+     * Saves the Login Token (Required for AuthInterceptor)
+     */
+    fun saveAuthToken(context: Context, token: String) {
+        sessionPrefs(context).edit().putString(KEY_AUTH_TOKEN, token).apply()
+        Log.d("SessionDebug", "Token saved.")
+    }
+
+    /**
+     * Retrieves the Token (Required for AuthInterceptor)
+     */
+    fun getToken(context: Context): String? {
+        return sessionPrefs(context).getString(KEY_AUTH_TOKEN, null)
+    }
+
     fun setLoggedIn(context: Context, value: Boolean) {
         sessionPrefs(context).edit().putBoolean(KEY_IS_LOGGED_IN, value).apply()
         Log.d("SessionDebug", "setLoggedIn = $value")
@@ -65,8 +86,6 @@ object SessionManager {
 
     fun getUserPoints(context: Context): Int =
         sessionPrefs(context).getInt(KEY_USER_POINTS, 0)
-
-
 
     // Store "Sobre" (about) for the active session
     fun saveUserAbout(context: Context, about: String) {
@@ -201,6 +220,12 @@ object SessionManager {
         Log.d("SessionDebug", "Logout successful — user session cleared.")
     }
 
+    fun saveUserCountry(context: Context, country: String) {
+        sessionPrefs(context).edit().putString(KEY_USER_COUNTRY, country).apply()
+    }
+
+    fun getUserCountry(context: Context): String =
+        sessionPrefs(context).getString(KEY_USER_COUNTRY, "") ?: ""
 
     fun updateUserPoints(context: Context, email: String, newPoints: Int) {
         val users = getRegisteredUsersArray(context)

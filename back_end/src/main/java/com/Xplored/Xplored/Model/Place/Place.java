@@ -7,171 +7,88 @@ import java.time.LocalDateTime;
 @Table(name = "places")
 public class Place {
 
-    // matches column: place_id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "place_id")
+    @Column(name = "id") // Fixed: DB uses 'id'
     private Long placeId;
 
-    @Column(name = "name", nullable = false, length = 100)
+    @Column(name = "name", nullable = false, length = 120)
     private String name;
 
-    // matches column: description
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    // matches column: lat DECIMAL(9,6) NOT NULL
     @Column(name = "lat", nullable = false)
     private Double lat;
 
-    // matches column: lng DECIMAL(9,6) NOT NULL
     @Column(name = "lng", nullable = false)
     private Double lng;
 
-    // matches column: address_full
-    @Column(name = "address_full", length = 255)
+    @Column(name = "address_full")
     private String addressFull;
 
-    // matches column: postal_code
-    @Column(name = "postal_code", length = 15)
-    private String postalCode;
-
-    // avg_rating DECIMAL(2,1) NULL
-    @Column(name = "avg_rating")
-    private Double avgRating;
-
-    // FK to categories.category_id
     @Column(name = "category_id", nullable = false)
     private Long categoryId;
 
-    // ENUM('PENDING','APPROVED','REJECTED')
-    @Column(name = "status", nullable = false, length = 20)
-    private String status = "APPROVED";
+    @Column(name = "author_id")
+    private Long authorId;
 
-    @Column(name = "cover_image_url", length = 255)
-    private String coverImageUrl;
+    @Column(name = "avg_rating")
+    private Double avgRating = 0.0;
 
-    // created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-    // Let MySQL fill this automatically.
-    @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
+    @Column(name = "is_verified")
+    private Boolean isVerified = false;
+
+    @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // ----- Constructors -----
+    // --- LEGACY / TRANSIENT FIELDS ---
+    // These keep the code compiling but are not saved to DB
+    @Transient private String postalCode;
+    @Transient private String status = "APPROVED";
+    @Transient private String coverImageUrl;
 
     public Place() {}
 
-    public Place(String name,
-                 String description,
-                 double lat,
-                 double lng,
-                 String addressFull,
-                 String postalCode,
-                 Double avgRating,
-                 Long categoryId,
-                 String status) {
+    // Getters and Setters (Keep existing naming)
+    public Long getPlaceId() { return placeId; }
+    public void setPlaceId(Long placeId) { this.placeId = placeId; }
 
-        this.name = name;
-        this.description = description;
-        this.lat = lat;
-        this.lng = lng;
-        this.addressFull = addressFull;
-        this.postalCode = postalCode;
-        this.avgRating = avgRating;
-        this.categoryId = categoryId;
-        this.status = status;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    // ----- Getters / Setters -----
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public Long getPlaceId() {
-        return placeId;
-    }
+    public Double getLat() { return lat; }
+    public void setLat(Double lat) { this.lat = lat; }
 
-    public void setPlaceId(Long placeId) {
-        this.placeId = placeId;
-    }
+    public Double getLng() { return lng; }
+    public void setLng(Double lng) { this.lng = lng; }
 
-    public String getName() {
-        return name;
-    }
+    public String getAddressFull() { return addressFull; }
+    public void setAddressFull(String addressFull) { this.addressFull = addressFull; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public Long getCategoryId() { return categoryId; }
+    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
 
-    public String getDescription() {
-        return description;
-    }
+    public Long getAuthorId() { return authorId; }
+    public void setAuthorId(Long authorId) { this.authorId = authorId; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public Double getAvgRating() { return avgRating; }
+    public void setAvgRating(Double avgRating) { this.avgRating = avgRating; }
 
-    public Double getLat() {
-        return lat;
-    }
+    public Boolean getIsVerified() { return isVerified; }
+    public void setIsVerified(Boolean isVerified) { this.isVerified = isVerified; }
 
-    public void setLat(Double lat) {
-        this.lat = lat;
-    }
+    public String getPostalCode() { return postalCode; }
+    public void setPostalCode(String postalCode) { this.postalCode = postalCode; }
 
-    public Double getLng() {
-        return lng;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-    public void setLng(Double lng) {
-        this.lng = lng;
-    }
+    public String getCoverImageUrl() { return coverImageUrl; }
+    public void setCoverImageUrl(String coverImageUrl) { this.coverImageUrl = coverImageUrl; }
 
-    public String getAddressFull() {
-        return addressFull;
-    }
-
-    public void setAddressFull(String addressFull) {
-        this.addressFull = addressFull;
-    }
-
-    public String getPostalCode() {
-        return postalCode;
-    }
-
-    public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
-    }
-
-    public Double getAvgRating() {
-        return avgRating;
-    }
-
-    public void setAvgRating(Double avgRating) {
-        this.avgRating = avgRating;
-    }
-
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getCoverImageUrl() {
-        return coverImageUrl;
-    }
-
-    public void setCoverImageUrl(String coverImageUrl) {
-        this.coverImageUrl = coverImageUrl;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
 }

@@ -7,12 +7,14 @@ import java.time.LocalDateTime;
 @Table(name = "route_participations")
 public class RouteParticipation {
 
+    // FIX: Map Java 'participationId' to Database column 'id'
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "participation_id")
+    @Column(name = "id")
     private Long participationId;
 
-    @Column(name = "pedi_id", nullable = false)
+    // FIX: Map Java 'pediId' to Database column 'pedipaper_id'
+    @Column(name = "pedipaper_id", nullable = false)
     private Long pediId;
 
     @Column(name = "user_id", nullable = false)
@@ -25,11 +27,13 @@ public class RouteParticipation {
     private LocalDateTime completedAt;
 
     @Column(name = "points_awarded")
-    private Integer pointsAwarded;
+    private Integer pointsAwarded; // Make sure DB column is 'points_awarded' (check schema if it's 'progress' or similar)
+    // Note: Your initial schema had 'progress INT', but no 'points_awarded'.
+    // Assuming you might want to use 'progress' logic or if you added the column.
+    // Based on Controller, it expects pointsAwarded.
 
     public RouteParticipation() {}
 
-    // Getters & Setters
     public Long getParticipationId() { return participationId; }
     public void setParticipationId(Long participationId) { this.participationId = participationId; }
 

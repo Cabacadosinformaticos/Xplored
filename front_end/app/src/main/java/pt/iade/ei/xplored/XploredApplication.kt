@@ -1,11 +1,23 @@
 package pt.iade.ei.xplored
 
 import android.app.Application
-import pt.iade.ei.xplored.models.PlaceRepository
+import android.content.Context
 
 class XploredApplication : Application() {
+
     override fun onCreate() {
         super.onCreate()
-        PlaceRepository.initialize(this)
+        // FIX: Initialize this immediately before doing anything else
+        instance = this
+    }
+
+    companion object {
+        lateinit var instance: XploredApplication
+            private set
+
+        // Helper to prevent crashes if accessed too early
+        fun getContext(): Context {
+            return instance.applicationContext
+        }
     }
 }

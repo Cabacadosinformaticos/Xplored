@@ -6,18 +6,21 @@ import jakarta.persistence.*;
 @Table(name = "route_stops")
 public class RouteStop {
 
+    // FIX: Map Java 'stopId' to Database column 'id'
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "stop_id")
+    @Column(name = "id")
     private Long stopId;
 
-    @Column(name = "pedi_id", nullable = false)
+    // FIX: Map Java 'pediId' to Database column 'pedipaper_id'
+    @Column(name = "pedipaper_id", nullable = false)
     private Long pediId;
 
     @Column(name = "place_id", nullable = false)
     private Long placeId;
 
-    @Column(name = "order_num", nullable = false)
+    // FIX: Map Java 'orderNum' to Database column 'stop_order'
+    @Column(name = "stop_order", nullable = false)
     private Integer orderNum;
 
     @Column(name = "requires_photo", nullable = false)
@@ -28,7 +31,6 @@ public class RouteStop {
 
     public RouteStop() {}
 
-    // Getters & Setters
     public Long getStopId() { return stopId; }
     public void setStopId(Long stopId) { this.stopId = stopId; }
 

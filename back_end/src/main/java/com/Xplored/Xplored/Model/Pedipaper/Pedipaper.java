@@ -7,9 +7,10 @@ import java.time.LocalDateTime;
 @Table(name = "pedipapers")
 public class Pedipaper {
 
+    // FIX: Map Java 'pediId' to Database column 'id'
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "pedi_id")
+    @Column(name = "id")
     private Long pediId;
 
     @Column(nullable = false, length = 100)
@@ -29,7 +30,6 @@ public class Pedipaper {
 
     public Pedipaper() {}
 
-    // Getters & Setters
     public Long getPediId() { return pediId; }
     public void setPediId(Long pediId) { this.pediId = pediId; }
 

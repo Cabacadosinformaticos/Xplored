@@ -5,9 +5,10 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "reactions")
 public class Reaction {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reaction_id")
+    @Column(name = "id") // Fixed: DB uses 'id'
     private Long reactionId;
 
     @Column(name = "user_id")
@@ -16,19 +17,20 @@ public class Reaction {
     @Column(name = "review_id")
     private Long reviewId;
 
-    // "USEFUL" (Like) or "NOT_USEFUL" (Dislike)
-    @Column(name = "reaction_type")
+    @Column(name = "type") // Fixed: DB column is 'type'
     private String reactionType;
 
     public Reaction() {}
 
-    // Getters and Setters
     public Long getReactionId() { return reactionId; }
     public void setReactionId(Long reactionId) { this.reactionId = reactionId; }
+
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
+
     public Long getReviewId() { return reviewId; }
     public void setReviewId(Long reviewId) { this.reviewId = reviewId; }
+
     public String getReactionType() { return reactionType; }
     public void setReactionType(String reactionType) { this.reactionType = reactionType; }
 }
