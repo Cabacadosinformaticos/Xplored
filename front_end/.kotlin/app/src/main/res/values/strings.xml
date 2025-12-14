@@ -1,0 +1,200 @@
+<resources>
+    <string name="app_name" translatable="false">Xplored</string>
+
+    <string name="category_atividades">Atividades</string>
+    <string name="category_lojas">Lojas</string>
+    <string name="category_restauracao">Restauração</string>
+    <string name="category_historicos">Históricos</string>
+    <string name="category_paisagens">Paisagens</string>
+
+    <string name="bottomsheet_nearby_places">Locais perto de ti:</string>
+    <string name="open_map">Abrir Mapa</string>
+    <string name="map_choose_location">Escolhe Localização no Mapa</string>
+    <string name="map_mock_pin">PIN (Lat: 38.7240, Lon: -9.1415)</string>
+    <string name="map_confirm_location">Confirmar Localização</string>
+    <string name="cancel">Cancelar</string>
+    <string name="geocoder_not_available">Geocoder indisponível</string>
+    <string name="address_not_found">Endereço não encontrado</string>
+    <string name="address_could_not_retrieve">Não foi possível obter o endereço</string>
+
+    <string name="fab_profile">Perfil</string>
+    <string name="fab_add_place">Adicionar Local</string>
+    <string name="fab_coupons">Cupões</string>
+    <string name="fab_pedipaper">Pedipaper</string>
+
+    <string name="cd_info">Info</string>
+    <string name="cd_close_menu">Fechar Menu</string>
+    <string name="cd_open_menu">Abrir Menu de Ações</string>
+    <string name="cd_back">Voltar</string>
+    <string name="cd_recenter_map">Recentrar mapa</string>
+    <string name="cd_delete_place">Eliminar local</string>
+    <string name="cd_location">Localização</string>
+    <string name="cd_rating">Classificação</string>
+    <string name="cd_verified">Verificado</string>
+    <string name="cd_settings">Definições</string>
+    <string name="cd_profile_photo">Foto de perfil</string>
+    <string name="cd_profile">Perfil</string>
+    <string name="cd_photo">Foto</string>
+    <string name="cd_close">Fechar</string>
+    <string name="cd_toggle_password">Alternar visibilidade da password</string>
+
+    <string name="login_welcome_back_line1">Bem vindo de volta!!!</string>
+    <string name="login_welcome_back_line2">Pronto para uma nova</string>
+    <string name="login_welcome_back_line3">AVENTURA?</string>
+    <string name="login_email">Email</string>
+    <string name="login_password">Password</string>
+    <string name="login_forgot_password">Esqueceste-te da passe?</string>
+    <string name="login_button">Login</string>
+    <string name="login_no_account">Ainda não tens uma conta?</string>
+    <string name="show_password">Mostrar password</string>
+    <string name="hide_password">Esconder password</string>
+    <string name="login_success_toast">Login bem-sucedido! Bem-vindo, %1$s</string>
+    <string name="login_incorrect_credentials">Email ou palavra-passe incorretos.</string>
+    <string name="login_error_generic">Erro ao fazer login: %1$s</string>
+
+    <string name="register_greeting_line1">Olá! Inscreve-te para</string>
+    <string name="register_greeting_line2">começar a tua AVENTURA!</string>
+    <string name="register_username">Username</string>
+    <string name="register_confirm_password">Confirmar password</string>
+    <string name="register_button">Registar</string>
+    <string name="register_now">Inscreve-te agora</string>
+    <string name="register_already_have_account">Já tens uma conta?</string>
+    <string name="register_login_now">Faz login agora</string>
+    <string name="err_fill_all_fields">Por favor, preencha todos os campos.</string>
+    <string name="err_fields_too_short">Campos demasiado curtos.</string>
+    <string name="err_email_domain_not_allowed">Email inválido.</string>
+    <string name="err_passwords_do_not_match">Passwords diferentes.</string>
+    <string name="msg_registration_navigating_profile">Registo concluído! A navegar para o Perfil…</string>
+    <string name="msg_registration_success_welcome">Registo concluído! Bem-vindo, %1$s</string>
+    <string name="err_registration_api">Erro ao criar conta: %1$s</string>
+
+    <string name="forgot_password_title">Perdeste a tua passe?</string>
+    <string name="forgot_password_subtitle">Não te preocupes! Acontece. Por favor, introduz o endereço de email ligado à tua conta.</string>
+    <string name="forgot_password_email_label">Insere a tua conta de email</string>
+    <string name="forgot_password_send_button">Enviar código de recuperação</string>
+    <string name="forgot_password_remember">Já te lembras da passe?</string>
+    <string name="err_no_active_account">Erro: Nenhuma conta ativa encontrada.</string>
+    <string name="err_account_not_found">Conta não encontrada.</string>
+
+    <string name="otp_verification_title">Verificação de OTP</string>
+    <string name="otp_verification_subtitle">Introduz o código de verificação que acabámos de enviar para o teu e-mail.</string>
+    <string name="verify_button">Verificar</string>
+    <string name="didnt_receive_code">Não recebeste o código?</string>
+    <string name="resend_button">Reenviar</string>
+    <string name="verification_success">Verificação bem-sucedida!</string>
+    <string name="incorrect_code">Código incorreto. Tente novamente.</string>
+    <string name="incomplete_code">Por favor, insira o código completo.</string>
+    <string name="code_resent">Código reenviado!</string>
+
+    <string name="new_password_title">Criar nova palavra-passe</string>
+    <string name="new_password_subtitle">A tua nova palavra-passe deve ser diferente da palavra-passe usada anteriormente.</string>
+    <string name="new_password_field">Nova Palavra-Passe</string>
+    <string name="new_password_confirm_field">Confirma Palavra-Passe</string>
+    <string name="new_password_button">Redefinir Palavra-Passe</string>
+    <string name="password_empty_fields">Por favor, preencha ambos os campos.</string>
+    <string name="password_reset_success">Palavra-passe redefinida com sucesso!</string>
+    <string name="password_mismatch">As palavras-passe não coincidem. Tente novamente.</string>
+
+    <string name="settings_title">Definições</string>
+    <string name="settings_account">Conta</string>
+    <string name="settings_edit_profile">Editar perfil</string>
+    <string name="settings_security">Segurança</string>
+    <string name="settings_notifications">Notificações</string>
+    <string name="settings_privacy">Privacidade</string>
+    <string name="settings_support_about">Suporte e Sobre</string>
+    <string name="settings_receipts">Os meus comprovativos</string>
+    <string name="settings_help_support">Ajuda e Suporte</string>
+    <string name="settings_terms_policies">Termos e Políticas</string>
+    <string name="settings_map_preferences">Mapa e preferências</string>
+    <string name="settings_maps">Mapas</string>
+    <string name="settings_data_saver">Economizador de Dados</string>
+    <string name="settings_actions">Ações</string>
+    <string name="settings_report_problem">Reportar um problema</string>
+    <string name="settings_add_account">Adicionar conta</string>
+    <string name="settings_logout">Terminar sessão</string>
+    <string name="coming_soon_text">Disponível em breve:)</string>
+
+    <string name="coupon_store_title">Loja de Cupões</string>
+    <string name="close">Fechar</string>
+    <string name="coupon_from">De: %1$s</string>
+    <string name="offer_details_label">Detalhes da Oferta:</string>
+    <string name="activate_now">ATIVAR AGORA</string>
+    <string name="terms_and_conditions">*Termos e condições</string>
+    <string name="cost_points_label">Custo: %1$d Pontos</string>
+    <string name="no_coupons_available">Sem cupões disponíveis.</string>
+    <string name="error_loading_coupons">Erro ao carregar cupões</string>
+    <string name="no_additional_terms">Sem termos adicionais.</string>
+    <string name="no_additional_details">Sem detalhes adicionais.</string>
+    <string name="error_activating_coupon">Erro ao ativar cupão</string>
+    <string name="coupon_activated_toast">Cupão ativado!</string>
+    <string name="coupon_already_activated">Cupão já ativado.</string>
+    <string name="coupon_already_used">Cupão já usado.</string>
+    <string name="coupon_used_toast">Cupão usado!</string>
+
+
+    <string name="new_place_title">Fazer um Post</string>
+    <string name="new_place_field_title">Título</string>
+    <string name="new_place_label_title">Título do post</string>
+    <string name="new_place_field_description">Descrição</string>
+    <string name="new_place_label_description">Texto do post</string>
+    <string name="new_place_field_category">Categoria do local</string>
+    <string name="new_place_select_category">Escolhe uma categoria</string>
+    <string name="new_place_field_location">Localização</string>
+    <string name="new_place_label_location">Clica para escolher no mapa</string>
+    <string name="new_place_field_address">Morada</string>
+    <string name="new_place_placeholder_address">Ex: Rua de Moscavide, 10</string>
+    <string name="new_place_field_photos">Fotos</string>
+    <string name="add_photo">Adicionar Foto</string>
+    <string name="new_place_create">Criar Local</string>
+    <string name="delete">Eliminar</string>
+
+    <string name="tab_about">Sobre</string>
+    <string name="tab_reviews">Reviews</string>
+    <string name="tab_photos">Fotos</string>
+    <string name="placeholder_reviews_here">As reviews serão mostradas aqui.</string>
+    <string name="write_review_btn_label">Escrever uma Avaliação</string>
+    <string name="write_review_title">Escrever Avaliação</string>
+    <string name="review_score_label">Classificação</string>
+    <string name="review_title_label">Título</string>
+    <string name="review_title_placeholder">Ex: Excelente experiência!</string>
+    <string name="review_comment_label">Comentário</string>
+    <string name="review_comment_placeholder">Conte-nos mais detalhes...</string>
+    <string name="add_photos_label">Adicionar Fotos</string>
+    <string name="review_submit_btn">Publicar Avaliação</string>
+    <string name="no_reviews_yet">Ainda sem avaliações. Seja o primeiro!</string>
+    <string name="no_photos_yet">Ainda sem fotos.</string>
+    <string name="error_login_required">Erro: Login necessário.</string>
+    <string name="review_sent_toast">Avaliação enviada!</string>
+    <string name="fill_rating_title_toast">Preencha a classificação e o título.</string>
+
+    <string name="user_fallback_name">Utilizador Xplored</string>
+    <string name="em_dash">—</string>
+    <string name="points_label">%1$d pontos</string>
+    <string name="add_points_debug">+50 pontos (debug)</string>
+    <string name="about_placeholder">Escreve algo sobre ti…</string>
+    <string name="no_reviews_user">Ainda não escreveste avaliações.</string>
+    <string name="no_photos_gallery">Sem fotos na galeria.</string>
+    <string name="add_first_photo">Adicionar Primeira Foto</string>
+
+    <string name="pedipaper_title">Desafios Xplored</string>
+    <string name="pedipaper_subtitle">Selecione um desafio abaixo para ver os locais e começar a explorar.</string>
+    <string name="no_routes_available">Sem rotas disponíveis.</string>
+    <string name="error_loading_routes">Erro a carregar rotas</string>
+    <string name="error_starting_route">Erro ao iniciar: %1$s</string>
+    <string name="uploading_photo_toast">A enviar foto...</string>
+    <string name="next_stop_unlocked">Boa! Próxima paragem desbloqueada.</string>
+    <string name="checkin_done_toast">Check-in feito!</string>
+    <string name="error_finishing_route">Erro ao finalizar: %1$s</string>
+    <string name="mission_accomplished">Missão Cumprida!</string>
+    <string name="points_won_label">Ganhaste +%1$d pontos!</string>
+    <string name="return_menu_btn">Voltar ao Menu</string>
+    <string name="next_stop_label">Próxima Paragem</string>
+    <string name="default_task_desc">Vai até ao local.</string>
+    <string name="distance_warning">Estás a %1$dm. Aproxima-te (&lt;50m).</string>
+    <string name="location_arrived">Estás no local!</string>
+    <string name="btn_take_photo_continue">Tirar Foto &amp; Continuar</string>
+    <string name="btn_checkin">Fazer Check-in</string>
+    <string name="btn_approach_unlock">Aproxima-te para desbloquear</string>
+    <string name="error_loading_route_details">Erro ao carregar rota</string>
+
+</resources>
