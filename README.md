@@ -6,7 +6,7 @@
 
 <p align="center">
   <img alt="Status: completed coursework" src="https://img.shields.io/badge/status-completed%20coursework-brightgreen">
-  <img alt="License: all rights reserved" src="https://img.shields.io/badge/license-all%20rights%20reserved-lightgrey">
+  <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue">
   <img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-7F52FF?logo=kotlin&logoColor=white">
   <img alt="Jetpack Compose" src="https://img.shields.io/badge/Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white">
   <img alt="Android 12+" src="https://img.shields.io/badge/Android%2012%2B-3DDC84?logo=android&logoColor=white">
@@ -159,32 +159,54 @@ More in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#known-limitations).
 
 ## Team
 
-Tiago Manuel Antunes Cabaça (20241185)\
-César de Oliveira Rodrigues (20240449)\
-Lucas Dernedde Sequeira Gomes Nicolau (20241526)\
-Muhammad Sudeis Abdul Latif Sacoor (20241707)
+<table>
+  <tr>
+    <td align="center" valign="top" width="25%">
+      <a href="https://github.com/Cabacadosinformaticos"><img src="https://github.com/Cabacadosinformaticos.png?size=200" width="100" alt="Tiago Cabaça"></a><br>
+      <b>Tiago Cabaça</b><br>
+      <sub>20241185</sub><br>
+      <sub>Reports, mockups, design and database</sub><br>
+      <a href="https://github.com/Cabacadosinformaticos">@Cabacadosinformaticos</a>
+    </td>
+    <td align="center" valign="top" width="25%">
+      <a href="https://github.com/cesarelder"><img src="https://github.com/cesarelder.png?size=200" width="100" alt="César Rodrigues"></a><br>
+      <b>César Rodrigues</b><br>
+      <sub>20240449</sub><br>
+      <sub>Android app and presentations</sub><br>
+      <a href="https://github.com/cesarelder">@cesarelder</a>
+    </td>
+    <td align="center" valign="top" width="25%">
+      <a href="https://github.com/oastghost"><img src="https://github.com/oastghost.png?size=200" width="100" alt="Muhammad Sacoor"></a><br>
+      <b>Muhammad Sacoor</b><br>
+      <sub>20241707</sub><br>
+      <sub>Spring Boot server, Android app, poster and video</sub><br>
+      <a href="https://github.com/oastghost">@oastghost</a>
+    </td>
+    <td align="center" valign="top" width="25%">
+      <a href="mailto:20241526@iade.pt"><img src="https://ui-avatars.com/api/?name=Lucas+Nicolau&size=200&background=3D6E44&color=fff" width="100" alt="Lucas Nicolau"></a><br>
+      <b>Lucas Nicolau</b><br>
+      <sub>20241526</sub><br>
+      <sub>Spring Boot server support</sub><br>
+      <sub>no GitHub profile</sub>
+    </td>
+  </tr>
+</table>
+
+Full names: Tiago Manuel Antunes Cabaça, César de Oliveira Rodrigues, Muhammad Sudeis Abdul Latif
+Sacoor and Lucas Dernedde Sequeira Gomes Nicolau. The split of the work is in the
+[final report](Documents/3%C2%AAEntrega/Relat%C3%B3rio%20-%203%C2%AA%20Entrega.md), section 2.
 
 BSc in Computer Engineering (Licenciatura em Engenharia Informática)\
 IADE, Universidade Europeia
 
 ## License
 
+Xplored is open source under the [MIT License](LICENSE). You may use, copy, modify and
+distribute the code and the documentation, also in other projects, as long as the copyright
+notice and the license text are kept.
+
 Copyright (c) 2025 Tiago Manuel Antunes Cabaça, César de Oliveira Rodrigues, Lucas Dernedde
-Sequeira Gomes Nicolau and Muhammad Sudeis Abdul Latif Sacoor. All rights reserved. See
-[LICENSE](LICENSE).
+Sequeira Gomes Nicolau and Muhammad Sudeis Abdul Latif Sacoor.
 
-This repository is public so that the work can be read, followed and evaluated. It is not open
-source.
-
-- You may read the code, the documentation, the diagrams and the mockups on GitHub, and cite them
-  with a reference to this repository.
-- You may not copy, reuse, modify, distribute or build on any part of this repository, in another
-  project, course work, publication or product, academic or commercial, without written permission
-  from all authors.
-- The lecturers and evaluators of IADE, Universidade Europeia may download, run and copy it for
-  the evaluation of the course unit.
-- Third-party software, libraries, fonts, images and services used by the project keep their own
-  licenses.
-
-To ask for permission, write to 20241185@iade.pt, 20240449@iade.pt, 20241526@iade.pt and
-20241707@iade.pt.
+Third-party software, libraries, fonts and images keep their own licenses. The seed photos are
+hotlinked from Wikimedia Commons; the license and author of each image are on its file page.
