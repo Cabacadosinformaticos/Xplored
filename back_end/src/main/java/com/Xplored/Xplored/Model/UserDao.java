@@ -6,14 +6,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserDao {
 
-    @Autowired UserRepository userRepository;
+    @Autowired
+    UserRepository userRepository;
 
     public User save(User user) {
-       return userRepository.save(user);
+        return userRepository.save(user);
     }
 
     public void delete(User user) {
@@ -27,4 +29,8 @@ public class UserDao {
         return users;
     }
 
+    // Helper for login: email + passwordHash
+    public Optional<User> findByEmailAndPasswordHash(String email, String passwordHash) {
+        return userRepository.findByEmailAndPasswordHash(email, passwordHash);
+    }
 }

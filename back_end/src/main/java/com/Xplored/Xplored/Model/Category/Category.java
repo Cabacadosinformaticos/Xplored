@@ -1,3 +1,4 @@
+// src/main/java/com/Xplored/Xplored/Model/Category/Category.java
 package com.Xplored.Xplored.Model.Category;
 
 import jakarta.persistence.*;
@@ -9,32 +10,33 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
-    private Long id;
+    private Long categoryId;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false, unique = true, length = 50)
     private String name;
 
-    @Column(name = "color_hex")
+    // CHAR(11) in DB – we just keep it as String
+    @Column(name = "color_hex", nullable = false, length = 11)
     private String colorHex;
 
-    @Column(name = "icon_name")
+    @Column(name = "icon_name", length = 64)
     private String iconName;
 
     public Category() {
     }
-    public Category(Long id, String name, String colorHex, String iconName) {
-        this.id = id;
+
+    public Category(String name, String colorHex, String iconName) {
         this.name = name;
         this.colorHex = colorHex;
         this.iconName = iconName;
     }
 
-    public Long getId() {
-        return id;
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
     public String getName() {

@@ -1,10 +1,6 @@
-// src/main/java/com/xplored/model/Place.java
 package com.Xplored.Xplored.Model.Place;
 
-import com.Xplored.Xplored.Model.UserDao;
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,45 +13,75 @@ public class Place {
     @Column(name = "place_id")
     private Long placeId;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
 
     // matches column: description
     @Column(name = "description")
     private String description;
 
-    // matches column: lat
-    @Column(name = "lat")
+    // matches column: lat DECIMAL(9,6) NOT NULL
+    @Column(name = "lat", nullable = false)
     private Double lat;
 
-    // matches column: lng
-    @Column(name = "lng")
+    // matches column: lng DECIMAL(9,6) NOT NULL
+    @Column(name = "lng", nullable = false)
     private Double lng;
 
     // matches column: address_full
-    @Column(name = "address_full")
+    @Column(name = "address_full", length = 255)
     private String addressFull;
 
     // matches column: postal_code
-    @Column(name = "postal_code")
+    @Column(name = "postal_code", length = 15)
     private String postalCode;
 
-    // --- the DB image also showed other columns (optional to store) ---
-    // If you want to keep them in the entity later, they are included but optional.
+    // avg_rating DECIMAL(2,1) NULL
     @Column(name = "avg_rating")
     private Double avgRating;
 
-    @Column(name = "category_id")
+    // FK to categories.category_id
+    @Column(name = "category_id", nullable = false)
     private Long categoryId;
 
-    @Column(name = "status")
-    private String status;
+    // ENUM('PENDING','APPROVED','REJECTED')
+    @Column(name = "status", nullable = false, length = 20)
+    private String status = "APPROVED";
 
-    @Column(name = "cover_image_url")
+    @Column(name = "cover_image_url", length = 255)
     private String coverImageUrl;
 
+    // created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    // Let MySQL fill this automatically.
+    @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
+    private LocalDateTime createdAt;
+
+    // ----- Constructors -----
 
     public Place() {}
+
+    public Place(String name,
+                 String description,
+                 double lat,
+                 double lng,
+                 String addressFull,
+                 String postalCode,
+                 Double avgRating,
+                 Long categoryId,
+                 String status) {
+
+        this.name = name;
+        this.description = description;
+        this.lat = lat;
+        this.lng = lng;
+        this.addressFull = addressFull;
+        this.postalCode = postalCode;
+        this.avgRating = avgRating;
+        this.categoryId = categoryId;
+        this.status = status;
+    }
+
+    // ----- Getters / Setters -----
 
     public Long getPlaceId() {
         return placeId;
@@ -145,21 +171,7 @@ public class Place {
         this.coverImageUrl = coverImageUrl;
     }
 
-    public Place(String name, String description, double lat, double lng,
-                 String addressFull, String postalCode, Double avgRating,
-                 Long categoryId, String status) {
-
-        this.name = name;
-        this.description = description;
-        this.lat = lat;
-        this.lng = lng;
-        this.addressFull = addressFull;
-        this.postalCode = postalCode;
-        this.avgRating = avgRating;
-        this.categoryId = categoryId;
-        this.status = status;
-
-
-
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }

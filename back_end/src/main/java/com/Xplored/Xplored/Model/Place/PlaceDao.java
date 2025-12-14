@@ -1,7 +1,5 @@
 package com.Xplored.Xplored.Model.Place;
 
-
-import com.Xplored.Xplored.Model.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
@@ -19,7 +17,9 @@ public class PlaceDao {
         return placeRepository.save(place);
     }
 
-    public void delete(Place place) {placeRepository.delete(place);}
+    public void delete(Place place) {
+        placeRepository.delete(place);
+    }
 
     public List<Place> getAllPlaces() {
         List<Place> places = new ArrayList<>();
